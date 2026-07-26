@@ -1,0 +1,357 @@
+{
+  "schema_version": 1,
+  "papers": [
+    {
+      "id": "CZ24",
+      "title": "In Search of the Viscosity Operator on Riemannian Manifolds",
+      "authors": ["Magdalena Czubak"],
+      "year": 2024,
+      "url": "https://doi.org/10.1090/noti2840",
+      "version": "Notices AMS 71(1)",
+      "scope": "Survey and crosswalk for inequivalent geometric viscosity operators.",
+      "claims": [
+        {
+          "id": "CZ24-operator-census",
+          "paper_id": "CZ24",
+          "statement": "Bochner, Hodge, and deformation choices are inequivalent on curved manifolds.",
+          "locator": "survey discussion of viscosity operators",
+          "evidence": "analytic-theorem",
+          "status": "catalogued",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "CCD17",
+      "title": "The formulation of the Navier-Stokes equations on Riemannian manifolds",
+      "authors": ["Chi Hin Chan", "Magdalena Czubak", "Marcelo M. Disconzi"],
+      "year": 2017,
+      "url": "https://arxiv.org/abs/1608.05114",
+      "version": "v2",
+      "scope": "Operator selection, stress, energy, hyperbolic obstruction, and relativistic limit.",
+      "claims": [
+        {
+          "id": "CCD17-divfree-def-hodge",
+          "paper_id": "CCD17",
+          "statement": "For divergence-free velocity, L_Def = L_Hodge - 2 Ric in the positive convention.",
+          "locator": "Section 2, Laplacian comparison",
+          "evidence": "pointwise-identity",
+          "status": "validated",
+          "assumptions": {"field": "divergence-free", "manifold": "oriented surface"},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "CCD17-hyperbolic-energy-obstruction",
+          "paper_id": "CCD17",
+          "statement": "The Hodge formulation has a hyperbolic energy obstruction.",
+          "locator": "Section 3",
+          "evidence": "constructive-witness",
+          "status": "catalogued",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "CCD17-relativistic-limit",
+          "paper_id": "CCD17",
+          "statement": "The nonrelativistic limit motivates the deformation operator.",
+          "locator": "arXiv v1, nonrelativistic-limit section",
+          "evidence": "symbolic-identity",
+          "status": "catalogued",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "CCY23",
+      "title": "The restriction problem on the ellipsoid",
+      "authors": ["Chi Hin Chan", "Magdalena Czubak", "Tsuyoshi Yoneda"],
+      "year": 2023,
+      "url": "https://arxiv.org/abs/2203.16050",
+      "version": "v1",
+      "scope": "Invariant restriction formula and its eccentricity expansion on an ellipsoid.",
+      "claims": [
+        {
+          "id": "CCY23-invariant-restriction",
+          "paper_id": "CCY23",
+          "statement": "A projected ambient restriction gives an invariant ellipsoid viscosity candidate.",
+          "locator": "main restriction formula",
+          "evidence": "pointwise-identity",
+          "status": "catalogued",
+          "assumptions": {"surface": "axisymmetric ellipsoid"},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "CCY23-eccentricity-expansion",
+          "paper_id": "CCY23",
+          "statement": "The candidate admits the stated expansion in ellipsoid eccentricity.",
+          "locator": "eccentricity expansion section",
+          "evidence": "symbolic-identity",
+          "status": "catalogued",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "CCG25",
+      "title": "The Gauss formulas for Laplacians on submanifolds",
+      "authors": ["Chi Hin Chan", "Magdalena Czubak"],
+      "year": 2025,
+      "url": "https://arxiv.org/abs/2212.11928",
+      "version": "v2",
+      "scope": "Gauss formulas for vector Laplacians on submanifolds of arbitrary codimension.",
+      "claims": [
+        {
+          "id": "CCG25-gauss-ricci-codimension-two",
+          "paper_id": "CCG25",
+          "statement": "The intrinsic Ricci tensor equals its Euclidean Gauss-equation expression.",
+          "locator": "Ricci Gauss formula",
+          "evidence": "pointwise-identity",
+          "status": "validated",
+          "assumptions": {"ambient": "Euclidean", "codimension": "2"},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "CCG25-laplacian-gauss-family",
+          "paper_id": "CCG25",
+          "statement": "Bochner and Hodge Laplacians admit the paper's arbitrary-codimension formulas.",
+          "locator": "main theorems",
+          "evidence": "pointwise-identity",
+          "status": "catalogued",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "CCF25",
+      "title": "Thin shell limit and the derivation of the viscosity operator on the ellipsoid",
+      "authors": ["Chi Hin Chan", "Magdalena Czubak", "Padi Fuster Aguilera"],
+      "year": 2025,
+      "url": "https://arxiv.org/abs/2511.10579",
+      "version": "v1",
+      "scope": "Four scaling-direction candidates under Navier and Hodge wall conditions.",
+      "claims": [
+        {
+          "id": "CCF25-four-candidates-sphere",
+          "paper_id": "CCF25",
+          "statement": "The four ellipsoid candidates collapse to their Navier/Hodge endpoints on a sphere.",
+          "locator": "equations (1.5)--(1.8)",
+          "evidence": "pointwise-identity",
+          "status": "validated",
+          "assumptions": {"surface": "round sphere"},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "CCF25-averaging-dependence",
+          "paper_id": "CCF25",
+          "statement": "The scaling-direction thin-shell result depends on the averaging prescription.",
+          "locator": "main thin-shell derivation",
+          "evidence": "thin-shell-convergence",
+          "status": "catalogued",
+          "assumptions": {"surface": "axisymmetric ellipsoid"},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "WBK26",
+      "title": "Resolving the viscosity operator ambiguity on Riemannian manifolds via a kinematic selection principle",
+      "authors": ["Zhi-Wei Wang", "Samuel L. Braunstein"],
+      "year": 2026,
+      "url": "https://arxiv.org/abs/2605.17502",
+      "version": "v2",
+      "scope": "Intrinsic strain selection, hyperbolic coercivity, weak solutions, and energy decay.",
+      "claims": [
+        {
+          "id": "WBK26-lie-strain",
+          "paper_id": "WBK26",
+          "statement": "The metric rate under a velocity field is twice the deformation tensor.",
+          "locator": "kinematic construction",
+          "evidence": "pointwise-identity",
+          "status": "validated",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "WBK26-negative-curvature-decay",
+          "paper_id": "WBK26",
+          "statement": "Deformation-viscosity weak solutions decay exponentially under uniform negative curvature.",
+          "locator": "global weak-solution theorem",
+          "evidence": "analytic-theorem",
+          "status": "analytic-only",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "WBS26",
+      "title": "Boundary conditions select the viscous operator on Riemannian hypersurfaces: formal analysis and rigorous thin-shell limits",
+      "authors": ["Zhi-Wei Wang", "Samuel L. Braunstein"],
+      "year": 2026,
+      "url": "https://arxiv.org/abs/2605.20589",
+      "version": "v3",
+      "scope": "Wall-condition selection, matched fields, and rigorous thin-shell convergence.",
+      "claims": [
+        {
+          "id": "WBS26-local-interpolating-family",
+          "paper_id": "WBS26",
+          "statement": "The tangential ambient operator gives L_Def + 2a Ric + 4a(1-a)S^2.",
+          "locator": "equations (12)--(17)",
+          "evidence": "pointwise-identity",
+          "status": "validated",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "WBS26-two-wall-profile",
+          "paper_id": "WBS26",
+          "statement": "A finite-thickness tangential profile satisfies both wall laws.",
+          "locator": "equations (13)--(20)",
+          "evidence": "manufactured-solution",
+          "status": "validated",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "WBS26-mosco-resolvent-spectrum",
+          "paper_id": "WBS26",
+          "statement": "The energy forms converge in the Mosco sense, hence resolvents, semigroups, and spectra converge.",
+          "locator": "rigorous convergence theorem",
+          "evidence": "analytic-theorem",
+          "status": "analytic-only",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "WBS26-resolved-volume-shell",
+          "paper_id": "WBS26",
+          "statement": "A resolved curved shell converges after transverse averaging to the selected surface operator.",
+          "locator": "computational analogue of the thin-shell limit",
+          "evidence": "thin-shell-convergence",
+          "status": "catalogued",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "CC13",
+      "title": "Non-uniqueness of the Leray-Hopf solutions in the hyperbolic setting",
+      "authors": ["Chi Hin Chan", "Magdalena Czubak"],
+      "year": 2013,
+      "url": "https://arxiv.org/abs/1006.2819",
+      "version": "v1",
+      "scope": "Weak-solution nonuniqueness and Liouville failure on hyperbolic space.",
+      "claims": [
+        {
+          "id": "CC13-hyperbolic-curvature-model",
+          "paper_id": "CC13",
+          "statement": "The computational H2 model has scalar curvature -2a^2.",
+          "locator": "geometric setting",
+          "evidence": "pointwise-identity",
+          "status": "validated",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "CC13-leray-hopf-nonuniqueness",
+          "paper_id": "CC13",
+          "statement": "Leray-Hopf weak solutions are nonunique on the hyperbolic plane for the stated model.",
+          "locator": "main theorem",
+          "evidence": "analytic-theorem",
+          "status": "analytic-only",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "CC15",
+      "title": "Liouville theorems for the Stationary Navier Stokes equation on a hyperbolic space",
+      "authors": ["Chi Hin Chan", "Magdalena Czubak"],
+      "year": 2015,
+      "url": "https://arxiv.org/abs/1501.04928",
+      "version": "v1",
+      "scope": "Stationary Navier--Stokes Liouville theorems on hyperbolic spaces.",
+      "claims": [
+        {
+          "id": "CC15-stationary-liouville",
+          "paper_id": "CC15",
+          "statement": "Finite-Dirichlet stationary solutions satisfy the stated hyperbolic Liouville results.",
+          "locator": "main theorems",
+          "evidence": "analytic-theorem",
+          "status": "analytic-only",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "CC21",
+      "title": "Antithesis of the Stokes paradox on the hyperbolic plane",
+      "authors": ["Chi Hin Chan", "Magdalena Czubak"],
+      "year": 2021,
+      "url": "https://arxiv.org/abs/1708.05134",
+      "version": "v1; J. Geom. Anal. 2021",
+      "scope": "Nontrivial steady Stokes and Navier--Stokes flows on a hyperbolic exterior domain.",
+      "claims": [
+        {
+          "id": "CC21-nontrivial-stokes-exterior",
+          "paper_id": "CC21",
+          "statement": "A nontrivial H1_0 steady Stokes solution exists on the hyperbolic exterior domain.",
+          "locator": "main Stokes theorem",
+          "evidence": "analytic-theorem",
+          "status": "analytic-only",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "CC21-nontrivial-navier-stokes-exterior",
+          "paper_id": "CC21",
+          "statement": "A nontrivial steady Navier--Stokes solution exists on the same exterior domain.",
+          "locator": "main Navier--Stokes theorem",
+          "evidence": "analytic-theorem",
+          "status": "analytic-only",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    },
+    {
+      "id": "CCP25",
+      "title": "Hodge decomposition of the Sobolev space H1 on a space form of nonpositive curvature",
+      "authors": ["Chi Hin Chan", "Magdalena Czubak", "Carlos Pinilla Suarez"],
+      "year": 2025,
+      "url": "https://arxiv.org/abs/1812.11764",
+      "version": "v1; Differential Geometry and its Applications 2025",
+      "scope": "H1 Hodge decomposition for k-forms on noncompact nonpositively curved space forms.",
+      "claims": [
+        {
+          "id": "CCP25-discrete-hodge-gate",
+          "paper_id": "CCP25",
+          "statement": "The discrete API separates exact, coexact, and harmonic one-form components.",
+          "locator": "computational de Rham analogue",
+          "evidence": "manufactured-solution",
+          "status": "validated",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        },
+        {
+          "id": "CCP25-h1-noncompact-decomposition",
+          "paper_id": "CCP25",
+          "statement": "The stated H1 decomposition holds for general k-forms on noncompact space forms.",
+          "locator": "main theorem",
+          "evidence": "analytic-theorem",
+          "status": "analytic-only",
+          "assumptions": {},
+          "convention": "analysis-positive-v1"
+        }
+      ]
+    }
+  ]
+}
+

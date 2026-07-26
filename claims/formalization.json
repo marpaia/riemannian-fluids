@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "claims": [
+    {
+      "id": "CZ24-operator-census",
+      "state": "catalogued",
+      "lean_module": null,
+      "declaration": null
+    },
+    {
+      "id": "WBK26-negative-curvature-decay",
+      "state": "catalogued",
+      "lean_module": null,
+      "declaration": null
+    },
+    {
+      "id": "WBS26-mosco-resolvent-spectrum",
+      "state": "catalogued",
+      "lean_module": null,
+      "declaration": null
+    },
+    {
+      "id": "CC13-leray-hopf-nonuniqueness",
+      "state": "catalogued",
+      "lean_module": null,
+      "declaration": null
+    },
+    {
+      "id": "CC15-stationary-liouville",
+      "state": "catalogued",
+      "lean_module": null,
+      "declaration": null
+    },
+    {
+      "id": "CC21-nontrivial-stokes-exterior",
+      "state": "catalogued",
+      "lean_module": null,
+      "declaration": null
+    },
+    {
+      "id": "CC21-nontrivial-navier-stokes-exterior",
+      "state": "catalogued",
+      "lean_module": null,
+      "declaration": null
+    },
+    {
+      "id": "CCP25-h1-noncompact-decomposition",
+      "state": "catalogued",
+      "lean_module": null,
+      "declaration": null
+    }
+  ]
+}
+
