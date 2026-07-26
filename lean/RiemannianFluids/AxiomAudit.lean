@@ -1,0 +1,18 @@
+import RiemannianFluids
+
+#print axioms RiemannianFluids.LeviCivitaConnection.covariantDerivative_apply
+#print axioms RiemannianFluids.sharp_flat
+#print axioms RiemannianFluids.flat_sharp
+#print axioms RiemannianFluids.gradient_characterization
+#print axioms RiemannianFluids.isDivergenceFree_iff_pointwise
+#print axioms RiemannianFluids.covariantDerivativeTensor_apply
+#print axioms RiemannianFluids.transposeCovariantTwoTensor_apply
+#print axioms RiemannianFluids.symmetrizeCovariantTwoTensor_apply
+#print axioms RiemannianFluids.deformationTensor_apply
+#print axioms RiemannianFluids.deformationTensor_symmetric
+#print axioms RiemannianFluids.codifferentialOne_flat
+#print axioms RiemannianFluids.exactCodifferentialCorrection_eq_zero_of_divergenceFree
+#print axioms RiemannianFluids.ccd17_positive_full
+#print axioms RiemannianFluids.ccd17_divfree_def_hodge
+#print axioms RiemannianFluids.pressure_work_eq_zero
+#print axioms RiemannianFluids.navierStokes_energy_identity

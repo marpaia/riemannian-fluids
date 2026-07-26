@@ -1,4 +1,4 @@
-import RiemannianFluids.Tensors.Calculus
+import RiemannianFluids.Analysis.AbstractEnergy
 
 /-!
 # Incompressibility and pressure constraints
@@ -28,4 +28,3 @@ theorem pressure_work_eq_zero (calculus : ScalarVectorCalculus V Q)
   simp [hu]
 
 end RiemannianFluids
-

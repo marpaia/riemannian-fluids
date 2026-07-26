@@ -1,19 +1,13 @@
 import Mathlib.Geometry.Manifold.Riemannian.Basic
-import Mathlib.Geometry.Manifold.VectorBundle.CovariantDerivative.Metric
-import Mathlib.Geometry.Manifold.VectorBundle.CovariantDerivative.Torsion
 
 /-!
 # The mathlib boundary for Riemannian surfaces
 
-This module does not redevelop manifolds, tangent bundles, Riemannian metrics,
-or covariant derivatives.  It records the two pieces of data not yet supplied
-as a complete construction by mathlib for this project:
+This module does not redevelop manifolds, tangent bundles, or Riemannian
+metrics.  It records the intrinsic dimension contract used when a general
+Riemannian-manifold theorem is specialized to a surface.
 
-* the model vector space has intrinsic real dimension two;
-* a chosen tangent-bundle connection is metric-compatible and torsion-free.
-
-The second item is an explicit witness, not a claim that this project has
-already constructed the Levi-Civita connection.
+Connections and their regularity live in `RiemannianFluids.Geometry.Connections`.
 -/
 
 namespace RiemannianFluids
@@ -26,38 +20,41 @@ class IsSurfaceModel (E : Type*) [NormedAddCommGroup E] [NormedSpace ℝ E]
     [FiniteDimensional ℝ E] : Prop where
   finrank_eq_two : Module.finrank ℝ E = 2
 
+/-- A two-dimensional model space is nontrivial. -/
+instance surfaceModel_nontrivial
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    [FiniteDimensional ℝ E] [IsSurfaceModel E] : Nontrivial E :=
+  Module.nontrivial_of_finrank_pos (by
+    rw [IsSurfaceModel.finrank_eq_two]
+    norm_num)
+
 variable
   {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]
     [FiniteDimensional ℝ E]
   {H : Type*} [TopologicalSpace H]
   (I : ModelWithCorners ℝ E H)
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
-    [IsManifold I 2 M]
-    [RiemannianBundle (TangentSpace I : M → Type _)]
-    [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)]
+    [IsManifold I 1 M]
 
 /-- A vector field in mathlib's dependent tangent-bundle representation. -/
 abbrev RiemannianVectorField := (x : M) → TangentSpace I x
 
-/-- Metric compatibility specialized to a connection on the tangent bundle. -/
-def IsMetricCompatibleTangentConnection
-    (connection : CovariantDerivative I E (TangentSpace I : M → Type _)) : Prop :=
-  ∀ {x : M} {X σ τ : RiemannianVectorField I},
-    MDiffAt (T% X) x → MDiffAt (T% σ) x → MDiffAt (T% τ) x →
-      d% (fun y => inner ℝ (σ y) (τ y)) x (X x) =
-        inner ℝ (connection σ x (X x)) (τ x) +
-          inner ℝ (σ x) (connection τ x (X x))
-
+omit [CompleteSpace E] [IsManifold I 1 M] in
+set_option backward.isDefEq.respectTransparency false in
 /--
-An explicit witness for the defining properties of the Levi-Civita connection.
-
-Existence and uniqueness are future geometric rungs.  Downstream operator
-theorems must take this witness as a visible hypothesis until those rungs have
-been proved.
+Finite-dimensionality transfers from the manifold model to every tangent
+fiber.  Mathlib's tangent fibers are definitionally modeled on `E`, but the
+instance is intentionally made explicit at the project boundary so that
+fiberwise trace and Riesz constructions do not rely on fragile synthesis.
 -/
-structure LeviCivitaWitness where
-  connection : CovariantDerivative I E (TangentSpace I : M → Type _)
-  metricCompatible : IsMetricCompatibleTangentConnection I connection
-  torsionFree : connection.torsion = 0
+theorem tangentFiniteDimensional (x : M) :
+    FiniteDimensional ℝ (TangentSpace I x) :=
+  FiniteDimensional.of_injective
+    ({ toFun := fun v => v
+       map_add' := fun _ _ => rfl
+       map_smul' := fun _ _ => rfl } : TangentSpace I x →ₗ[ℝ] E)
+    (by
+      intro first second equality
+      exact equality)
 
 end RiemannianFluids

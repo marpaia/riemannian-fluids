@@ -1,1 +1,2 @@
-import RiemannianFluids.ProofLadder
+import RiemannianFluids.Operators.GeometricIdentities
+import RiemannianFluids.Operators.NavierStokes

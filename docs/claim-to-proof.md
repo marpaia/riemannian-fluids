@@ -107,7 +107,34 @@ The source version, theorem locator, hypotheses, sign convention, geometric dime
 
 Mathlib supplies manifolds, tangent bundles, Riemannian bundles, and covariant derivative infrastructure. This project should add only the constructions needed by its claims: initially intrinsic two-dimensional surfaces, a concrete Levi-Civita connection, musical maps, curvature contractions, gradient, divergence, deformation, and covariant advection.
 
-The present Lean code exposes a metric-compatible torsion-free connection *witness*. Existence and uniqueness of that connection, and the concrete calculus derived from it, remain obligations. They must be proved before an abstract operator identity can become a theorem about Riemannian surfaces.
+The present Lean code now exposes regularity-indexed bundled sections, a
+metric-compatible torsion-free tangent-connection *witness*, and covariant
+differentiation as a linear operator
+`C^(k+1)(TM) -> C^k(Hom(TM, TM))`. It also constructs smooth metric musical
+equivalences, the scalar differential and gradient, coordinate-invariant
+fiberwise trace, intrinsic divergence, the lowered tensor
+`(X, Y) ↦ g(∇_X u, Y)`, coordinate-natural transposition, and the concrete
+deformation tensor `Def u`. The regularity loss is visible in each first-order
+operator. The inverse musical map, fiberwise trace, and tensor transpose have
+coordinate proofs: smooth metric inversion, trace invariance under
+conjugation, and naturality under the induced tangent/cotangent coordinate
+changes are proved rather than assumed.
+
+These constructions use mathlib's native covariant derivative,
+connection-regularity, and torsion APIs. A localized compatibility predicate
+records the tangent specialization of mathlib's metric-derivative identity
+because the pinned mathlib version has incompatible tangent-fiber instance
+paths for the generic bundled predicate.
+
+Existence and uniqueness of the Levi-Civita connection, the equivalence of the
+localized metric predicate with the generic predicate once that instance issue
+is resolved, and the remaining curvature and formal-adjoint calculus are still
+obligations. The one-form codifferential `d* α = -div (α♯)` and its exact
+correction `d d*` are concrete. Positive-degree exterior differentiation,
+degree-two codifferentiation, curvature contraction to Ricci, and the
+realization of `2 Def* Def` are explicit data boundaries. They must be
+constructed before the comparison identity becomes a concrete theorem about
+Riemannian surfaces.
 
 ### Construct the operators before comparing them
 
@@ -120,6 +147,10 @@ This rung is the mathematical center of the operator-choice problem. It must pre
 Paper theorems concern \(L^2\), \(H^1\), \(H^1_0\), divergence-free closures, weak derivatives, and differential forms—not an arbitrary inner-product space. These spaces, their density results, trace or decay conditions, and the relevant integration-by-parts theorems must be present before positivity, coercivity, or pressure cancellation has the meaning used in the papers.
 
 The existing `ScalarVectorCalculus` and `EnergyConservingAdvection` structures package the identities needed downstream. They are interfaces to be realized, not substitutes for this rung.
+
+Those interfaces live in `RiemannianFluids.Analysis.AbstractEnergy`. This
+module boundary makes the gap between a proved abstract consequence and a
+constructed geometric operator explicit in the code.
 
 ### Establish the linear Stokes problem first
 
@@ -160,12 +191,43 @@ The most informative first vertical slice is the registered identity `CCD17-divf
 
 That slice consists of:
 
-1. concrete smooth vector fields and one-forms on an oriented Riemannian surface;
+1. regularity-indexed vector fields and one-forms on a Riemannian surface,
+   followed by the still-missing orientation infrastructure needed by the form branch;
 2. musical equivalences, divergence, deformation, and the rough and Hodge Laplacians with fixed signs;
 3. the required Weitzenböck and symmetric-gradient identities;
 4. specialization to divergence-free fields;
 5. the source-convention statement \(L_{\mathrm{Def}} = L_{\mathrm{Hodge}} - 2\operatorname{Ric}\);
 6. an axiom audit of the final declaration.
+
+The current formal milestone supplies the musical equivalence, scalar
+differential and gradient, regularity-losing covariant derivative, smooth
+fiberwise trace, intrinsic divergence, and a concrete divergence-free
+predicate. It also supplies coordinate-natural transposition and
+symmetrization of covariant two-tensors and therefore the pointwise formula
+`Def(u)(X,Y) = (g(∇_X u,Y) + g(∇_Y u,X))/2`.
+
+On the form branch, the implementation proves `d*(u♭) = -div u`, constructs
+the regularity-losing exact correction `(d d*(u♭))♯`, and proves that this
+correction vanishes for the intrinsic divergence-free predicate. The Hodge
+Laplacian is then assembled as `d d* + d* d` from explicit degree-one exterior
+derivative and degree-two codifferential data. On the curvature branch, a
+smooth Ricci endomorphism acts pointwise on vector fields, while its
+construction by contracting Riemann curvature remains an explicit input.
+
+`RiemannianFluids.Operators.GeometricIdentities` separately names the
+analysis-positive Weitzenböck identity
+`∇*∇ = L_Hodge - Ric` and symmetric-gradient identity
+`L_Def = ∇*∇ + d d* - Ric`. From those visible hypotheses it proves the full
+translation of [CCD17 equation (1.3)](https://arxiv.org/abs/1608.05114),
+`L_Def = L_Hodge + d d* - 2 Ric`, and the theorem
+`ccd17_divfree_def_hodge`, whose conclusion is
+`L_Def u = L_Hodge u - 2 Ric(u)` for divergence-free `u`.
+
+This is an interface proof, not yet a formal reproduction: the pinned mathlib
+version does not supply the required positive-degree de Rham, Riemann/Ricci,
+or formal-adjoint infrastructure, and the two comparison identities are still
+hypotheses. No registered claim changes formalization status at this
+milestone.
 
 The existing Python residual tests remain the computational companion to this theorem. Agreement between the two branches is evidence that they implement the same statement; the numerical residual is not used as a premise in Lean.
 
