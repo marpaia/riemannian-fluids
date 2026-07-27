@@ -17,32 +17,29 @@ For the mathematical dependencies behind the analytic claims, see [`claim-to-pro
 
 For a source-to-Lean reading of those dependencies, see [`formal-analysis.md`](formal-analysis.md). It records the notation and sign translations and distinguishes concrete constructions from interface hypotheses and derived theorems.
 
-## Corpus
+## Corpus and live formal map
 
-| ID | Source | Executable coverage | Next missing gate |
-|---|---|---|---|
-| `CCD17` | Chan--Czubak--Disconzi (2017), *The formulation of the Navier--Stokes equations on Riemannian manifolds* | Bochner/Hodge/deformation identities and equation API | Global hyperbolic witness, weak forms, relativistic asymptotics |
-| `CCY23` | Chan--Czubak--Yoneda (2023), ellipsoid restriction | Claims catalogued; ellipsoid geometry and ambient restriction APIs available | Paper's invariant formula, exact eccentricity expansion, and global weak solve |
-| `CCG25` | Chan--Czubak, Gauss formulas for submanifolds | Arbitrary intrinsic dimension and codimension geometry API | Normal connection and general ambient-curvature identity suite |
-| `CCF25` | Chan--Czubak--Fuster Aguilera (2025), ellipsoid candidates | All four candidates on sphere and spheroid | Symbolic eccentricity comparison |
-| `WBK26` | Wang--Braunstein (2026), kinematic model | Intrinsic strain and nonlinear equation API | Hyperbolic coercivity and weak-solution decay study |
-| `WBS26` | Wang--Braunstein (2026), thin shell | Local restriction identity, two-wall fields, normal-fibre PDE | Curved 3D mixed shell solve, averaging, and separate mesh/thickness convergence |
-| `CC13` | Chan--Czubak (2013), hyperbolic nonuniqueness | Hyperbolic metrics and claim contract | Expanding-domain harmonic-field witness |
-| `CC15` | Chan--Czubak (2015), hyperbolic Liouville theorem | Claim contract | Weighted noncompact weak spaces and truncation study |
-| `CC21` | Chan--Czubak (2021), hyperbolic Stokes problem | Claim contract | Exterior-domain mixed Stokes solve |
-| `CCP25` | Chan--Czubak--Pinilla Suarez (published 2025), Hodge decomposition | Smooth and discrete de Rham/Hodge APIs | FEEC mesh realization and harmonic-dimension convergence |
+The corpus contains `CZ24`, `CCD17`, `CCY23`, `CCG25`, `CCF25`, `WBK26`, `WBS26`, `CC13`, `CC15`, `CC21`, and `CCP25`. The source list below is
+stable, but a hand-maintained coverage table is not: it becomes stale as soon as an obligation is discharged.
+
+The current map is therefore executable. [`../claims/registry.json`](../claims/registry.json) owns exact source claims and hypotheses;
+[`../claims/lean-contracts.json`](../claims/lean-contracts.json) maps all 23 claims to typed statements; and `make lean/progress` prints every open proof
+obligation and the transitive status of each literature-facing terminal theorem.
 
 ## Sources
 
-- <https://arxiv.org/abs/1608.05114>
-- <https://arxiv.org/abs/2203.16050>
-- <https://arxiv.org/abs/2212.11928>
-- <https://arxiv.org/abs/2511.10579>
-- <https://arxiv.org/abs/2605.17502>
-- <https://arxiv.org/html/2605.20589v3>
-- <https://arxiv.org/abs/1006.2819>
-- <https://arxiv.org/abs/1501.04928>
-- <https://arxiv.org/abs/1708.05134>
-- <https://arxiv.org/abs/1812.11764>
+Version-pinned PDFs are stored in [`../literature/pdfs/`](../literature/pdfs/). [`../literature/manifest.json`](../literature/manifest.json) records their retrieval URLs, sizes, page counts, and SHA-256 digests.
+
+- `CZ24`: [local PDF](../literature/pdfs/CZ24-notices-71-1.pdf) · [DOI](https://doi.org/10.1090/noti2840)
+- `CCD17`: [local PDF](../literature/pdfs/CCD17-arxiv-1608.05114v2.pdf) · [arXiv](https://arxiv.org/abs/1608.05114v2)
+- `CCY23`: [local PDF](../literature/pdfs/CCY23-arxiv-2203.16050v1.pdf) · [arXiv](https://arxiv.org/abs/2203.16050v1)
+- `CCG25`: [local PDF](../literature/pdfs/CCG25-arxiv-2212.11928v2.pdf) · [arXiv](https://arxiv.org/abs/2212.11928v2)
+- `CCF25`: [local PDF](../literature/pdfs/CCF25-arxiv-2511.10579v1.pdf) · [arXiv](https://arxiv.org/abs/2511.10579v1)
+- `WBK26`: [local PDF](../literature/pdfs/WBK26-arxiv-2605.17502v2.pdf) · [arXiv](https://arxiv.org/abs/2605.17502v2)
+- `WBS26`: [local PDF](../literature/pdfs/WBS26-arxiv-2605.20589v3.pdf) · [arXiv](https://arxiv.org/abs/2605.20589v3)
+- `CC13`: [local PDF](../literature/pdfs/CC13-arxiv-1006.2819v1.pdf) · [arXiv](https://arxiv.org/abs/1006.2819v1)
+- `CC15`: [local PDF](../literature/pdfs/CC15-arxiv-1501.04928v1.pdf) · [arXiv](https://arxiv.org/abs/1501.04928v1)
+- `CC21`: [local PDF](../literature/pdfs/CC21-arxiv-1708.05134v1.pdf) · [arXiv](https://arxiv.org/abs/1708.05134v1)
+- `CCP25`: [local PDF](../literature/pdfs/CCP25-arxiv-1812.11764v1.pdf) · [arXiv](https://arxiv.org/abs/1812.11764v1)
 
 The version and locator stored next to each executable claim are authoritative for a run.  If a source version changes, it is a new provenance event rather than an invisible metadata edit.

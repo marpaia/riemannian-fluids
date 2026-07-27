@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "retrieved_at": "2026-07-27T04:16:57Z",
+  "papers": [
+    {
+      "id": "CZ24",
+      "title": "In Search of the Viscosity Operator on Riemannian Manifolds",
+      "version": "Notices AMS 71(1)",
+      "canonical_url": "https://doi.org/10.1090/noti2840",
+      "pdf_url": "https://www.ams.org/journals/notices/202401/rnoti-p8.pdf",
+      "retrieval_url": "https://web.archive.org/web/20231214135549id_/https://www.ams.org/journals/notices/202401/rnoti-p8.pdf",
+      "path": "pdfs/CZ24-notices-71-1.pdf",
+      "sha256": "4cf10d7cfd04a459b063c7d54ab4c26f6b3c020cd76959acd1925865476bf75c",
+      "bytes": 6588368,
+      "pages": 9
+    },
+    {
+      "id": "CCD17",
+      "title": "The formulation of the Navier-Stokes equations on Riemannian manifolds",
+      "version": "v2",
+      "canonical_url": "https://arxiv.org/abs/1608.05114",
+      "pdf_url": "https://arxiv.org/pdf/1608.05114v2",
+      "retrieval_url": "https://arxiv.org/pdf/1608.05114v2",
+      "path": "pdfs/CCD17-arxiv-1608.05114v2.pdf",
+      "sha256": "1077a9576ca74b338e05f14ebfb4a1181f2d1d2c384a3102a62be8e791e331ad",
+      "bytes": 245245,
+      "pages": 16
+    },
+    {
+      "id": "CCY23",
+      "title": "The restriction problem on the ellipsoid",
+      "version": "v1",
+      "canonical_url": "https://arxiv.org/abs/2203.16050",
+      "pdf_url": "https://arxiv.org/pdf/2203.16050v1",
+      "retrieval_url": "https://arxiv.org/pdf/2203.16050v1",
+      "path": "pdfs/CCY23-arxiv-2203.16050v1.pdf",
+      "sha256": "6d93d8f04a3f183d974e35035af5959fece3d1fc4dcbcd336ac26dcfe75f3a75",
+      "bytes": 165545,
+      "pages": 12
+    },
+    {
+      "id": "CCG25",
+      "title": "The Gauss formulas for Laplacians on submanifolds",
+      "version": "v2",
+      "canonical_url": "https://arxiv.org/abs/2212.11928",
+      "pdf_url": "https://arxiv.org/pdf/2212.11928v2",
+      "retrieval_url": "https://arxiv.org/pdf/2212.11928v2",
+      "path": "pdfs/CCG25-arxiv-2212.11928v2.pdf",
+      "sha256": "a1e0fcfeba55a7a3ddf5393c02dda84caccf30d9b373d646145af5bef8807836",
+      "bytes": 652547,
+      "pages": 45
+    },
+    {
+      "id": "CCF25",
+      "title": "Thin shell limit and the derivation of the viscosity operator on the ellipsoid",
+      "version": "v1",
+      "canonical_url": "https://arxiv.org/abs/2511.10579",
+      "pdf_url": "https://arxiv.org/pdf/2511.10579v1",
+      "retrieval_url": "https://arxiv.org/pdf/2511.10579v1",
+      "path": "pdfs/CCF25-arxiv-2511.10579v1.pdf",
+      "sha256": "a8560d2f6b1e7b9529e090031870f472621c06db31334c0b2745fe52d77adfe2",
+      "bytes": 496400,
+      "pages": 35
+    },
+    {
+      "id": "WBK26",
+      "title": "Resolving the viscosity operator ambiguity on Riemannian manifolds via a kinematic selection principle",
+      "version": "v2",
+      "canonical_url": "https://arxiv.org/abs/2605.17502",
+      "pdf_url": "https://arxiv.org/pdf/2605.17502v2",
+      "retrieval_url": "https://arxiv.org/pdf/2605.17502v2",
+      "path": "pdfs/WBK26-arxiv-2605.17502v2.pdf",
+      "sha256": "05861c0cc6e71bb495021e9afc87139fb08985b220a7374417cd4bb79cef57dd",
+      "bytes": 365698,
+      "pages": 16
+    },
+    {
+      "id": "WBS26",
+      "title": "Boundary conditions select the viscous operator on Riemannian hypersurfaces: formal analysis and rigorous thin-shell limits",
+      "version": "v3",
+      "canonical_url": "https://arxiv.org/abs/2605.20589",
+      "pdf_url": "https://arxiv.org/pdf/2605.20589v3",
+      "retrieval_url": "https://arxiv.org/pdf/2605.20589v3",
+      "path": "pdfs/WBS26-arxiv-2605.20589v3.pdf",
+      "sha256": "efef1a48e46a713859af62e39fcaacb11df3ac64cddd7c154779e87f7201b492",
+      "bytes": 386756,
+      "pages": 17
+    },
+    {
+      "id": "CC13",
+      "title": "Non-uniqueness of the Leray-Hopf solutions in the hyperbolic setting",
+      "version": "v1",
+      "canonical_url": "https://arxiv.org/abs/1006.2819",
+      "pdf_url": "https://arxiv.org/pdf/1006.2819v1",
+      "retrieval_url": "https://arxiv.org/pdf/1006.2819v1",
+      "path": "pdfs/CC13-arxiv-1006.2819v1.pdf",
+      "sha256": "fc1700ad417286e7cf532a274d2f0f206dcb0647a5992f6e474edfc6e95ac746",
+      "bytes": 396444,
+      "pages": 30
+    },
+    {
+      "id": "CC15",
+      "title": "Liouville theorems for the Stationary Navier Stokes equation on a hyperbolic space",
+      "version": "v1",
+      "canonical_url": "https://arxiv.org/abs/1501.04928",
+      "pdf_url": "https://arxiv.org/pdf/1501.04928v1",
+      "retrieval_url": "https://arxiv.org/pdf/1501.04928v1",
+      "path": "pdfs/CC15-arxiv-1501.04928v1.pdf",
+      "sha256": "5f7fe0ddeb9d58fb5b4989af8dd5ea2247185eaa6c4f1750e5a74e5176d698dc",
+      "bytes": 191281,
+      "pages": 13
+    },
+    {
+      "id": "CC21",
+      "title": "Antithesis of the Stokes paradox on the hyperbolic plane",
+      "version": "v1; J. Geom. Anal. 2021",
+      "canonical_url": "https://arxiv.org/abs/1708.05134",
+      "pdf_url": "https://arxiv.org/pdf/1708.05134v1",
+      "retrieval_url": "https://arxiv.org/pdf/1708.05134v1",
+      "path": "pdfs/CC21-arxiv-1708.05134v1.pdf",
+      "sha256": "d79f385005f9c4dc7e11f612ef9e190cafc0eb430f537bb5d16676743d987a3b",
+      "bytes": 373800,
+      "pages": 35
+    },
+    {
+      "id": "CCP25",
+      "title": "Hodge decomposition of the Sobolev space H1 on a space form of nonpositive curvature",
+      "version": "v1; Differential Geometry and its Applications 2025",
+      "canonical_url": "https://arxiv.org/abs/1812.11764",
+      "pdf_url": "https://arxiv.org/pdf/1812.11764v1",
+      "retrieval_url": "https://arxiv.org/pdf/1812.11764v1",
+      "path": "pdfs/CCP25-arxiv-1812.11764v1.pdf",
+      "sha256": "c4149cc54437fa13c76932c21da24b5386b82494a78b4f19d3ff3511030b8f6b",
+      "bytes": 244084,
+      "pages": 19
+    }
+  ]
+}
