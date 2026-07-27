@@ -55,12 +55,8 @@ def point_metrics(case: SurfaceCase, q: Array, thickness: float, alpha: float) -
     uncorrected = finite_thickness_jets(embedding, field, thickness, alpha, corrected=False)
     corrected = finite_thickness_jets(embedding, field, thickness, alpha, corrected=True)
     normal_samples = jnp.linspace(-0.5 * thickness, 0.5 * thickness, 5)
-    divergence_uncorrected = jax.vmap(lambda r: fermi_divergence(embedding, uncorrected, q, r))(
-        normal_samples
-    )
-    divergence_corrected = jax.vmap(lambda r: fermi_divergence(embedding, corrected, q, r))(
-        normal_samples
-    )
+    divergence_uncorrected = jax.vmap(lambda r: fermi_divergence(embedding, uncorrected, q, r))(normal_samples)
+    divergence_corrected = jax.vmap(lambda r: fermi_divergence(embedding, corrected, q, r))(normal_samples)
     half_width = 0.5 * thickness
     lower_normal = corrected.w0(q) - half_width * corrected.w1(q) + half_width**2 * corrected.w2(q)
     upper_normal = corrected.w0(q) + half_width * corrected.w1(q) + half_width**2 * corrected.w2(q)
@@ -127,16 +123,9 @@ def validate_results(results: Sequence[dict[str, object]], tolerance: float) -> 
             for name in ("max_abs_two_wall_residual", "max_abs_normal_wall_trace"):
                 value = float(profile[name])
                 if not jnp.isfinite(value) or value > tolerance:
-                    failures.append(
-                        f"{result['surface']}:alpha={result['alpha']}:"
-                        f"epsilon={profile['thickness']}:{name}={value:.3e}"
-                    )
-            if float(profile["max_rms_divergence_corrected"]) > (
-                float(profile["max_rms_divergence_uncorrected"]) + tolerance
-            ):
-                failures.append(
-                    f"{result['surface']}:alpha={result['alpha']}:corrector increased divergence"
-                )
+                    failures.append(f"{result['surface']}:alpha={result['alpha']}:epsilon={profile['thickness']}:{name}={value:.3e}")
+            if float(profile["max_rms_divergence_corrected"]) > (float(profile["max_rms_divergence_uncorrected"]) + tolerance):
+                failures.append(f"{result['surface']}:alpha={result['alpha']}:corrector increased divergence")
         if len(profiles) > 1:
             first, last = profiles[0], profiles[-1]
             for name in ("max_rel_u1_vs_asymptotic", "max_rel_u2_vs_asymptotic"):
@@ -148,10 +137,7 @@ def validate_results(results: Sequence[dict[str, object]], tolerance: float) -> 
 
 def print_table(results: Sequence[dict[str, object]]) -> None:
     print("finite-thickness two-wall shell fields (positive convention)")
-    print(
-        "surface                 alpha eps       wall         u1 asym      u2 asym      "
-        "div raw      div corrected"
-    )
+    print("surface                 alpha eps       wall         u1 asym      u2 asym      div raw      div corrected")
     for result in results:
         profiles = result["profiles"]
         assert isinstance(profiles, list)
@@ -179,9 +165,7 @@ def parse_thicknesses(raw: str) -> tuple[float, ...]:
 
 def main(argv: Sequence[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--surface", choices=("all", *(case.name for case in surface_cases())), default="all"
-    )
+    parser.add_argument("--surface", choices=("all", *(case.name for case in surface_cases())), default="all")
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument(
         "--thicknesses",
@@ -200,11 +184,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     if args.surface != "all":
         cases = tuple(case for case in cases if case.name == args.surface)
     alphas = (0.0, args.partial_slip_alpha, 1.0)
-    results = [
-        result
-        for case in cases
-        for result in run_case(case, args.samples, args.thicknesses, alphas)
-    ]
+    results = [result for case in cases for result in run_case(case, args.samples, args.thicknesses, alphas)]
     validate_results(results, args.tolerance)
     if args.as_json:
         print(json.dumps(results, indent=2, sort_keys=True))

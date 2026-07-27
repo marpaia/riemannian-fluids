@@ -26,15 +26,8 @@ def tensor_product_quadrature(domain: CoordinateDomain, order: int) -> tuple[Arr
         axes.append(0.5 * (right - left) * reference_points + 0.5 * (right + left))
         axis_weights.append(0.5 * (right - left) * reference_weights)
     indices = tuple(product(range(order), repeat=domain.manifold.dimension))
-    points = jnp.asarray(
-        [[axes[axis][index[axis]] for axis in range(len(axes))] for index in indices]
-    )
-    weights = jnp.asarray(
-        [
-            np.prod([axis_weights[axis][index[axis]] for axis in range(len(axes))])
-            for index in indices
-        ]
-    )
+    points = jnp.asarray([[axes[axis][index[axis]] for axis in range(len(axes))] for index in indices])
+    weights = jnp.asarray([np.prod([axis_weights[axis][index[axis]] for axis in range(len(axes))]) for index in indices])
     return points, weights
 
 

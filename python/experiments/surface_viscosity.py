@@ -97,15 +97,11 @@ def ellipsoid_2025_candidates(
 def diagnostic_ambient_jets(field: VectorField) -> AmbientJets:
     def first_tangent(q: Array) -> Array:
         first, second = q
-        return jnp.asarray(
-            (0.23 * jnp.sin(first + 0.7 * second), -0.19 * jnp.cos(1.3 * first - second))
-        )
+        return jnp.asarray((0.23 * jnp.sin(first + 0.7 * second), -0.19 * jnp.cos(1.3 * first - second)))
 
     def second_tangent(q: Array) -> Array:
         first, second = q
-        return jnp.asarray(
-            (-0.17 * jnp.cos(0.8 * first + second), 0.13 * jnp.sin(first - 1.1 * second))
-        )
+        return jnp.asarray((-0.17 * jnp.cos(0.8 * first + second), 0.13 * jnp.sin(first - 1.1 * second)))
 
     def normal_value(q: Array) -> Array:
         first, second = q
@@ -119,9 +115,7 @@ def diagnostic_ambient_jets(field: VectorField) -> AmbientJets:
         first, second = q
         return 0.05 * jnp.sin(0.6 * first - 1.4 * second)
 
-    return AmbientJets(
-        field, first_tangent, second_tangent, normal_value, normal_first, normal_second
-    )
+    return AmbientJets(field, first_tangent, second_tangent, normal_value, normal_first, normal_second)
 
 
 def normal_derivative_diagnostics() -> tuple[ScalarField, ScalarField]:
@@ -141,22 +135,16 @@ def ambient_point_diagnostics(case: SurfaceCase, q: Array, partial_alpha: float)
     field = stream_vector_field(embedding, case.stream_function)
     manufactured = diagnostic_ambient_jets(field)
     zero_weights = jnp.zeros((6,), dtype=q.dtype)
-    direct_contributions = jax.jacfwd(
-        lambda switches: ambient_positive_laplacian_tangent(embedding, manufactured, switches, q)
-    )(zero_weights)
+    direct_contributions = jax.jacfwd(lambda switches: ambient_positive_laplacian_tangent(embedding, manufactured, switches, q))(zero_weights)
     direct_unrestricted = jnp.sum(direct_contributions, axis=1)
     predicted_unrestricted = ambient_restriction_formula(embedding, manufactured, q)
-    unrestricted_residual = relative_vector_residual(
-        embedding, direct_unrestricted, predicted_unrestricted, q
-    )
+    unrestricted_residual = relative_vector_residual(embedding, direct_unrestricted, predicted_unrestricted, q)
 
     normal_first, normal_second = normal_derivative_diagnostics()
     boundary_residuals = []
     for alpha in (0.0, partial_alpha, 1.0):
         profile = matched_wall_jets(embedding, field, normal_first, normal_second, alpha)
-        direct = ambient_positive_laplacian_tangent(
-            embedding, profile, jnp.ones((6,), dtype=q.dtype), q
-        )
+        direct = ambient_positive_laplacian_tangent(embedding, profile, jnp.ones((6,), dtype=q.dtype), q)
         expected = interpolating_viscosity(embedding, field, q, alpha)
         boundary_residuals.append(relative_vector_residual(embedding, direct, expected, q))
 
@@ -172,15 +160,9 @@ def ambient_point_diagnostics(case: SurfaceCase, q: Array, partial_alpha: float)
         jnp.ones((6,), dtype=q.dtype),
         q,
     )
-    endpoint_navier = relative_vector_residual(
-        embedding, navier_direct, deformation_laplacian(embedding, field, q), q
-    )
-    endpoint_hodge = relative_vector_residual(
-        embedding, hodge_direct, hodge_laplacian(embedding, field, q), q
-    )
-    contribution_norms = [
-        vector_norm(embedding, direct_contributions[:, index], q) for index in range(6)
-    ]
+    endpoint_navier = relative_vector_residual(embedding, navier_direct, deformation_laplacian(embedding, field, q), q)
+    endpoint_hodge = relative_vector_residual(embedding, hodge_direct, hodge_laplacian(embedding, field, q), q)
+    contribution_norms = [vector_norm(embedding, direct_contributions[:, index], q) for index in range(6)]
     return jnp.asarray(
         (
             unrestricted_residual,
@@ -227,14 +209,10 @@ def point_residuals(case: SurfaceCase, q: Array) -> Array:
             jnp.abs(divergence(embedding, field, q)),
             covariant_tensor_norm(
                 embedding,
-                lie_derivative_metric(embedding, field, q)
-                - 2.0 * deformation_tensor(embedding, field, q),
+                lie_derivative_metric(embedding, field, q) - 2.0 * deformation_tensor(embedding, field, q),
                 q,
             ),
-            jnp.abs(
-                intrinsic_gaussian_curvature(embedding, q)
-                - extrinsic_gaussian_curvature(embedding, q)
-            ),
+            jnp.abs(intrinsic_gaussian_curvature(embedding, q) - extrinsic_gaussian_curvature(embedding, q)),
             relative_vector_residual(embedding, hodge, rough + ricci, q),
             relative_vector_residual(embedding, deformation, rough - ricci - grad_divergence, q),
             relative_vector_residual(embedding, deformation, hodge - 2.0 * ricci, q),
@@ -263,10 +241,7 @@ def run_case(case: SurfaceCase, count: int, partial_alpha: float) -> dict[str, o
         "ambient_restriction": {
             "max_rel_unrestricted_formula_residual": float(ambient_maxima[0]),
             "direct_contribution_max_norms": {
-                name: float(ambient_maxima[index])
-                for name, index in zip(
-                    ("u0", "u1", "u2", "w0", "w1", "w2"), range(6, 12), strict=True
-                )
+                name: float(ambient_maxima[index]) for name, index in zip(("u0", "u1", "u2", "w0", "w1", "w2"), range(6, 12), strict=True)
             },
         },
         "boundary_reductions_2026": {
@@ -291,9 +266,7 @@ def run_case(case: SurfaceCase, count: int, partial_alpha: float) -> dict[str, o
     if case.name in {"sphere", "ellipsoid"}:
         comparison = jax.jit(jax.vmap(lambda q: paper_2025_point_comparison(case, q)))(points)
         sums = jnp.sum(comparison, axis=0)
-        relative = jnp.sqrt(sums[:, 0]) / jnp.maximum(
-            jnp.maximum(jnp.sqrt(sums[:, 1]), jnp.sqrt(sums[:, 2])), 1.0e-12
-        )
+        relative = jnp.sqrt(sums[:, 0]) / jnp.maximum(jnp.maximum(jnp.sqrt(sums[:, 1]), jnp.sqrt(sums[:, 2])), 1.0e-12)
         result["scaling_candidates_2025"] = {
             "status": "evaluated",
             "source": SOURCE_2025,
@@ -337,10 +310,7 @@ def validate_results(results: Sequence[dict[str, object]], tolerance: float) -> 
 
 
 def print_table(results: Sequence[dict[str, object]], partial_alpha: float) -> None:
-    print(
-        "surface                 div          Lie=2Def     Gauss        "
-        "Weitzenbock  Def identity candidate"
-    )
+    print("surface                 div          Lie=2Def     Gauss        Weitzenbock  Def identity candidate")
     for result in results:
         print(
             f"{result['surface']!s:23s} "
@@ -362,11 +332,7 @@ def print_table(results: Sequence[dict[str, object]], partial_alpha: float) -> N
             value = boundary[name]
             assert isinstance(value, dict)
             values.append(float(value["max_rel_ambient_vs_2026"]))
-        print(
-            f"{result['surface']!s:23s} "
-            f"{float(ambient['max_rel_unrestricted_formula_residual']):.3e}  "
-            f"{values[0]:.3e}  {values[1]:.3e}  {values[2]:.3e}"
-        )
+        print(f"{result['surface']!s:23s} {float(ambient['max_rel_unrestricted_formula_residual']):.3e}  {values[0]:.3e}  {values[1]:.3e}  {values[2]:.3e}")
     print("\n2025 ellipsoid candidates versus normal-direction endpoints")
     for result in results:
         comparison = result["scaling_candidates_2025"]

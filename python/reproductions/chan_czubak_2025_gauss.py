@@ -45,7 +45,5 @@ def run() -> tuple[ClaimResult, ...]:
 
     surface = euclidean_submanifold("Clifford torus", 2, 4, clifford_torus)
     q = jnp.asarray((0.7, 1.1), dtype=jnp.float64)
-    residual = float(
-        jnp.linalg.norm(intrinsic_ricci_tensor(surface, q) - gauss_ricci_tensor(surface, q))
-    )
+    residual = float(jnp.linalg.norm(intrinsic_ricci_tensor(surface, q) - gauss_ricci_tensor(surface, q)))
     return (ClaimResult(CLAIMS[0].id, residual < 1.0e-10, {"absolute_residual": residual}),)

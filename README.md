@@ -13,7 +13,21 @@ Shared paper and claim provenance lives in `claims/`. Neither implementation may
 
 The mathematical dependency structure is described in [`docs/claim-to-proof.md`](docs/claim-to-proof.md). It explains why the project constructs geometry before comparing Laplacians, develops weak Stokes theory before nonlinear evolution, and treats operator selection as a theorem with hypotheses rather than a global default.
 
+The companion [`docs/formal-analysis.md`](docs/formal-analysis.md) explains how to read the Lean development as executable mathematical exposition: it gives the CCD17 notation crosswalk, sign translation, proof order, and current concrete/interface boundary.
+
 The companion [`docs/literature.md`](docs/literature.md) gives the paper corpus, current evidence, and next missing gate for each source. Together these documents answer two different questions: what the literature claims, and what must be proved or computed for this repository to reproduce it.
+
+## Expository formal analysis
+
+The Lean code is written as an annotated mathematical essay, not merely to obtain a green theorem declaration. The opening narrative of each substantive module develops the idea and proof in ordinary mathematical language. Lean declarations then bookend that explanation with precise statements; declaration documentation explains representation and regularity choices, and comments inside nontrivial proofs translate formal steps back into mathematics. Definitions proved by `rfl` are documented as representation choices, since the definition itself is their proof.
+
+The intended reading experience is therefore:
+
+1. locate the paper statement in `claims/registry.json`;
+2. read its convention and notation crosswalk in `docs/formal-analysis.md`;
+3. follow the actual import/declaration graph in a Lean IDE;
+4. read the module narrative as the proof, then inspect the Lean comments to see where mathematics ends and library adaptation begins;
+5. check the axiom audit and formal-status boundary before treating the result as a reproduction.
 
 ## Evidence boundary
 

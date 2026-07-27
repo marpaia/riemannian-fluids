@@ -28,11 +28,7 @@ class SurfaceStokesProblem:
         q: Array,
     ) -> Array:
         operator = viscosity_operator(self.model)
-        return (
-            self.viscosity * operator(self.geometry, velocity, q)
-            + gradient(self.geometry, pressure, q)
-            - self.force(q)
-        )
+        return self.viscosity * operator(self.geometry, velocity, q) + gradient(self.geometry, pressure, q) - self.force(q)
 
     def incompressibility_residual(self, velocity: VectorField, q: Array) -> Array:
         return divergence(self.geometry, velocity, q)

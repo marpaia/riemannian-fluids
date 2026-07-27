@@ -26,9 +26,7 @@ def parse_cells(raw: str) -> tuple[int, ...]:
 def validate_results(results: Sequence[dict[str, float | int | str]]) -> None:
     failures = []
     linear = [row for row in results if row["degree"] == 1]
-    if len(linear) > 1 and float(linear[-1]["relative_l2_error"]) > float(
-        linear[0]["relative_l2_error"]
-    ):
+    if len(linear) > 1 and float(linear[-1]["relative_l2_error"]) > float(linear[0]["relative_l2_error"]):
         failures.append("P1 L2 error did not decrease")
     quadratic = [row for row in results if row["degree"] == 2]
     if any(float(row["relative_l2_error"]) > 1.0e-9 for row in quadratic):
@@ -41,9 +39,7 @@ def validate_results(results: Sequence[dict[str, float | int | str]]) -> None:
 
 def main(argv: Sequence[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--surface", choices=tuple(case.name for case in surface_cases()), default="ellipsoid"
-    )
+    parser.add_argument("--surface", choices=tuple(case.name for case in surface_cases()), default="ellipsoid")
     parser.add_argument("--q", type=float, nargs=2, default=(1.1, 0.7))
     parser.add_argument("--thickness", type=float, default=0.1)
     parser.add_argument("--alpha", type=float, default=0.5)

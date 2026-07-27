@@ -36,12 +36,8 @@ def solve_normal_fibre(
     space = fem.functionspace(domain, ("Lagrange", degree, (2,)))
 
     facet_dimension = domain.topology.dim - 1
-    lower_facets = mesh.locate_entities_boundary(
-        domain, facet_dimension, lambda x: np.isclose(x[0], -half_width)
-    )
-    upper_facets = mesh.locate_entities_boundary(
-        domain, facet_dimension, lambda x: np.isclose(x[0], half_width)
-    )
+    lower_facets = mesh.locate_entities_boundary(domain, facet_dimension, lambda x: np.isclose(x[0], -half_width))
+    upper_facets = mesh.locate_entities_boundary(domain, facet_dimension, lambda x: np.isclose(x[0], half_width))
     facets = np.concatenate((lower_facets, upper_facets))
     markers = np.concatenate(
         (
@@ -55,12 +51,7 @@ def solve_normal_fibre(
     trial = ufl.TrialFunction(space)
     test = ufl.TestFunction(space)
     coordinate = ufl.SpatialCoordinate(domain)[0]
-    exact = ufl.as_vector(
-        tuple(
-            float(u0[i]) + coordinate * float(u1[i]) + coordinate**2 * float(u2[i])
-            for i in range(2)
-        )
-    )
+    exact = ufl.as_vector(tuple(float(u0[i]) + coordinate * float(u1[i]) + coordinate**2 * float(u2[i]) for i in range(2)))
     forcing = exact - ufl.as_vector(tuple(2.0 * float(value) for value in u2))
     lower_law = ufl.as_matrix(2.0 * alpha * np.asarray(parallel_shape(shape, -half_width)))
     upper_law = ufl.as_matrix(2.0 * alpha * np.asarray(parallel_shape(shape, half_width)))
@@ -83,21 +74,12 @@ def solve_normal_fibre(
     error = solution - exact
     exact_l2_squared = fem.assemble_scalar(fem.form(ufl.inner(exact, exact) * ufl.dx))
     error_l2_squared = fem.assemble_scalar(fem.form(ufl.inner(error, error) * ufl.dx))
-    exact_h1_squared = fem.assemble_scalar(
-        fem.form(ufl.inner(ufl.grad(exact), ufl.grad(exact)) * ufl.dx)
-    )
-    error_h1_squared = fem.assemble_scalar(
-        fem.form(ufl.inner(ufl.grad(error), ufl.grad(error)) * ufl.dx)
-    )
+    exact_h1_squared = fem.assemble_scalar(fem.form(ufl.inner(ufl.grad(exact), ufl.grad(exact)) * ufl.dx))
+    error_h1_squared = fem.assemble_scalar(fem.form(ufl.inner(ufl.grad(error), ufl.grad(error)) * ufl.dx))
     derivative = ufl.dot(ufl.grad(solution), normal_axis)
     lower_residual = derivative - ufl.dot(lower_law, solution)
     upper_residual = derivative - ufl.dot(upper_law, solution)
-    wall_residual_squared = fem.assemble_scalar(
-        fem.form(
-            ufl.inner(lower_residual, lower_residual) * ds(1)
-            + ufl.inner(upper_residual, upper_residual) * ds(2)
-        )
-    )
+    wall_residual_squared = fem.assemble_scalar(fem.form(ufl.inner(lower_residual, lower_residual) * ds(1) + ufl.inner(upper_residual, upper_residual) * ds(2)))
 
     comm = domain.comm
     exact_l2_squared = comm.allreduce(exact_l2_squared, op=MPI.SUM)

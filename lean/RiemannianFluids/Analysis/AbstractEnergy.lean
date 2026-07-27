@@ -3,10 +3,27 @@ import Mathlib.Analysis.InnerProductSpace.Basic
 /-!
 # Abstract energy interfaces
 
-These structures isolate algebraic consequences of integration by parts,
-incompressibility, and advection cancellation.  They are useful downstream,
-but they do not construct Riemannian differential operators or function
-spaces.  The geometric development must eventually instantiate them.
+The classical Navier--Stokes energy calculation is shorter than the analysis needed to justify it. Formally test the momentum equation against the
+velocity `u`. Two terms disappear:
+
+    ⟨grad p,u⟩ = -⟨p,div u⟩ = 0,
+    ⟨∇_u u,u⟩ = 0.
+
+The first uses integration by parts and incompressibility. The second uses the skew/transport structure of advection together with incompressibility
+and appropriate boundary behavior. What remains is the balance between kinetic energy, viscous dissipation, and forcing.
+
+## Why begin abstractly
+
+An end-to-end analytic theorem would have to specify a manifold, volume form, boundary conditions, function spaces, weak derivatives, and the domains
+of unbounded operators before proving either cancellation. None of that should be smuggled into an algebraic proof by suggestive naming. This file
+instead states the exact interfaces consumed by the energy calculation.
+
+`ScalarVectorCalculus` contains a divergence/gradient pair and their adjoint relation. `EnergyConservingAdvection` contains the nonlinear operation
+and its diagonal energy cancellation on an explicitly supplied incompressible class. These fields are assumptions a future concrete geometric theory
+must instantiate; they are not asserted axioms and they do not claim the Sobolev theory is already present.
+
+This abstraction has expository value. It reveals that the later energy identity uses no coordinate formula and no special choice among the competing
+viscosity operators. Once the two cancellations are available, the remaining proof is inner-product algebra.
 -/
 
 namespace RiemannianFluids
@@ -18,18 +35,25 @@ variable
   (Q : Type*) [NormedAddCommGroup Q] [InnerProductSpace ℝ Q]
 
 /--
-An abstract divergence/gradient pair with the duality required by the energy
-method.  The identity includes all domain and boundary hypotheses.
+An abstract divergence/gradient pair with the duality required by the energy method. The identity includes all domain and boundary hypotheses.
 -/
 structure ScalarVectorCalculus where
+  /-- Abstract divergence from velocities to scalar constraints. -/
   divergence : V →ₗ[ℝ] Q
+  /-- Abstract gradient from scalar pressures to velocity forces. -/
   gradient : Q →ₗ[ℝ] V
+  /--
+  Integration by parts with all boundary/domain hypotheses already included:
+  `⟪grad p,u⟫ = -⟪p,div u⟫`.
+  -/
   gradient_divergence_duality : ∀ p u,
     inner ℝ (gradient p) u = -inner ℝ p (divergence u)
 
 /-- Abstract advection equipped with its incompressible energy cancellation. -/
 structure EnergyConservingAdvection (incompressible : V → Prop) where
+  /-- The bilinear-looking transport operation `(u,v) ↦ ∇_u v`. -/
   advect : V → V → V
+  /-- The kinetic-energy cancellation `⟪∇_u u,u⟫ = 0`. -/
   energy_cancel : ∀ u, incompressible u → inner ℝ (advect u u) u = 0
 
 end RiemannianFluids

@@ -40,9 +40,7 @@ def christoffel_symbols(geometry: Geometry, q: Array) -> Array:
     for i in range(n):
         for j in range(n):
             for ell in range(n):
-                first_kind = first_kind.at[i, j, ell].set(
-                    0.5 * (derivative[j, ell, i] + derivative[i, ell, j] - derivative[i, j, ell])
-                )
+                first_kind = first_kind.at[i, j, ell].set(0.5 * (derivative[j, ell, i] + derivative[i, ell, j] - derivative[i, j, ell]))
     return jnp.einsum("kl,ijl->kij", inverse, first_kind)
 
 
@@ -51,12 +49,7 @@ def riemann_curvature_tensor(geometry: Geometry, q: Array) -> Array:
 
     gamma = christoffel_symbols(geometry, q)
     derivative = jax.jacfwd(lambda point: christoffel_symbols(geometry, point))(q)
-    return (
-        jnp.swapaxes(derivative, 2, 3)
-        - derivative
-        + jnp.einsum("imk,mjl->ijkl", gamma, gamma)
-        - jnp.einsum("iml,mjk->ijkl", gamma, gamma)
-    )
+    return jnp.swapaxes(derivative, 2, 3) - derivative + jnp.einsum("imk,mjl->ijkl", gamma, gamma) - jnp.einsum("iml,mjk->ijkl", gamma, gamma)
 
 
 def intrinsic_ricci_tensor(geometry: Geometry, q: Array) -> Array:
@@ -73,9 +66,7 @@ def intrinsic_ricci_tensor(geometry: Geometry, q: Array) -> Array:
 
 
 def scalar_curvature(geometry: Geometry, q: Array) -> Array:
-    return jnp.einsum(
-        "ij,ij->", jnp.linalg.inv(metric(geometry, q)), intrinsic_ricci_tensor(geometry, q)
-    )
+    return jnp.einsum("ij,ij->", jnp.linalg.inv(metric(geometry, q)), intrinsic_ricci_tensor(geometry, q))
 
 
 def intrinsic_gaussian_curvature(geometry: Geometry, q: Array) -> Array:
@@ -114,10 +105,7 @@ def second_fundamental_forms(
 
     vector_form = second_fundamental_form_vector(geometry, q)
     frame = normal_frame(geometry, q)
-    if isinstance(geometry, EmbeddedSubmanifold):
-        ambient_metric = geometry.ambient.metric(geometry.embedding(q))
-    else:
-        ambient_metric = jnp.eye(frame.shape[0], dtype=q.dtype)
+    ambient_metric = geometry.ambient.metric(geometry.embedding(q)) if isinstance(geometry, EmbeddedSubmanifold) else jnp.eye(frame.shape[0], dtype=q.dtype)
     return jnp.einsum("ac,ab,bij->cij", frame, ambient_metric, vector_form)
 
 
@@ -187,10 +175,7 @@ def tangent_coordinates(
     """Return coordinates of an ambient vector's tangent projection."""
 
     tangents = embedding_jacobian(geometry, q)
-    if isinstance(geometry, EmbeddedSubmanifold):
-        ambient_metric = geometry.ambient.metric(geometry.embedding(q))
-    else:
-        ambient_metric = jnp.eye(tangents.shape[0], dtype=q.dtype)
+    ambient_metric = geometry.ambient.metric(geometry.embedding(q)) if isinstance(geometry, EmbeddedSubmanifold) else jnp.eye(tangents.shape[0], dtype=q.dtype)
     return jnp.linalg.solve(metric(geometry, q), tangents.T @ ambient_metric @ ambient_vector)
 
 

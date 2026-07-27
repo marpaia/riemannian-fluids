@@ -97,9 +97,7 @@ def ambient_positive_laplacian_cartesian(
         ambient_metric = fermi_metric(embedding, point)
         inverse = jnp.linalg.inv(ambient_metric)
         volume_density = jnp.sqrt(jnp.linalg.det(ambient_metric))
-        derivative = jax.jacfwd(lambda z: ambient_cartesian_field(embedding, jets, weights, z))(
-            point
-        )
+        derivative = jax.jacfwd(lambda z: ambient_cartesian_field(embedding, jets, weights, z))(point)
         return volume_density * derivative @ inverse
 
     flux_derivative = jax.jacfwd(flux)(y)
@@ -241,9 +239,7 @@ def solenoidal_corrector_amplitude(
         traceless_second_form,
         deformation,
     )
-    mean_derivative_along_field = jax.jacfwd(lambda point: mean_curvature(embedding, point))(
-        q
-    ) @ field(q)
+    mean_derivative_along_field = jax.jacfwd(lambda point: mean_curvature(embedding, point))(q) @ field(q)
     return -(2.0 * alpha - 1.0) * mean_derivative_along_field - alpha * shape_strain
 
 
@@ -258,9 +254,7 @@ def finite_thickness_jets(
     """Return all six jets of a finite-thickness two-wall field."""
 
     def coefficients(point: Array) -> TwoWallTangentialField:
-        return solve_two_wall_tangential_field(
-            shape_operator(embedding, point), field(point), thickness, alpha
-        )
+        return solve_two_wall_tangential_field(shape_operator(embedding, point), field(point), thickness, alpha)
 
     def normal_amplitude(point: Array) -> Array:
         if not corrected:
@@ -289,9 +283,7 @@ def fermi_divergence(
     def density(point: Array, normal_coordinate: Array | float) -> Array:
         shape = shape_operator(embedding, point)
         identity = jnp.eye(shape.shape[0], dtype=point.dtype)
-        return jnp.sqrt(jnp.linalg.det(metric(embedding, point))) * jnp.linalg.det(
-            identity - normal_coordinate * shape
-        )
+        return jnp.sqrt(jnp.linalg.det(metric(embedding, point))) * jnp.linalg.det(identity - normal_coordinate * shape)
 
     def tangent_flux(point: Array) -> Array:
         tangent = jets.u0(point) + r * jets.u1(point) + r**2 * jets.u2(point)

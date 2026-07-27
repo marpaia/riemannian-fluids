@@ -8,8 +8,7 @@ from riemannian_fluids.validation import Claim, ClaimResult, ClaimStatus, Eviden
 
 PAPER = Paper(
     "WBK26",
-    "Resolving the viscosity operator ambiguity on Riemannian manifolds "
-    "via a kinematic selection principle",
+    "Resolving the viscosity operator ambiguity on Riemannian manifolds via a kinematic selection principle",
     ("Zhi-Wei Wang", "Samuel L. Braunstein"),
     2026,
     "https://arxiv.org/abs/2605.17502",
@@ -28,8 +27,7 @@ CLAIMS = (
     Claim(
         "WBK26-negative-curvature-decay",
         PAPER.id,
-        "Deformation-viscosity weak solutions decay exponentially under uniform "
-        "negative curvature.",
+        "Deformation-viscosity weak solutions decay exponentially under uniform negative curvature.",
         "global weak-solution theorem",
         EvidenceKind.ANALYTIC_THEOREM,
         ClaimStatus.ANALYTIC_ONLY,

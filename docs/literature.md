@@ -15,6 +15,8 @@ Pointwise identities, manufactured PDE solutions, mesh convergence, spectra, and
 
 For the mathematical dependencies behind the analytic claims, see [`claim-to-proof.md`](claim-to-proof.md). That document explains how the shared geometry, operator, function-space, and PDE layers lead to the claim-specific Lean theorems.
 
+For a source-to-Lean reading of those dependencies, see [`formal-analysis.md`](formal-analysis.md). It records the notation and sign translations and distinguishes concrete constructions from interface hypotheses and derived theorems.
+
 ## Corpus
 
 | ID | Source | Executable coverage | Next missing gate |

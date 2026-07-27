@@ -25,11 +25,7 @@ def solve_mixed_stokes(system: MixedStokesSystem) -> MixedSolution:
     rhs = system.right_hand_side()
     velocity_count = system.velocity_operator.shape[0]
     pressure_count = system.divergence.shape[0]
-    weights = (
-        jnp.ones((pressure_count,), dtype=block.dtype)
-        if system.pressure_weights is None
-        else system.pressure_weights
-    )
+    weights = jnp.ones((pressure_count,), dtype=block.dtype) if system.pressure_weights is None else system.pressure_weights
     gauge = jnp.concatenate((jnp.zeros((velocity_count,), dtype=block.dtype), weights))
     augmented = jnp.block(
         [

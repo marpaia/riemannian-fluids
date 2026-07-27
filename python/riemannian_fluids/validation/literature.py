@@ -101,9 +101,6 @@ def validate_registry(modules: Sequence[PaperModule]) -> None:
     if len(set(claim_ids)) != len(claim_ids):
         raise ValueError("claim ids must be unique")
     for module in modules:
-        executable = any(
-            claim.status in {ClaimStatus.EXECUTABLE, ClaimStatus.VALIDATED}
-            for claim in module.claims
-        )
+        executable = any(claim.status in {ClaimStatus.EXECUTABLE, ClaimStatus.VALIDATED} for claim in module.claims)
         if executable and module.run is None:
             raise ValueError(f"{module.paper.id} has executable claims but no run()")

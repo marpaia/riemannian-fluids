@@ -21,7 +21,7 @@ CLAIMS = (
         "CCD17-divfree-def-hodge",
         PAPER.id,
         "For divergence-free velocity, L_Def = L_Hodge - 2 Ric in the positive convention.",
-        "Section 2, Laplacian comparison",
+        "Introduction, equations (1.1)-(1.3) and the divergence-free specialization immediately following (1.3)",
         EvidenceKind.POINTWISE_IDENTITY,
         ClaimStatus.VALIDATED,
         {"field": "divergence-free", "manifold": "oriented surface"},

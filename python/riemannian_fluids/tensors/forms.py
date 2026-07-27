@@ -16,11 +16,7 @@ from riemannian_fluids.types import Array
 
 
 def _permutation_sign(indices: tuple[int, ...]) -> int:
-    inversions = sum(
-        indices[left] > indices[right]
-        for left in range(len(indices))
-        for right in range(left + 1, len(indices))
-    )
+    inversions = sum(indices[left] > indices[right] for left in range(len(indices)) for right in range(left + 1, len(indices)))
     return -1 if inversions % 2 else 1
 
 

@@ -39,19 +39,11 @@ class SphereStokesBasis:
 
     @property
     def scalar_modes(self) -> tuple[tuple[int, int], ...]:
-        return tuple(
-            (degree, order)
-            for degree in range(1, self.maximum_degree + 1)
-            for order in range(-degree, degree + 1)
-        )
+        return tuple((degree, order) for degree in range(1, self.maximum_degree + 1) for order in range(-degree, degree + 1))
 
     @property
     def velocity_modes(self) -> tuple[SphereOneFormMode, ...]:
-        return tuple(
-            SphereOneFormMode(degree, order, family)
-            for degree, order in self.scalar_modes
-            for family in (OneFormFamily.EXACT, OneFormFamily.COEXACT)
-        )
+        return tuple(SphereOneFormMode(degree, order, family) for degree, order in self.scalar_modes for family in (OneFormFamily.EXACT, OneFormFamily.COEXACT))
 
     def divergence_matrix(self) -> Array:
         """Map one-form coefficients to scalar divergence, including pressure's constant mode."""
@@ -78,11 +70,7 @@ class SphereStokesBasis:
         return jnp.asarray(values)
 
     def killing_mode_indices(self) -> tuple[int, ...]:
-        return tuple(
-            index
-            for index, mode in enumerate(self.velocity_modes)
-            if mode.degree == 1 and mode.family is OneFormFamily.COEXACT
-        )
+        return tuple(index for index, mode in enumerate(self.velocity_modes) if mode.degree == 1 and mode.family is OneFormFamily.COEXACT)
 
     def stokes_system(
         self,

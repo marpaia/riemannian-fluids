@@ -15,8 +15,7 @@ from riemannian_fluids.validation import Claim, ClaimResult, ClaimStatus, Eviden
 
 PAPER = Paper(
     "WBS26",
-    "Boundary conditions select the viscous operator on Riemannian hypersurfaces: "
-    "formal analysis and rigorous thin-shell limits",
+    "Boundary conditions select the viscous operator on Riemannian hypersurfaces: formal analysis and rigorous thin-shell limits",
     ("Zhi-Wei Wang", "Samuel L. Braunstein"),
     2026,
     "https://arxiv.org/abs/2605.20589",
@@ -43,8 +42,7 @@ CLAIMS = (
     Claim(
         "WBS26-mosco-resolvent-spectrum",
         PAPER.id,
-        "The energy forms converge in the Mosco sense, hence resolvents, semigroups, "
-        "and spectra converge.",
+        "The energy forms converge in the Mosco sense, hence resolvents, semigroups, and spectra converge.",
         "rigorous convergence theorem",
         EvidenceKind.ANALYTIC_THEOREM,
         ClaimStatus.ANALYTIC_ONLY,
@@ -52,8 +50,7 @@ CLAIMS = (
     Claim(
         "WBS26-resolved-volume-shell",
         PAPER.id,
-        "A resolved curved shell converges after transverse averaging to the selected "
-        "surface operator.",
+        "A resolved curved shell converges after transverse averaging to the selected surface operator.",
         "computational analogue of the thin-shell limit",
         EvidenceKind.THIN_SHELL_CONVERGENCE,
         ClaimStatus.CATALOGUED,
@@ -76,9 +73,7 @@ def run() -> tuple[ClaimResult, ...]:
     identity_residual = float(vector_norm(surface, direct - expected, q))
     shape = shape_operator(surface, q)
     profile = solve_two_wall_tangential_field(shape, velocity(q), 0.1, alpha)
-    wall_error = max(
-        float(jnp.linalg.norm(wall_residual(shape, profile, 0.1, alpha, sign))) for sign in (-1, 1)
-    )
+    wall_error = max(float(jnp.linalg.norm(wall_residual(shape, profile, 0.1, alpha, sign))) for sign in (-1, 1))
     return (
         ClaimResult(
             CLAIMS[0].id,

@@ -47,12 +47,8 @@ def rough_laplacian(geometry: Geometry, field: VectorField, q: Array) -> Array:
         for first_index in range(n):
             for second_index in range(n):
                 value = partial_first[component, second_index, first_index]
-                value += jnp.einsum(
-                    "l,l->", gamma[component, first_index, :], first[:, second_index]
-                )
-                value -= jnp.einsum(
-                    "l,l->", gamma[:, first_index, second_index], first[component, :]
-                )
+                value += jnp.einsum("l,l->", gamma[component, first_index, :], first[:, second_index])
+                value -= jnp.einsum("l,l->", gamma[:, first_index, second_index], first[component, :])
                 second = second.at[component, second_index, first_index].set(value)
     return -jnp.einsum("ij,kji->k", inverse, second)
 
