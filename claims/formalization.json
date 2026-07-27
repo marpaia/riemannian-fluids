@@ -3,52 +3,62 @@
   "claims": [
     {
       "id": "CZ24-operator-census",
-      "state": "catalogued",
-      "lean_module": null,
-      "declaration": null
+      "state": "contract-checked",
+      "lean_module": "RiemannianFluids.Reproductions.CZ24.OperatorCensus",
+      "declaration": "RiemannianFluids.cz24OperatorCensusStatement",
+      "terminal_declaration": "RiemannianFluids.cz24_operator_census_route"
     },
     {
       "id": "WBK26-negative-curvature-decay",
-      "state": "catalogued",
-      "lean_module": null,
-      "declaration": null
+      "state": "contract-checked",
+      "lean_module": "RiemannianFluids.Reproductions.WBK26.Kinematics",
+      "declaration": "RiemannianFluids.wbk26Theorem6_1Statement",
+      "terminal_module": "RiemannianFluids.Reproductions.WBK26.Section6Decay",
+      "terminal_declaration": "RiemannianFluids.wbk26_theorem_6_1"
     },
     {
       "id": "WBS26-mosco-resolvent-spectrum",
-      "state": "catalogued",
-      "lean_module": null,
-      "declaration": null
+      "state": "contract-checked",
+      "lean_module": "RiemannianFluids.Reproductions.WBS26.Statements",
+      "declaration": "RiemannianFluids.wbs26MoscoResolventSpectrumStatement",
+      "terminal_module": "RiemannianFluids.Reproductions.WBS26.Section4",
+      "terminal_declaration": "RiemannianFluids.wbs26_theorem_4_5_and_corollary_4_6"
     },
     {
       "id": "CC13-leray-hopf-nonuniqueness",
-      "state": "catalogued",
-      "lean_module": null,
-      "declaration": null
+      "state": "contract-checked",
+      "lean_module": "RiemannianFluids.Reproductions.CC13.MainResults",
+      "declaration": "RiemannianFluids.cc13LerayHopfNonuniquenessStatement",
+      "terminal_declaration": "RiemannianFluids.cc13_theorem_1_2"
     },
     {
       "id": "CC15-stationary-liouville",
-      "state": "catalogued",
-      "lean_module": null,
-      "declaration": null
+      "state": "contract-checked",
+      "lean_module": "RiemannianFluids.Reproductions.CC15.MainResults",
+      "declaration": "RiemannianFluids.cc15StationaryLiouvilleStatement",
+      "terminal_declaration": "RiemannianFluids.cc15_theorem_1_1"
     },
     {
       "id": "CC21-nontrivial-stokes-exterior",
-      "state": "catalogued",
-      "lean_module": null,
-      "declaration": null
+      "state": "contract-checked",
+      "lean_module": "RiemannianFluids.Reproductions.CC21.MainResults",
+      "declaration": "RiemannianFluids.cc21NontrivialStokesExteriorStatement",
+      "terminal_declaration": "RiemannianFluids.cc21_theorem_1_2"
     },
     {
       "id": "CC21-nontrivial-navier-stokes-exterior",
-      "state": "catalogued",
-      "lean_module": null,
-      "declaration": null
+      "state": "contract-checked",
+      "lean_module": "RiemannianFluids.Reproductions.CC21.MainResults",
+      "declaration": "RiemannianFluids.cc21NontrivialNavierStokesExteriorStatement",
+      "terminal_declaration": "RiemannianFluids.cc21_theorem_1_3"
     },
     {
       "id": "CCP25-h1-noncompact-decomposition",
-      "state": "catalogued",
-      "lean_module": null,
-      "declaration": null
+      "state": "contract-checked",
+      "lean_module": "RiemannianFluids.Reproductions.CCP25.Statements",
+      "declaration": "RiemannianFluids.ccp25H1NoncompactDecompositionStatement",
+      "terminal_module": "RiemannianFluids.Reproductions.CCP25.Section4",
+      "terminal_declaration": "RiemannianFluids.ccp25_theorem_1_3"
     }
   ]
 }
-

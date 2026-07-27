@@ -19,17 +19,25 @@ CLAIMS = (
         "CCP25-discrete-hodge-gate",
         PAPER.id,
         "The discrete API separates exact, coexact, and harmonic one-form components.",
-        "computational de Rham analogue",
+        "Project FEEC gate motivated by arXiv:1812.11764v1, Theorem 1.3; not a discrete theorem asserted in the paper",
         EvidenceKind.MANUFACTURED_SOLUTION,
         ClaimStatus.VALIDATED,
     ),
     Claim(
         "CCP25-h1-noncompact-decomposition",
         PAPER.id,
-        "The stated H1 decomposition holds for general k-forms on noncompact space forms.",
-        "main theorem",
+        "For every form degree k on HN(-a^2), a >= 0, H1 k-forms split uniquely and "
+        "H1-orthogonally into the H1 closures of compactly supported exact and coexact "
+        "forms plus an L2 harmonic k-form.",
+        "arXiv:1812.11764v1, Theorem 1.3 and equation (1.1)",
         EvidenceKind.ANALYTIC_THEOREM,
         ClaimStatus.ANALYTIC_ONLY,
+        {
+            "geometry": "space form HN(-a^2), including a = 0",
+            "degree": "general k-form",
+            "closures": "H1 closures of d Lambda_c^(k-1) and d* Lambda_c^(k+1)",
+            "harmonic summand": "L2 harmonic k-forms, which the paper proves lie in H1",
+        },
     ),
 )
 

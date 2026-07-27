@@ -11,7 +11,15 @@ Shared paper and claim provenance lives in `claims/`. Neither implementation may
 
 ## Research program
 
-The mathematical dependency structure is described in [`docs/claim-to-proof.md`](docs/claim-to-proof.md). It explains why the project constructs geometry before comparing Laplacians, develops weak Stokes theory before nonlinear evolution, and treats operator selection as a theorem with hypotheses rather than a global default.
+The authoritative dependency structure is executable rather than prose-only:
+
+- [`claims/registry.json`](claims/registry.json) owns source wording, locators, assumptions, and evidence classes;
+- [`claims/lean-contracts.json`](claims/lean-contracts.json) maps every registered claim to a declaration in its permanent Lean module;
+- [`lean/RiemannianFluids.lean`](lean/RiemannianFluids.lean) imports the complete codebase layout;
+- each `lean/RiemannianFluids/Reproductions/<paper>/` package follows the paper's source and proof sections, owns its numbered-item and remark inventory, and is re-exported by a stable `<paper>.lean` facade;
+- `make lean/progress` computes the current direct and transitive proof frontier.
+
+[`docs/claim-to-proof.md`](docs/claim-to-proof.md) remains an explanatory guide to why the project constructs geometry before comparing Laplacians and develops weak Stokes theory before nonlinear evolution, but it is not the progress ledger.
 
 The companion [`docs/formal-analysis.md`](docs/formal-analysis.md) explains how to read the Lean development as executable mathematical exposition: it gives the CCD17 notation crosswalk, sign translation, proof order, and current concrete/interface boundary.
 
@@ -23,15 +31,15 @@ The Lean code is written as an annotated mathematical essay, not merely to obtai
 
 The intended reading experience is therefore:
 
-1. locate the paper statement in `claims/registry.json`;
+1. locate the paper statement in `claims/registry.json` and its declaration in `claims/lean-contracts.json`;
 2. read its convention and notation crosswalk in `docs/formal-analysis.md`;
 3. follow the actual import/declaration graph in a Lean IDE;
 4. read the module narrative as the proof, then inspect the Lean comments to see where mathematics ends and library adaptation begins;
-5. check the axiom audit and formal-status boundary before treating the result as a reproduction.
+5. run `make lean/progress` and check the formal-status boundary before treating the result as a reproduction.
 
 ## Evidence boundary
 
-Computational evidence can validate pointwise identities, manufactured solutions, and stated numerical convergence gates. It cannot validate an analytic theorem. An analytic claim is reproduced only by a checked Lean declaration with a source-faithful statement and an accepted axiom audit.
+Computational evidence can validate pointwise identities, manufactured solutions, and stated numerical convergence gates. It cannot validate an analytic theorem. A compiled statement with open obligations is only `contract-checked`; an analytic claim is reproduced only when its terminal Lean declaration has no transitive `sorryAx` dependency and the formalization ledger records the stronger state.
 
 ## Layout
 
@@ -48,6 +56,7 @@ tools/      cross-language provenance and evidence audits
 ```sh
 make lean/sync
 make lean/check
+make lean/progress
 make python/sync
 make python/check
 make claims/check

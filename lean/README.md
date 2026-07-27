@@ -16,13 +16,35 @@ The module layout intentionally follows the executable project in `../python/rie
 | `RiemannianFluids.Tensors.Contraction` | `tensors/calculus.py` |
 | `RiemannianFluids.Tensors.Symmetry` | `tensors/calculus.py` |
 | `RiemannianFluids.Tensors.VectorCalculus` | `tensors/calculus.py` |
+| `RiemannianFluids.Tensors.DifferentialForms` | degree-indexed weak `d`, `d*`, harmonic, exact, and coexact definitions |
+| `RiemannianFluids.Tensors.ExteriorCalculus` | graded `d`, `d*`, Hodge-star, and Hodge-Laplacian leaf API |
 | `RiemannianFluids.Analysis.AbstractEnergy` | analytic interfaces used across operator modules |
+| `RiemannianFluids.Analysis.ExhaustionCompactness` | WBK26 equations (46)--(48) compactness gates |
+| `RiemannianFluids.Analysis.VariationalConvergence` | Mosco, resolvent, semigroup, and spectral contracts |
 | `RiemannianFluids.FunctionSpaces.Constraints` | `function_spaces/constraints.py` |
+| `RiemannianFluids.FunctionSpaces.Evolution` | solenoidal closures and Bochner evolution spaces |
+| `RiemannianFluids.FunctionSpaces.HodgeDecomposition` | Sobolev Hodge-decomposition contract |
+| `RiemannianFluids.FunctionSpaces.SobolevForms` | CCP25 weak derivatives, `H1`, and current definitions |
+| `RiemannianFluids.Geometry.BoundedGeometry` | WBK26 completeness, injectivity radius, curvature, and derivative bounds |
+| `RiemannianFluids.Geometry.Curvature` | curvature commutator, Ricci contraction, and surface Ricci API |
+| `RiemannianFluids.Geometry.SpaceForms` | hyperbolic, pinched-curvature, cutoff, and harmonic-potential profiles |
+| `RiemannianFluids.Geometry.Submanifolds` | Gauss/Weingarten, normal connection, and contracted Codazzi API |
+| `RiemannianFluids.Geometry.ThinShells` | tubular/Fermi geometry and separated mesh/thickness limits |
+| `RiemannianFluids.PDE.LerayHopf` | Leray--Hopf solution contract |
+| `RiemannianFluids.PDE.PressureRecovery` | distributional de Rham pressure gate |
+| `RiemannianFluids.PDE.Stationary` | exterior stationary-flow contracts |
+| `RiemannianFluids.PDE.WeakNavierStokes` | weak evolution equation, trace, uniqueness, and pressure contracts |
+| `RiemannianFluids.Operators.FormalAdjoints` | rough and deformation formal-adjoint constructions |
+| `RiemannianFluids.Operators.Restriction` | ambient-to-intrinsic restriction and extension independence |
 | `RiemannianFluids.Operators.Viscosity` | `operators/viscosity.py` |
 | `RiemannianFluids.Operators.Hodge` | `operators/viscosity.py` |
 | `RiemannianFluids.Operators.GeometricIdentities` | `operators/viscosity.py` |
 | `RiemannianFluids.Operators.Stokes` | `operators/stokes.py` |
 | `RiemannianFluids.Operators.NavierStokes` | `operators/navier_stokes.py` |
+| `RiemannianFluids.Reproductions.<paper>.*` | source sections, main-result assembly, numbered remarks, and local inventory for that paper |
+| `RiemannianFluids.Reproductions.<paper>.Inventory` | complete import endpoint for one version-pinned paper package |
+| `RiemannianFluids.Reproductions.Inventory` | common checked source-locator and remark-classification types |
+| `RiemannianFluids.LiteratureInventory` | corpus-wide assembly of 104 results, 6 definitions, and 51 numbered remarks |
 
 The correspondence is semantic, not a claim that numerical JAX functions have already been verified by Lean.
 
@@ -64,12 +86,39 @@ The repository-wide [`claim-to-proof`](../docs/claim-to-proof.md) document place
 
 There is no default vector Laplacian. Rough/Bochner, Hodge, and deformation operators remain distinct until a geometric or physical derivation supplies a proof. Comparison identities carry their correction term explicitly; a later theorem may show that term vanishes on a specified admissible space.
 
-## Build
+## Development and proof status
+
+The package has one root: `RiemannianFluids.lean`. It imports completed proofs and unfinished source-facing theorem routes together. A placeholder is
+legal only inside a declaration tagged `proof_obligation`; an untagged `sorry`, any `admit`, or a project `axiom`/`constant` fails the source audit.
+Sorry-free internal composition nodes carry `proof_assembly`; the validator prints their explicit
+source-level dependency edges. Paper-facing endpoints carry `literature_terminal`, so their
+transitive axiom sets report whether a whole route is complete.
+
+The graph is expository before it is proof-engineering-oriented.  In a literature route, the
+primary nodes are the source's definitions, named results, displayed equations, and explicit
+proof steps, in source order.  A Lean-specific helper may sit below one of those nodes, but it
+does not replace a source node, merge several named lemmas, or become the public explanation of
+why the paper's theorem follows.  This keeps the unfinished code readable as a formal rendering
+of the proof rather than merely as a dependency graph optimized for the prover.  The source
+validator rejects an unfinished declaration whose name merges multiple named lemmas or theorems;
+registered endpoints may still package several final conclusions when the claim registry calls
+for that combined contract.
+
+Each `RiemannianFluids.Reproductions.<paper>.Inventory` module owns that paper's named-result,
+numbered-definition, and numbered-remark census.  `RiemannianFluids.LiteratureInventory`
+assembles those local inventories, uses Lean name quotation for declaration-backed items, and
+proves the corpus-wide totals, per-kind counts, unique `(paper, source label)` keys, and remark
+coverage split.  A missing or renamed mapped declaration therefore fails elaboration; Markdown
+documentation is only a guide to that executable inventory.
 
 ```sh
 lake update
 lake exe cache get
 make -C .. lean/check
+make -C .. lean/progress
 ```
 
-The check builds the library with warnings treated as failures, prints the axiom dependencies of representative declarations, and rejects project source containing proof placeholders or new axiom declarations. The project is pinned to Lean and mathlib `v4.32.1`.
+`lean/check` builds the library, verifies all 23 claim-to-declaration mappings, rejects unauthorized placeholders, and audits representative completed
+kernel declarations. `lean/progress` additionally prints the direct and transitive `sorryAx`
+frontier and explicit dependency edges of every tagged obligation, assembly, and terminal theorem.
+`lean/statements` remains a compatibility alias for `lean/check`. The project is pinned to Lean and mathlib `v4.32.1`.

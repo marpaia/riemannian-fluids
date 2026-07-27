@@ -19,17 +19,22 @@ CLAIMS = (
         "CC13-hyperbolic-curvature-model",
         PAPER.id,
         "The computational H2 model has scalar curvature -2a^2.",
-        "geometric setting",
+        "arXiv:1006.2819v1, Section 2.1, constant-curvature identities specialized to H2(-a^2)",
         EvidenceKind.POINTWISE_IDENTITY,
         ClaimStatus.VALIDATED,
     ),
     Claim(
         "CC13-leray-hopf-nonuniqueness",
         PAPER.id,
-        "Leray-Hopf weak solutions are nonunique on the hyperbolic plane for the stated model.",
-        "main theorem",
+        "For every a > 0, the deformation-viscosity Navier-Stokes equation on H2(-a^2) admits distinct Leray-Hopf solutions with the same initial datum.",
+        "arXiv:1006.2819v1, Theorem 1.2",
         EvidenceKind.ANALYTIC_THEOREM,
         ClaimStatus.ANALYTIC_ONLY,
+        {
+            "geometry": "hyperbolic plane H2(-a^2), a > 0",
+            "viscosity": "2 Def* Def, equivalently the paper's N-S_H2(-a^2)",
+            "solution class": "Leray-Hopf",
+        },
     ),
 )
 

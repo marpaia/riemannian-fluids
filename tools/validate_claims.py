@@ -8,13 +8,11 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 PYTHON_ROOT = ROOT / "python"
 sys.path.insert(0, str(PYTHON_ROOT))
 
 from reproductions import MODULES  # noqa: E402
-
 
 FORMALIZATION_STATES = {
     "catalogued",
@@ -50,6 +48,9 @@ def main() -> None:
     formalization = json.loads(
         (ROOT / "claims" / "formalization.json").read_text()
     )
+    lean_contracts = json.loads(
+        (ROOT / "claims" / "lean-contracts.json").read_text()
+    )
     entries = formalization.get("claims", [])
     entries_by_id = {entry["id"]: entry for entry in entries}
     if len(entries_by_id) != len(entries):
@@ -68,24 +69,54 @@ def main() -> None:
             f"formalization coverage mismatch: missing={missing}, extra={extra}"
         )
 
+    claim_ids = {
+        claim["id"]
+        for paper in registry["papers"]
+        for claim in paper["claims"]
+    }
+    contract_entries = lean_contracts.get("claims", [])
+    contracts_by_id = {entry["id"]: entry for entry in contract_entries}
+    if len(contracts_by_id) != len(contract_entries):
+        raise SystemExit("claims/lean-contracts.json contains duplicate claim IDs")
+    if set(contracts_by_id) != claim_ids:
+        missing = sorted(claim_ids - set(contracts_by_id))
+        extra = sorted(set(contracts_by_id) - claim_ids)
+        raise SystemExit(
+            f"Lean contract coverage mismatch: missing={missing}, extra={extra}"
+        )
+    for claim_id, contract in contracts_by_id.items():
+        if not contract.get("lean_module") or not contract.get("declaration"):
+            raise SystemExit(f"{claim_id} has an incomplete Lean contract mapping")
+
     for claim_id, entry in entries_by_id.items():
         state = entry.get("state")
         if state not in FORMALIZATION_STATES:
             raise SystemExit(f"{claim_id} has invalid formalization state {state!r}")
-        if state == "formally-reproduced" and not (
-            entry.get("lean_module") and entry.get("declaration")
+        if state != "catalogued" and not (
+            entry.get("lean_module")
+            and entry.get("declaration")
+            and entry.get("terminal_declaration")
         ):
             raise SystemExit(
-                f"{claim_id} is formally reproduced without a Lean declaration"
+                f"{claim_id} is {state!r} without a Lean statement and terminal declaration"
             )
+        if state != "catalogued":
+            contract = contracts_by_id[claim_id]
+            if (
+                entry["lean_module"] != contract["lean_module"]
+                or entry["declaration"] != contract["declaration"]
+            ):
+                raise SystemExit(
+                    f"{claim_id} formalization mapping disagrees with lean-contracts.json"
+                )
 
-    claim_count = sum(len(paper["claims"]) for paper in registry["papers"])
+    claim_count = len(claim_ids)
     print(
         f"validated {len(registry['papers'])} papers, {claim_count} claims, "
-        f"and {len(analytic_ids)} analytic formalization records"
+        f"{len(contracts_by_id)} Lean statement contracts, and "
+        f"{len(analytic_ids)} analytic formalization records"
     )
 
 
 if __name__ == "__main__":
     main()
-

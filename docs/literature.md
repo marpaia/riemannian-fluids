@@ -26,6 +26,15 @@ The current map is therefore executable. [`../claims/registry.json`](../claims/r
 [`../claims/lean-contracts.json`](../claims/lean-contracts.json) maps all 23 claims to typed statements; and `make lean/progress` prints every open proof
 obligation and the transitive status of each literature-facing terminal theorem.
 
+The finer paper map lives under [`../lean/RiemannianFluids/Reproductions/`](../lean/RiemannianFluids/Reproductions/).
+Every paper ID has a directory containing its source-ordered statement/proof modules, numbered
+remarks, and local executable `Inventory.lean` import endpoint.  The corpus-level
+[`LiteratureInventory.lean`](../lean/RiemannianFluids/LiteratureInventory.lean) checks 104 named
+results, 6 numbered definitions, and all 51 numbered remarks.  Remark records distinguish exact
+formal links, mathematical statements still needing extraction, and non-propositional provenance
+or interpretation; the last category remains part of the source map without being presented as
+a theorem.
+
 ## Sources
 
 Version-pinned PDFs are stored in [`../literature/pdfs/`](../literature/pdfs/). [`../literature/manifest.json`](../literature/manifest.json) records their retrieval URLs, sizes, page counts, and SHA-256 digests.

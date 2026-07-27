@@ -16,9 +16,13 @@ CLAIMS = (
     Claim(
         "CZ24-operator-census",
         PAPER.id,
-        "Bochner, Hodge, and deformation choices are inequivalent on curved manifolds.",
-        "survey discussion of viscosity operators",
+        "The rough/Bochner, Hodge, and deformation constructions are inequivalent in general on curved Riemannian manifolds.",
+        "Notices AMS 71(1), pp. 8-16, survey comparison of the candidate viscosity operators",
         EvidenceKind.ANALYTIC_THEOREM,
         ClaimStatus.CATALOGUED,
+        assumptions={
+            "formal witness": "a curved Riemannian setting on which the three operator maps are pairwise distinct",
+            "convention": "rough, Hodge, and deformation operators translated to analysis-positive-v1",
+        },
     ),
 )

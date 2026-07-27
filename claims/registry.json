@@ -13,11 +13,14 @@
         {
           "id": "CZ24-operator-census",
           "paper_id": "CZ24",
-          "statement": "Bochner, Hodge, and deformation choices are inequivalent on curved manifolds.",
-          "locator": "survey discussion of viscosity operators",
+          "statement": "The rough/Bochner, Hodge, and deformation constructions are inequivalent in general on curved Riemannian manifolds.",
+          "locator": "Notices AMS 71(1), pp. 8-16, survey comparison of the candidate viscosity operators",
           "evidence": "analytic-theorem",
           "status": "catalogued",
-          "assumptions": {},
+          "assumptions": {
+            "formal witness": "a curved Riemannian setting on which the three operator maps are pairwise distinct",
+            "convention": "rough, Hodge, and deformation operators translated to analysis-positive-v1"
+          },
           "convention": "analysis-positive-v1"
         }
       ]
@@ -44,21 +47,28 @@
         {
           "id": "CCD17-hyperbolic-energy-obstruction",
           "paper_id": "CCD17",
-          "statement": "The Hodge formulation has a hyperbolic energy obstruction.",
-          "locator": "Section 3",
+          "statement": "On H2(-a^2), no positive absolute constant controls the expected global Hodge-Stokes energy estimate uniformly over all terminal times and weak solutions in the stated energy spaces.",
+          "locator": "arXiv:1608.05114v2, Theorems 3.2--3.3 and equations (3.11)--(3.17)",
           "evidence": "constructive-witness",
           "status": "catalogued",
-          "assumptions": {},
+          "assumptions": {
+            "geometry": "hyperbolic plane H2(-a^2), a > 0",
+            "viscosity": "Hodge Laplacian",
+            "quantifier": "no C0 > 0 works for every T > 0"
+          },
           "convention": "analysis-positive-v1"
         },
         {
           "id": "CCD17-relativistic-limit",
           "paper_id": "CCD17",
-          "statement": "The nonrelativistic limit motivates the deformation operator.",
-          "locator": "arXiv v1, nonrelativistic-limit section",
+          "statement": "The Lichnerowicz, Choquet-Bruhat, and Freistuehler-Temple first-order relativistic stresses all produce div(2 Def v) in the nonrelativistic spatial momentum equation.",
+          "locator": "arXiv:1608.05114v2, Section 5, especially equation (5.1) and the paragraph following it",
           "evidence": "symbolic-identity",
           "status": "catalogued",
-          "assumptions": {},
+          "assumptions": {
+            "models": "Lichnerowicz; Choquet-Bruhat; Freistuehler-Temple",
+            "limit": "nonrelativistic spatial momentum equation"
+          },
           "convention": "analysis-positive-v1"
         }
       ]
@@ -76,7 +86,7 @@
           "id": "CCY23-invariant-restriction",
           "paper_id": "CCY23",
           "statement": "A projected ambient restriction gives an invariant ellipsoid viscosity candidate.",
-          "locator": "main restriction formula",
+          "locator": "arXiv:2203.16050v1, Theorem 1.1, equations (1.4)--(1.5), with the component proof in Section 2",
           "evidence": "pointwise-identity",
           "status": "catalogued",
           "assumptions": {"surface": "axisymmetric ellipsoid"},
@@ -86,7 +96,7 @@
           "id": "CCY23-eccentricity-expansion",
           "paper_id": "CCY23",
           "statement": "The candidate admits the stated expansion in ellipsoid eccentricity.",
-          "locator": "eccentricity expansion section",
+          "locator": "arXiv:2203.16050v1, Section 5, equations (5.2)--(5.9)",
           "evidence": "symbolic-identity",
           "status": "catalogued",
           "assumptions": {},
@@ -107,7 +117,7 @@
           "id": "CCG25-gauss-ricci-codimension-two",
           "paper_id": "CCG25",
           "statement": "The intrinsic Ricci tensor equals its Euclidean Gauss-equation expression.",
-          "locator": "Ricci Gauss formula",
+          "locator": "arXiv:2212.11928v2, Theorem 1.9, equations (1.11)--(1.12)",
           "evidence": "pointwise-identity",
           "status": "validated",
           "assumptions": {"ambient": "Euclidean", "codimension": "2"},
@@ -117,7 +127,7 @@
           "id": "CCG25-laplacian-gauss-family",
           "paper_id": "CCG25",
           "statement": "Bochner and Hodge Laplacians admit the paper's arbitrary-codimension formulas.",
-          "locator": "main theorems",
+          "locator": "arXiv:2212.11928v2, Theorem 1.1, equations (1.5)--(1.6), and Corollary 1.20",
           "evidence": "pointwise-identity",
           "status": "catalogued",
           "assumptions": {},
@@ -138,7 +148,7 @@
           "id": "CCF25-four-candidates-sphere",
           "paper_id": "CCF25",
           "statement": "The four ellipsoid candidates collapse to their Navier/Hodge endpoints on a sphere.",
-          "locator": "equations (1.5)--(1.8)",
+          "locator": "arXiv:2511.10579v1, Theorems 1.1 and 1.3, formulas (1.4)--(1.7), specialized by Remark 1.5",
           "evidence": "pointwise-identity",
           "status": "validated",
           "assumptions": {"surface": "round sphere"},
@@ -148,7 +158,7 @@
           "id": "CCF25-averaging-dependence",
           "paper_id": "CCF25",
           "statement": "The scaling-direction thin-shell result depends on the averaging prescription.",
-          "locator": "main thin-shell derivation",
+          "locator": "arXiv:2511.10579v1, Theorems 1.1, 1.3, and 1.6 with Remark 1.8; the paper labels these limits heuristic",
           "evidence": "thin-shell-convergence",
           "status": "catalogued",
           "assumptions": {"surface": "axisymmetric ellipsoid"},
@@ -169,7 +179,7 @@
           "id": "WBK26-lie-strain",
           "paper_id": "WBK26",
           "statement": "The metric rate under a velocity field is twice the deformation tensor.",
-          "locator": "kinematic construction",
+          "locator": "arXiv:2605.17502v2, Section 4.2, equations (22)--(24)",
           "evidence": "pointwise-identity",
           "status": "validated",
           "assumptions": {},
@@ -178,11 +188,17 @@
         {
           "id": "WBK26-negative-curvature-decay",
           "paper_id": "WBK26",
-          "statement": "Deformation-viscosity weak solutions decay exponentially under uniform negative curvature.",
-          "locator": "global weak-solution theorem",
+          "statement": "On a complete noncompact two-dimensional manifold of bounded geometry with K <= -kappa^2 < 0, for every mu > 0 and u0 in H, the deformation-viscosity Navier-Stokes equation has a unique global weak solution in L-infinity(0,T;H) intersect L2(0,T;V) for every T > 0, admits a pressure distribution recovering momentum, and satisfies ||u(t)||_L2^2 <= exp(-2 mu kappa^2 t) ||u0||_L2^2.",
+          "locator": "arXiv:2605.17502v2, Theorem 6.1, equations (39)-(40), with uniqueness detailed in Remark 6.2",
           "evidence": "analytic-theorem",
           "status": "analytic-only",
-          "assumptions": {},
+          "assumptions": {
+            "manifold": "complete, noncompact, two-dimensional Riemannian manifold of bounded geometry",
+            "curvature": "Gaussian curvature K <= -kappa^2 < 0 for some kappa > 0",
+            "spaces": "H and V are the L2 and H1 closures of smooth compactly supported divergence-free vector fields",
+            "viscosity": "mu > 0",
+            "initial data": "u0 in H"
+          },
           "convention": "analysis-positive-v1"
         }
       ]
@@ -200,7 +216,7 @@
           "id": "WBS26-local-interpolating-family",
           "paper_id": "WBS26",
           "statement": "The tangential ambient operator gives L_Def + 2a Ric + 4a(1-a)S^2.",
-          "locator": "equations (12)--(17)",
+          "locator": "arXiv:2605.20589v3, Lemma 3.1, Proposition 3.2, and Theorem 3.3, equations (12)--(18)",
           "evidence": "pointwise-identity",
           "status": "validated",
           "assumptions": {},
@@ -210,7 +226,7 @@
           "id": "WBS26-two-wall-profile",
           "paper_id": "WBS26",
           "statement": "A finite-thickness tangential profile satisfies both wall laws.",
-          "locator": "equations (13)--(20)",
+          "locator": "arXiv:2605.20589v3, Proposition 3.2 and Section 3.4, equations (13)--(19)",
           "evidence": "manufactured-solution",
           "status": "validated",
           "assumptions": {},
@@ -219,21 +235,29 @@
         {
           "id": "WBS26-mosco-resolvent-spectrum",
           "paper_id": "WBS26",
-          "statement": "The energy forms converge in the Mosco sense, hence resolvents, semigroups, and spectra converge.",
-          "locator": "rigorous convergence theorem",
+          "statement": "For torus-type surfaces of revolution and for both stress-free/deformation and vorticity-free/Hodge wall conditions, the thin-shell forms Mosco-converge; the associated nonnegative self-adjoint operators have strongly convergent resolvents and semigroups uniformly on compact time intervals; eigenvalues converge with multiplicity on each fixed azimuthal mode and, by the uniform high-mode gap, for the full spectrum without spectral pollution.",
+          "locator": "arXiv:2605.20589v3, Theorem 4.5 and Corollary 4.6",
           "evidence": "analytic-theorem",
           "status": "analytic-only",
-          "assumptions": {},
+          "assumptions": {
+            "surface": "torus-type surface of revolution",
+            "wall conditions": "stress-free/deformation and vorticity-free/Hodge",
+            "spectral scope": "fixed-mode and full-spectrum convergence with multiplicity; no high-mode pollution",
+            "framework": "Kuwae-Shioya varying Hilbert spaces"
+          },
           "convention": "analysis-positive-v1"
         },
         {
           "id": "WBS26-resolved-volume-shell",
           "paper_id": "WBS26",
-          "statement": "A resolved curved shell converges after transverse averaging to the selected surface operator.",
-          "locator": "computational analogue of the thin-shell limit",
+          "statement": "A resolved curved 3D shell converges after transverse averaging to the selected surface operator, with mesh convergence at fixed thickness established separately from thickness convergence.",
+          "locator": "Project numerical gate motivated by arXiv:2605.20589v3, Theorem 4.5; not a numerical theorem asserted in the paper",
           "evidence": "thin-shell-convergence",
           "status": "catalogued",
-          "assumptions": {},
+          "assumptions": {
+            "required limits": "mesh size h -> 0 at fixed epsilon, then thickness epsilon -> 0",
+            "geometry": "resolved curved volume shell rather than a normal-fibre surrogate"
+          },
           "convention": "analysis-positive-v1"
         }
       ]
@@ -251,7 +275,7 @@
           "id": "CC13-hyperbolic-curvature-model",
           "paper_id": "CC13",
           "statement": "The computational H2 model has scalar curvature -2a^2.",
-          "locator": "geometric setting",
+          "locator": "arXiv:1006.2819v1, Section 2.1, constant-curvature identities specialized to H2(-a^2)",
           "evidence": "pointwise-identity",
           "status": "validated",
           "assumptions": {},
@@ -260,11 +284,15 @@
         {
           "id": "CC13-leray-hopf-nonuniqueness",
           "paper_id": "CC13",
-          "statement": "Leray-Hopf weak solutions are nonunique on the hyperbolic plane for the stated model.",
-          "locator": "main theorem",
+          "statement": "For every a > 0, the deformation-viscosity Navier-Stokes equation on H2(-a^2) admits distinct Leray-Hopf solutions with the same initial datum.",
+          "locator": "arXiv:1006.2819v1, Theorem 1.2",
           "evidence": "analytic-theorem",
           "status": "analytic-only",
-          "assumptions": {},
+          "assumptions": {
+            "geometry": "hyperbolic plane H2(-a^2), a > 0",
+            "viscosity": "2 Def* Def, equivalently the paper's N-S_H2(-a^2)",
+            "solution class": "Leray-Hopf"
+          },
           "convention": "analysis-positive-v1"
         }
       ]
@@ -281,11 +309,16 @@
         {
           "id": "CC15-stationary-liouville",
           "paper_id": "CC15",
-          "statement": "Finite-Dirichlet stationary solutions satisfy the stated hyperbolic Liouville results.",
-          "locator": "main theorems",
+          "statement": "A smooth divergence-free finite-Dirichlet stationary deformation-viscosity solution on HN(-a^2) vanishes for N=3,4; for N=2, an additional L-infinity bound makes it an L2 harmonic gradient; and for N>=5, the same bound implies vanishing.",
+          "locator": "arXiv:1501.04928v1, Theorem 1.1",
           "evidence": "analytic-theorem",
           "status": "analytic-only",
-          "assumptions": {},
+          "assumptions": {
+            "geometry": "HN(-a^2), N >= 2 and a > 0",
+            "equation": "2 Def* Def u + nabla_u u + dp = 0, d* u = 0",
+            "base regularity": "smooth velocity and pressure; finite Dirichlet integral",
+            "extra bound": "u in L-infinity for N=2 and N>=5 only"
+          },
           "convention": "analysis-positive-v1"
         }
       ]
@@ -302,21 +335,31 @@
         {
           "id": "CC21-nontrivial-stokes-exterior",
           "paper_id": "CC21",
-          "statement": "A nontrivial H1_0 steady Stokes solution exists on the hyperbolic exterior domain.",
-          "locator": "main Stokes theorem",
+          "statement": "For every R0,a > 0, the exterior of the radius-R0 geodesic ball in H2(-a^2) admits a nontrivial finite-Dirichlet steady Stokes solution with zero boundary trace and pressure in L2_loc; the constructed velocity is not a harmonic potential flow.",
+          "locator": "arXiv:1708.05134v1, Theorems 1.2 and 1.4",
           "evidence": "analytic-theorem",
           "status": "analytic-only",
-          "assumptions": {},
+          "assumptions": {
+            "domain": "Omega(R0) = H2(-a^2) minus the closed geodesic ball, R0,a > 0",
+            "boundary": "zero trace",
+            "energy": "finite Dirichlet integral",
+            "pressure": "L2_loc"
+          },
           "convention": "analysis-positive-v1"
         },
         {
           "id": "CC21-nontrivial-navier-stokes-exterior",
           "paper_id": "CC21",
-          "statement": "A nontrivial steady Navier--Stokes solution exists on the same exterior domain.",
-          "locator": "main Navier--Stokes theorem",
+          "statement": "For every R0,a > 0, the same hyperbolic exterior domain admits a nontrivial finite-Dirichlet steady Navier-Stokes solution with zero boundary trace and pressure in L2_loc; the constructed velocity is not a harmonic potential flow.",
+          "locator": "arXiv:1708.05134v1, Theorems 1.3 and 1.4",
           "evidence": "analytic-theorem",
           "status": "analytic-only",
-          "assumptions": {},
+          "assumptions": {
+            "domain": "Omega(R0) = H2(-a^2) minus the closed geodesic ball, R0,a > 0",
+            "boundary": "zero trace",
+            "energy": "finite Dirichlet integral",
+            "pressure": "L2_loc"
+          },
           "convention": "analysis-positive-v1"
         }
       ]
@@ -334,7 +377,7 @@
           "id": "CCP25-discrete-hodge-gate",
           "paper_id": "CCP25",
           "statement": "The discrete API separates exact, coexact, and harmonic one-form components.",
-          "locator": "computational de Rham analogue",
+          "locator": "Project FEEC gate motivated by arXiv:1812.11764v1, Theorem 1.3; not a discrete theorem asserted in the paper",
           "evidence": "manufactured-solution",
           "status": "validated",
           "assumptions": {},
@@ -343,11 +386,16 @@
         {
           "id": "CCP25-h1-noncompact-decomposition",
           "paper_id": "CCP25",
-          "statement": "The stated H1 decomposition holds for general k-forms on noncompact space forms.",
-          "locator": "main theorem",
+          "statement": "For every form degree k on HN(-a^2), a >= 0, H1 k-forms split uniquely and H1-orthogonally into the H1 closures of compactly supported exact and coexact forms plus an L2 harmonic k-form.",
+          "locator": "arXiv:1812.11764v1, Theorem 1.3 and equation (1.1)",
           "evidence": "analytic-theorem",
           "status": "analytic-only",
-          "assumptions": {},
+          "assumptions": {
+            "geometry": "space form HN(-a^2), including a = 0",
+            "degree": "general k-form",
+            "closures": "H1 closures of d Lambda_c^(k-1) and d* Lambda_c^(k+1)",
+            "harmonic summand": "L2 harmonic k-forms, which the paper proves lie in H1"
+          },
           "convention": "analysis-positive-v1"
         }
       ]

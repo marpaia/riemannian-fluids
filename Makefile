@@ -1,4 +1,4 @@
-.PHONY: python/sync python/check lean/sync lean/check claims/check check
+.PHONY: python/sync python/check lean/sync lean/check lean/statements lean/progress claims/check check
 
 python/sync:
 	$(MAKE) -C python sync
@@ -10,11 +10,14 @@ lean/sync:
 	cd lean && lake update && lake exe cache get
 
 lean/check:
-	cd lean && lake --wfail build RiemannianFluids
+	cd lean && lake build RiemannianFluids
+	cd python && uv run --frozen python ../tools/validate_lean.py check
 	cd lean && lake env lean RiemannianFluids/AxiomAudit.lean
-	@if rg -n '\b(sorry|admit|axiom)\b' lean/RiemannianFluids.lean lean/RiemannianFluids -g '*.lean'; then \
-		echo 'Lean placeholder audit failed'; exit 1; \
-	fi
+
+lean/statements: lean/check
+
+lean/progress: lean/check
+	cd python && uv run --frozen python ../tools/validate_lean.py progress
 
 claims/check:
 	cd python && uv run --frozen python ../tools/validate_claims.py

@@ -29,18 +29,30 @@ CLAIMS = (
     Claim(
         "CCD17-hyperbolic-energy-obstruction",
         PAPER.id,
-        "The Hodge formulation has a hyperbolic energy obstruction.",
-        "Section 3",
+        "On H2(-a^2), no positive absolute constant controls the expected global "
+        "Hodge-Stokes energy estimate uniformly over all terminal times and weak solutions "
+        "in the stated energy spaces.",
+        "arXiv:1608.05114v2, Theorems 3.2--3.3 and equations (3.11)--(3.17)",
         EvidenceKind.CONSTRUCTIVE_WITNESS,
         ClaimStatus.CATALOGUED,
+        {
+            "geometry": "hyperbolic plane H2(-a^2), a > 0",
+            "viscosity": "Hodge Laplacian",
+            "quantifier": "no C0 > 0 works for every T > 0",
+        },
     ),
     Claim(
         "CCD17-relativistic-limit",
         PAPER.id,
-        "The nonrelativistic limit motivates the deformation operator.",
-        "arXiv v1, nonrelativistic-limit section",
+        "The Lichnerowicz, Choquet-Bruhat, and Freistuehler-Temple first-order relativistic "
+        "stresses all produce div(2 Def v) in the nonrelativistic spatial momentum equation.",
+        "arXiv:1608.05114v2, Section 5, especially equation (5.1) and the paragraph following it",
         EvidenceKind.SYMBOLIC_IDENTITY,
         ClaimStatus.CATALOGUED,
+        {
+            "models": "Lichnerowicz; Choquet-Bruhat; Freistuehler-Temple",
+            "limit": "nonrelativistic spatial momentum equation",
+        },
     ),
 )
 
