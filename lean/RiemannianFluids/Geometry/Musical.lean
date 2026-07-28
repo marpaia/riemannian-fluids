@@ -102,6 +102,7 @@ theorem metricTensor_apply (x : M) (v w : TangentSpace I x) :
       (IB := I) (n := regularity) (F := E)
       (E := (TangentSpace I : M → Type _)))).2 x v w |>.symm
 
+set_option synthInstance.maxHeartbeats 100000 in
 set_option backward.isDefEq.respectTransparency false in
 /--
 Metric lowering as a linear map on `C^k` sections: `u♭(X) = g(u,X)`. No derivative is taken, so regularity is preserved.
@@ -271,13 +272,14 @@ private theorem metricTensor_isInvertible (x : M) :
   -- The preceding theorem identifies Riesz lowering with the chosen metric.
   exact metricEquiv_apply I regularity x v ▸ rfl
 
-private noncomputable def sharpFiber (x : M) :
+/-- The inverse metric on one tangent fiber. -/
+noncomputable def sharpFiber (x : M) :
     (TangentSpace I x →L[ℝ] ℝ) →L[ℝ] TangentSpace I x :=
   (metricTensor I regularity x).inverse
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The pointwise inverse metric maps form a `C^k` hom-bundle section. -/
-private theorem sharpFiber_contMDiff :
+theorem sharpFiber_contMDiff :
     ContMDiff I (I.prod 𝓘(ℝ, (E →L[ℝ] ℝ) →L[ℝ] E)) regularity
       (fun x : M => TotalSpace.mk' ((E →L[ℝ] ℝ) →L[ℝ] E) x
         (sharpFiber I regularity x)) := by
@@ -340,6 +342,92 @@ private theorem sharpFiber_contMDiff :
   simp only [ContinuousLinearMap.inverse_equiv_comp,
     ContinuousLinearMap.inverse_comp_equiv, ContinuousLinearEquiv.symm_symm, sharpFiber]
   rfl
+
+/-- Raise the covector output of a covariant two-tensor in one tangent fiber. -/
+noncomputable def raiseCovariantTwoTensorFiber (x : M)
+    (field : TangentSpace I x →L[ℝ] TangentSpace I x →L[ℝ] ℝ) :
+    TangentSpace I x →L[ℝ] TangentSpace I x :=
+  (sharpFiber I regularity x).comp field
+
+set_option synthInstance.maxHeartbeats 100000 in
+set_option backward.isDefEq.respectTransparency false in
+/-- Metric raising of the second index as a smooth linear map.
+
+This is inverse to `lowerVectorOneForm` pointwise. Its smoothness uses the already established
+smooth inverse metric and naturality of composition in hom-bundle coordinates. -/
+noncomputable def raiseCovariantTwoTensor :
+    SmoothCovariantTwoTensor (M := M) I regularity →ₗ[ℝ]
+      SmoothVectorOneForm (M := M) I regularity where
+  toFun field :=
+    { toFun := fun x => raiseCovariantTwoTensorFiber I regularity x (field x)
+      contMDiff_toFun := by
+        intro x₀
+        rw [contMDiffAt_hom_bundle]
+        refine ⟨contMDiffAt_id, ?_⟩
+        have hsharp :
+            ContMDiffAt I (I.prod 𝓘(ℝ, (E →L[ℝ] ℝ) →L[ℝ] E)) regularity
+              (fun x : M => TotalSpace.mk' ((E →L[ℝ] ℝ) →L[ℝ] E) x
+                (sharpFiber I regularity x)) x₀ :=
+          (sharpFiber_contMDiff I regularity).contMDiffAt
+        rw [contMDiffAt_hom_bundle] at hsharp
+        have hfield :
+            ContMDiffAt I (I.prod 𝓘(ℝ, E →L[ℝ] E →L[ℝ] ℝ)) regularity
+              (fun x : M => TotalSpace.mk' (E →L[ℝ] E →L[ℝ] ℝ) x (field x)) x₀ :=
+          field.contMDiff.contMDiffAt
+        rw [contMDiffAt_hom_bundle] at hfield
+        have hcomposition := hsharp.2.clm_comp hfield.2
+        apply hcomposition.congr_of_eventuallyEq
+        have htangent :
+            (trivializationAt E (TangentSpace I : M → Type _) x₀).baseSet ∈ 𝓝 x₀ :=
+          (trivializationAt _ _ _).open_baseSet.mem_nhds
+            (FiberBundle.mem_baseSet_trivializationAt' _)
+        have hcotangent :
+            (trivializationAt (E →L[ℝ] ℝ)
+              (fun x : M => TangentSpace I x →L[ℝ] ℝ) x₀).baseSet ∈ 𝓝 x₀ :=
+          (trivializationAt _ _ _).open_baseSet.mem_nhds
+            (FiberBundle.mem_baseSet_trivializationAt' _)
+        filter_upwards [htangent, hcotangent] with x hx hxstar
+        rw [ContinuousLinearMap.inCoordinates_eq hx hx,
+          ContinuousLinearMap.inCoordinates_eq hxstar hx,
+          ContinuousLinearMap.inCoordinates_eq hx hxstar]
+        ext direction
+        simp only [raiseCovariantTwoTensorFiber, ContinuousLinearMap.coe_comp,
+          Function.comp_apply]
+        let tangentCoordinates :=
+          (trivializationAt E (TangentSpace I : M → Type _) x₀).continuousLinearEquivAt
+            ℝ x hx
+        let cotangentCoordinates :=
+          (trivializationAt (E →L[ℝ] ℝ)
+            (fun x : M => TangentSpace I x →L[ℝ] ℝ) x₀).continuousLinearEquivAt
+              ℝ x hxstar
+        change tangentCoordinates
+            (sharpFiber I regularity x (field x (tangentCoordinates.symm direction))) =
+          tangentCoordinates
+            (sharpFiber I regularity x
+              (cotangentCoordinates.symm
+                (cotangentCoordinates (field x (tangentCoordinates.symm direction)))))
+        rw [cotangentCoordinates.symm_apply_apply] }
+  map_add' first second := by
+    ext x direction
+    simp [raiseCovariantTwoTensorFiber]
+  map_smul' scalar field := by
+    ext x direction
+    simp [raiseCovariantTwoTensorFiber]
+
+/-- Raising is characterized pointwise by the Riemannian inner product. -/
+@[simp]
+theorem raiseCovariantTwoTensor_inner
+    (field : SmoothCovariantTwoTensor (M := M) I regularity)
+    (x : M) (first second : TangentSpace I x) :
+    inner ℝ (raiseCovariantTwoTensor I regularity field x first) second =
+      field x first second := by
+  change inner ℝ (raiseCovariantTwoTensorFiber I regularity x (field x) first) second = _
+  rw [raiseCovariantTwoTensorFiber, ContinuousLinearMap.comp_apply,
+    ← metricTensor_apply I regularity x]
+  change metricTensor I regularity x
+    (sharpFiber I regularity x (field x first)) second = field x first second
+  rw [show sharpFiber I regularity x = (metricTensor I regularity x).inverse from rfl]
+  rw [(metricTensor_isInvertible I regularity x).self_apply_inverse]
 
 set_option backward.isDefEq.respectTransparency false in
 /--

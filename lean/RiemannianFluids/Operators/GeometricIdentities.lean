@@ -1,5 +1,6 @@
 import RiemannianFluids.Operators.Hodge
 import RiemannianFluids.Operators.Viscosity
+import RiemannianFluids.Geometry.Curvature
 
 /-!
 # Ricci action and the CCD17 comparison identities
@@ -65,7 +66,8 @@ evaluates it on `u`, and invokes the concrete codifferential cancellation.
 The first-order ingredients leading to `Def u`, divergence, `d*`, and the vanishing of `d d*` are concrete constructions. The current manifold library
 does not yet provide all of the curvature and formal-adjoint infrastructure needed to derive `B`, `R`, and `2 Def*Def` end to end. Accordingly:
 
-* `RicciData` receives a smooth raised-index Ricci endomorphism;
+* `RicciData` can receive the connection-derived raised-index Ricci endomorphism once its smooth
+  dependence on the base point is supplied;
 * `OneFormHodgeData` receives the missing degree-one de Rham maps;
 * `CCD17OperatorData` receives the rough and deformation Laplacians;
 * the Weitzenböck and symmetric-gradient identities are explicit hypotheses of the final theorem.
@@ -163,14 +165,69 @@ theorem applyVectorEndomorphism_apply
   rfl
 
 /--
-Ricci curvature as the metric-raised endomorphism field. Its derivation by contracting the Riemann curvature tensor is deliberately left outside this
-data structure rather than asserted axiomatically.
+Ricci curvature as the metric-raised endomorphism field. `RicciData.ofConnection` below populates
+this interface from the constructed curvature tensor under an explicit global smoothness proof.
 
 In CCD17, `(Ric(v))ᵢ = Ricᵢⱼ vʲ`. `endomorphism` is the coordinate-free version of the raised-index tensor `Ricᵢ{}ʲ`. Supplying it as data marks the
-current curvature boundary honestly.
+remaining curvature-regularity boundary honestly.
 -/
 structure RicciData (regularity : ℕ∞ω) where
   endomorphism : SmoothVectorOneForm (M := M) I regularity
+
+/-- Populate the downstream Ricci interface from the connection-derived contraction.
+
+`regular` is the pointwise hypothesis used to construct `R(X,Y)Z`; `smooth` is separate because
+pointwise tensoriality does not by itself establish `C^k` dependence on `x`. -/
+noncomputable def RicciData.ofConnection
+    [IsManifold I 3 M]
+    (regularity : ℕ∞ω)
+    (connection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (regular : ∀ x, HasConnectionCurvatureRegularityAt I connection x)
+    (smooth : HasConnectionRicciRegularity I regularity connection regular) :
+    RicciData (M := M) I regularity where
+  endomorphism := connectionRicciVectorOneForm I regularity connection regular smooth
+
+/-- Populate the downstream Ricci interface directly from contraction-regular connection
+curvature, discharging the older standalone smooth-Ricci hypothesis. -/
+noncomputable def RicciData.ofRegularConnection
+    [IsManifold I 3 M]
+    (regularity : ℕ∞ω)
+    [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
+    (connection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (regular : ∀ x, HasConnectionCurvatureRegularityAt I connection x)
+    (hcontraction : HasConnectionRicciContractionRegularity I regularity connection regular) :
+    RicciData (M := M) I regularity where
+  endomorphism := connectionRicciVectorOneFormOfCurvatureRegularity I regularity connection
+    regular hcontraction
+
+omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
+@[simp]
+theorem RicciData.ofRegularConnection_endomorphism_apply
+    [IsManifold I 3 M]
+    (regularity : ℕ∞ω)
+    [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
+    (connection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (regular : ∀ x, HasConnectionCurvatureRegularityAt I connection x)
+    (hcontraction : HasConnectionRicciContractionRegularity I regularity connection regular)
+    (x : M) (vector : TangentSpace I x) :
+    (RicciData.ofRegularConnection I regularity connection regular hcontraction).endomorphism
+        x vector =
+      connectionRicciActionAt I connection x (regular x) vector := by
+  exact connectionRicciVectorOneFormOfCurvatureRegularity_apply I regularity connection regular
+    hcontraction x vector
+
+omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
+@[simp]
+theorem RicciData.ofConnection_endomorphism_apply
+    [IsManifold I 3 M]
+    (regularity : ℕ∞ω)
+    (connection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (regular : ∀ x, HasConnectionCurvatureRegularityAt I connection x)
+    (smooth : HasConnectionRicciRegularity I regularity connection regular)
+    (x : M) (vector : TangentSpace I x) :
+    (RicciData.ofConnection I regularity connection regular smooth).endomorphism x vector =
+      connectionRicciActionAt I connection x (regular x) vector :=
+  rfl
 
 /--
 Zeroth-order Ricci action, viewed on the common second-order domain. The regularity restriction changes only the proof that the input is smooth

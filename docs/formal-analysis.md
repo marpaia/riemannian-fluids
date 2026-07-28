@@ -24,7 +24,11 @@ A construction builds an object from Mathlib structures and explicit input data.
 - smooth musical maps;
 - covariant differentiation;
 - the field-level curvature commutator of a bundled connection;
-- its continuous pointwise realization in the two curvature-direction slots;
+- its continuous pointwise trilinear realization in all three curvature slots;
+- the pointwise Ricci trace and metric-raised Ricci endomorphism;
+- the global smooth Ricci form, raised Ricci action, and scalar trace under an explicit
+  contraction-regularity contract;
+- the normalized pointwise sectional-curvature contraction;
 - gradient and divergence;
 - tensor transposition and symmetrization;
 - the deformation tensor;
@@ -91,12 +95,20 @@ L_{\mathrm{Def}}u
 | covariant differentiation and regularity loss | constructed |
 | field-level curvature commutator and alternating law | constructed |
 | pointwise continuous curvature in the two direction slots | constructed under local connection regularity |
+| `C²` tensoriality in the differentiated-field slot | proved under local connection regularity and a `C³` atlas |
+| continuous trilinear curvature tensor `R(X,Y)Z` on `T_xM` | constructed under the same hypotheses |
+| pointwise Ricci trace and metric-raised action | constructed from `R(X,Y)Z`; orthonormal-frame formula proved |
+| bounded Ricci contraction on curvature model tensors | constructed; its Euclidean model-space map is smooth |
+| global Ricci form and raised action | constructed under `HasConnectionRicciContractionRegularity` and smooth metric data |
+| scalar curvature | constructed as the smooth trace of the raised Ricci field |
+| sectional curvature | constructed pointwise as the normalized contraction of `R(X,Y)Y` against `X`; geometric use requires a nonzero Gram determinant |
+| connection-derived `RiemannianCurvatureData` | all four fields derived by `connectionRiemannianCurvatureDataOfRegularCurvature` |
+| smooth `RicciData` adapter | `RicciData.ofRegularConnection` discharges the older standalone `HasConnectionRicciRegularity` input |
 | trace, divergence, and divergence-free predicate | constructed |
 | tensor transpose, symmetrization, and `Def` | constructed |
 | \(d^*(u^\flat)=-\operatorname{div}u\) | proved |
 | vanishing of \((d d^*(u^\flat))^\sharp\) on divergence-free fields | proved |
 | degree-one exterior derivative and degree-two codifferential | interface data |
-| tensoriality in the differentiated-field slot and Ricci contraction | interface data |
 | \(2\operatorname{Def}^*\operatorname{Def}\) from a formal adjoint | interface data |
 | Weitzenbock and symmetric-gradient identities | theorem hypotheses |
 | full and divergence-free comparison | proved from the displayed hypotheses |
@@ -108,6 +120,8 @@ This table identifies the exact formal boundary of `ccd17_divfree_def_hodge`.
 ```text
 smooth sections and manifold models
   -> connection and musical maps
+  -> pointwise curvature tensor and bounded Ricci contraction
+  -> global Ricci and scalar fields; pointwise sectional normalization
   -> scalar and vector calculus
   -> tensor symmetry and deformation strain
   -> differential forms and codifferential

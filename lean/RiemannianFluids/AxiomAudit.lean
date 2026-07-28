@@ -11,7 +11,8 @@ Each command below asks Lean for the logical axioms used by one representative m
 
     covariant derivative
       → connection-derived curvature commutator
-      → pointwise curvature in two tangent directions
+      → pointwise continuous curvature tensor in all three tangent slots
+      → basis-independent Ricci contraction and downstream adapters
       → musical inverse laws
       → scalar gradient and divergence
       → tensor lowering, transpose, and symmetrization
@@ -33,6 +34,19 @@ with no hidden project postulate or unfinished proof. That distinction is exactl
 #print axioms RiemannianFluids.connectionCurvatureAction_swap
 #print axioms RiemannianFluids.connectionCurvatureDirectionsAt_apply
 #print axioms RiemannianFluids.connectionCurvatureDirectionsAt_swap
+#print axioms RiemannianFluids.connectionCurvatureAction_tensorial_field_smul
+#print axioms RiemannianFluids.connectionCurvatureAction_field_pointwise
+#print axioms RiemannianFluids.connectionCurvatureTensorAt_apply
+#print axioms RiemannianFluids.connectionCurvatureTensorAt_swap
+#print axioms RiemannianFluids.connectionRicciFormAt_eq_sum_inner
+#print axioms RiemannianFluids.connectionRicciActionAt_inner
+#print axioms RiemannianFluids.ricciActionOfRegularCurvatureTensor_apply
+#print axioms RiemannianFluids.connectionScalarCurvatureField_apply
+#print axioms RiemannianFluids.connectionRiemannianCurvatureDataOfRegularCurvature_sectionalCurvature
+#print axioms RiemannianFluids.hasConnectionRicciRegularity_of_contraction
+#print axioms RiemannianFluids.connectionRiemannianCurvatureData_ricciAction
+#print axioms RiemannianFluids.RicciData.ofConnection_endomorphism_apply
+#print axioms RiemannianFluids.RicciData.ofRegularConnection_endomorphism_apply
 #print axioms RiemannianFluids.sharp_flat
 #print axioms RiemannianFluids.flat_sharp
 #print axioms RiemannianFluids.gradient_characterization
