@@ -1,13 +1,11 @@
-FROM dolfinx/dolfinx:v0.11.0@sha256:2ae4bfbc0d9077268880faf04c72750528bee986c94ab223a2c159969bd56fa8
+FROM ghcr.io/prefix-dev/pixi:0.74.0@sha256:fcdb4751905901cb984261cdcaf4df4de1562381be2ab54302bb4612d10a4882
 
 WORKDIR /workspace
 
-COPY pyproject.toml README.md ./
-COPY geometric_viscosity.py ./
-COPY riemannian_fluids ./riemannian_fluids
-COPY experiments ./experiments
-COPY reproductions ./reproductions
+COPY pixi.toml pixi.lock ./
+RUN pixi install --locked
 
-RUN python3 -m pip install --no-cache-dir .
+COPY python/riemannian_fluids ./python/riemannian_fluids
+COPY python/experiments ./python/experiments
 
-ENTRYPOINT ["python3", "-m", "experiments", "finite-elements"]
+ENTRYPOINT ["pixi", "run", "--locked", "finite-elements"]

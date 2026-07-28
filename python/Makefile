@@ -1,26 +1,30 @@
-.PHONY: sync surface-viscosity thin-shell literature check finite-elements/build finite-elements/check
+.PHONY: sync surface-viscosity thin-shell literature check finite-elements/check finite-elements/check/mpi finite-elements/build/docker finite-elements/check/docker
+
+PIXI_MANIFEST := ../pixi.toml
 
 sync:
-	uv sync --frozen --extra dev
+	pixi install --manifest-path $(PIXI_MANIFEST) --locked
 
 surface-viscosity:
-	uv run --frozen python -m experiments surface-viscosity
+	pixi run --manifest-path $(PIXI_MANIFEST) --locked surface-viscosity
 
 thin-shell:
-	uv run --frozen python -m experiments thin-shell
+	pixi run --manifest-path $(PIXI_MANIFEST) --locked thin-shell
 
 literature:
-	uv run --frozen python -m reproductions
+	pixi run --manifest-path $(PIXI_MANIFEST) --locked literature
 
 check:
-	uv run --frozen ruff check .
-	uv run --frozen pytest
-	uv run --frozen python -m reproductions
-	uv run --frozen python -m experiments surface-viscosity --samples 2
-	uv run --frozen python -m experiments thin-shell --samples 2
+	pixi run --manifest-path $(PIXI_MANIFEST) --locked check
 
-finite-elements/build:
-	docker build -f Dockerfile.fenicsx -t riemannian-fluids-fenicsx .
+finite-elements/check:
+	pixi run --manifest-path $(PIXI_MANIFEST) --locked finite-elements
 
-finite-elements/check: finite-elements/build
+finite-elements/check/mpi:
+	pixi run --manifest-path $(PIXI_MANIFEST) --locked finite-elements-mpi
+
+finite-elements/build/docker:
+	docker build -f Dockerfile.fenicsx -t riemannian-fluids-fenicsx ..
+
+finite-elements/check/docker: finite-elements/build/docker
 	docker run --rm riemannian-fluids-fenicsx

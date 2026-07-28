@@ -7,9 +7,10 @@ import json
 from collections.abc import Sequence
 
 import numpy as np
+from mpi4py import MPI
 
 from experiments.surfaces import surface_cases
-from riemannian_fluids.discretization import solve_normal_fibre
+from riemannian_fluids.discretization.fenicsx import solve_normal_fibre
 from riemannian_fluids.geometry import shape_operator
 from riemannian_fluids.tensors import stream_vector_field
 
@@ -67,6 +68,8 @@ def main(argv: Sequence[str] | None = None) -> None:
         for cells in args.cells
     ]
     validate_results(results)
+    if MPI.COMM_WORLD.rank != 0:
+        return
     if args.as_json:
         print(json.dumps(results, indent=2, sort_keys=True))
         return

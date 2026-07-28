@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import dolfinx
 import numpy as np
+import ufl
+from dolfinx import fem, mesh
+from dolfinx.fem.petsc import LinearProblem
+from mpi4py import MPI
 
 from riemannian_fluids.shells import (
     parallel_shape,
@@ -21,12 +26,6 @@ def solve_normal_fibre(
     degree: int,
 ) -> dict[str, float | int | str]:
     """Solve a manufactured vector PDE across one shell normal fibre."""
-
-    import dolfinx
-    import ufl
-    from dolfinx import fem, mesh
-    from dolfinx.fem.petsc import LinearProblem
-    from mpi4py import MPI
 
     wall_field = solve_two_wall_tangential_field(shape, u0, thickness, alpha)
     u1 = np.asarray(wall_field.u1, dtype=np.float64)

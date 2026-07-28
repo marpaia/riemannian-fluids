@@ -1,4 +1,4 @@
-"""Backend capability declarations and optional numerical realizations."""
+"""Backend capabilities and dependency-free reference discretizations."""
 
 from riemannian_fluids.discretization.capabilities import (
     FENICSX_CAPABILITIES,
@@ -6,7 +6,6 @@ from riemannian_fluids.discretization.capabilities import (
     SPHERE_SPECTRAL_CAPABILITIES,
     BackendCapabilities,
 )
-from riemannian_fluids.discretization.fenicsx import solve_normal_fibre
 from riemannian_fluids.discretization.sphere_spectral import (
     OneFormFamily,
     SphereOneFormMode,
@@ -21,5 +20,4 @@ __all__ = (
     "OneFormFamily",
     "SphereOneFormMode",
     "SphereStokesBasis",
-    "solve_normal_fibre",
 )

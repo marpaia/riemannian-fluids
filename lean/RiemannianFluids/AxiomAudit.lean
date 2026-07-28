@@ -10,6 +10,8 @@ primitive.
 Each command below asks Lean for the logical axioms used by one representative milestone in the argument, in dependency order:
 
     covariant derivative
+      → connection-derived curvature commutator
+      → pointwise curvature in two tangent directions
       → musical inverse laws
       → scalar gradient and divergence
       → tensor lowering, transpose, and symmetrization
@@ -27,6 +29,10 @@ with no hidden project postulate or unfinished proof. That distinction is exactl
 -/
 
 #print axioms RiemannianFluids.LeviCivitaConnection.covariantDerivative_apply
+#print axioms RiemannianFluids.connectionCurvatureCommutatorData_hasCommutator
+#print axioms RiemannianFluids.connectionCurvatureAction_swap
+#print axioms RiemannianFluids.connectionCurvatureDirectionsAt_apply
+#print axioms RiemannianFluids.connectionCurvatureDirectionsAt_swap
 #print axioms RiemannianFluids.sharp_flat
 #print axioms RiemannianFluids.flat_sharp
 #print axioms RiemannianFluids.gradient_characterization

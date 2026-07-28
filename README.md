@@ -95,7 +95,10 @@ tools/       provenance and trust-boundary validation
 
 ## Validation
 
+Pixi is the development environment and task runner.  Its single locked environment contains JAX, DOLFINx, PETSc, SLEPc, MPI, and the validation tools.
+
 ```sh
+pixi install --locked
 make lean/sync
 make lean/check
 make python/sync
@@ -104,4 +107,4 @@ make claims/check
 make check
 ```
 
-`make lean/check` builds the formal library, audits its source closure, checks the literature crosswalk, and runs the axiom audit.  `make python/check` runs static analysis, tests, provenance adapters, and the reference studies.  `make claims/check` verifies agreement among the shared registry, Python declarations, formal-status ledger, and Lean crosswalk.
+`make lean/check` builds the formal library, audits its source closure, checks the literature crosswalk, and runs the axiom audit.  `make python/check` runs static analysis, tests, provenance adapters, the JAX reference studies, and the native DOLFINx study.  `make claims/check` verifies agreement among the shared registry, Python declarations, formal-status ledger, and Lean crosswalk.

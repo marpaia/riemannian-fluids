@@ -1,0 +1,2 @@
+# Pixi lock files are machine generated and should not be merged line by line.
+pixi.lock merge=binary linguist-language=YAML linguist-generated=true -diff

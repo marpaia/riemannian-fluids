@@ -40,7 +40,7 @@ The implementation supports:
 - vector-spherical-harmonic Stokes spectra and mixed saddle systems;
 - nonlinear and transient reference solves;
 - Fermi-coordinate shell fields, two-wall profiles, divergence corrections, and transverse averages; and
-- finite-element manufactured solutions through a pinned DOLFINx container.
+- finite-element manufactured solutions through a native, pinned DOLFINx environment.
 
 ## Evidence produced by Python
 
@@ -63,7 +63,7 @@ The evidence record identifies the geometry, parameters, convention, observable,
 
 The spherical Stokes implementation uses vector spherical harmonics.  It represents exact and coexact modes, the three viscosity spectra, incompressibility, pressure recovery, the pressure gauge, and the Killing-field kernel of deformation viscosity.
 
-The FEniCSx study runs in the image defined by `Dockerfile.fenicsx` and verifies a manufactured finite-element problem with the pinned DOLFINx environment.
+The FEniCSx study runs natively from the `fenicsx` Pixi environment and verifies a manufactured finite-element problem with DOLFINx 0.11.  The image defined by `Dockerfile.fenicsx` realizes that same locked Pixi environment on Linux; it remains an explicit reference path, not the macOS development default.
 
 ## Active validation targets
 
@@ -83,16 +83,19 @@ All Laplacians use the analysis-positive convention.  Intrinsic dimension, ambie
 
 ## Run
 
-The environment is locked to Python 3.12 with `uv`.
+The repository-root `pixi.toml` is the development manifest.  One Pixi environment contains the JAX reference implementation, the native FEniCSx backend, and all validation tools.  Run these commands from the repository root.
 
 ```sh
-uv sync --frozen --extra dev
-make check
-make literature
-uv run --frozen python -m reproductions WBS26
-make surface-viscosity
-make thin-shell
-make finite-elements/check
+pixi install --locked
+pixi run --locked check
+pixi run --locked literature
+pixi run --locked literature WBS26
+pixi run --locked surface-viscosity
+pixi run --locked thin-shell
+pixi run --locked finite-elements
+pixi run --locked finite-elements-mpi
 ```
 
-`make check` runs Ruff, the test suite, all literature adapters, and the reference surface-viscosity and thin-shell studies.
+`make check` runs Ruff, the test suite, all literature adapters, the reference surface-viscosity and thin-shell studies, and the native DOLFINx study.
+
+On macOS, `pixi shell` exposes JAX, DOLFINx, UFL, PETSc, and MPI together to an interactive shell or editor.  `make -C python finite-elements/check` runs only the native FEniCSx study, while the container reference remains available as `make -C python finite-elements/check/docker`.

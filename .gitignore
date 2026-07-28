@@ -2,9 +2,10 @@
 
 .pytest_cache/
 .ruff_cache/
+.pixi/*
+!.pixi/config.toml
 .venv/
 __pycache__/
 *.pyc
 
 .lake/
-

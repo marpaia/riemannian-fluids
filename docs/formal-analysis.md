@@ -23,6 +23,8 @@ A construction builds an object from Mathlib structures and explicit input data.
 
 - smooth musical maps;
 - covariant differentiation;
+- the field-level curvature commutator of a bundled connection;
+- its continuous pointwise realization in the two curvature-direction slots;
 - gradient and divergence;
 - tensor transposition and symmetrization;
 - the deformation tensor;
@@ -87,12 +89,14 @@ L_{\mathrm{Def}}u
 | --- | --- |
 | smooth musical maps and inverse laws | constructed |
 | covariant differentiation and regularity loss | constructed |
+| field-level curvature commutator and alternating law | constructed |
+| pointwise continuous curvature in the two direction slots | constructed under local connection regularity |
 | trace, divergence, and divergence-free predicate | constructed |
 | tensor transpose, symmetrization, and `Def` | constructed |
 | \(d^*(u^\flat)=-\operatorname{div}u\) | proved |
 | vanishing of \((d d^*(u^\flat))^\sharp\) on divergence-free fields | proved |
 | degree-one exterior derivative and degree-two codifferential | interface data |
-| Ricci endomorphism derived from Riemann curvature | interface data |
+| tensoriality in the differentiated-field slot and Ricci contraction | interface data |
 | \(2\operatorname{Def}^*\operatorname{Def}\) from a formal adjoint | interface data |
 | Weitzenbock and symmetric-gradient identities | theorem hypotheses |
 | full and divergence-free comparison | proved from the displayed hypotheses |
