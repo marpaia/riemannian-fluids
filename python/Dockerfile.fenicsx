@@ -8,4 +8,4 @@ RUN pixi install --locked
 COPY python/riemannian_fluids ./python/riemannian_fluids
 COPY python/experiments ./python/experiments
 
-ENTRYPOINT ["pixi", "run", "--locked", "finite-elements"]
+ENTRYPOINT ["pixi", "run", "--locked", "fenicsx-check"]

@@ -2,13 +2,20 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 
+from riemannian_fluids.discrete import FlowState
+from riemannian_fluids.discretization.manufactured import (
+    stationary_navier_stokes_reference,
+    transient_dissipative_reference,
+)
 from riemannian_fluids.operators import MixedStokesSystem
 from riemannian_fluids.solvers import (
     discrete_energy,
     generalized_eigenpairs,
     implicit_euler_step,
+    integrate_incompressible_flow,
     newton_solve,
     solve_mixed_stokes,
+    solve_stationary_flow,
 )
 
 
@@ -48,3 +55,32 @@ def test_generalized_eigenproblem_uses_mass_matrix() -> None:
     )
     assert jnp.allclose(spectrum.eigenvalues, jnp.asarray((2.0, 4.0)))
     assert jnp.all(spectrum.residual_norms < 1.0e-12)
+
+
+def test_stationary_navier_stokes_recovers_manufactured_state() -> None:
+    reference = stationary_navier_stokes_reference()
+    velocity = reference.exact_state.velocity
+    pressure = reference.exact_state.pressure
+
+    result = solve_stationary_flow(reference.system, initial=FlowState(0.5 * velocity, jnp.zeros_like(pressure)))
+
+    assert result.converged
+    assert jnp.allclose(result.state.velocity, velocity, atol=1.0e-9)
+    assert jnp.allclose(result.state.pressure, pressure, atol=1.0e-9)
+    assert result.diagnostics.momentum_residual_norm < 1.0e-9
+    assert result.diagnostics.incompressibility_norm < 1.0e-10
+    assert abs(float(reference.convection.power(velocity))) < 1.0e-12
+
+
+def test_transient_incompressible_flow_preserves_constraint_and_dissipates_energy() -> None:
+    system = transient_dissipative_reference()
+    trajectory = integrate_incompressible_flow(
+        system,
+        jnp.asarray((1.0, -2.0, 1.0), dtype=jnp.float64),
+        0.05,
+        4,
+    )
+
+    assert all(result.converged for result in trajectory.results)
+    assert jnp.all(trajectory.incompressibility_norms < 1.0e-10)
+    assert jnp.all(jnp.diff(trajectory.energy_history) < 0.0)

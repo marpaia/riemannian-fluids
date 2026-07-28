@@ -45,13 +45,16 @@ The Python package provides:
 - tensor calculus, differential forms, and Hodge diagnostics;
 - rough, Hodge, deformation, Stokes, and Navier--Stokes operators;
 - Fermi coordinates, wall profiles, transverse averaging, and finite-thickness shell fields;
-- vector-spherical-harmonic, mixed, nonlinear, transient, and generalized spectral solvers;
-- an explicit FEniCSx backend for finite-element studies; and
+- typed semidiscrete flow systems with constrained mixed, Newton, and transient JAX reference solvers;
+- vector-spherical-harmonic Stokes spectra and an exact global spherical reference;
+- native FEniCSx Taylor--Hood solves on embedded surfaces and resolved tetrahedral volume shells; and
 - validation tools for residuals, refinement studies, spectra, constraints, and literature claim gates.
 
 Python evidence is identified by its mathematical kind: pointwise identity, manufactured solution, discrete solve, mesh refinement, spectral comparison, or thin-domain study.  Each experiment reports the claim, geometry, parameters, observable, and acceptance criterion that determine its meaning.
 
 [`python/README.md`](python/README.md) documents the package and executable studies.
+[`docs/computational-architecture.md`](docs/computational-architecture.md) records the backend boundaries, shared flow contract, and numerical evidence gates.
+[`docs/thin-shell-convergence.md`](docs/thin-shell-convergence.md) separates the wall-selection experiments from the concrete analytic obligations needed for Mosco and operator convergence.
 
 ## Literature and provenance
 
@@ -107,4 +110,4 @@ make claims/check
 make check
 ```
 
-`make lean/check` builds the formal library, audits its source closure, checks the literature crosswalk, and runs the axiom audit.  `make python/check` runs static analysis, tests, provenance adapters, the JAX reference studies, and the native DOLFINx study.  `make claims/check` verifies agreement among the shared registry, Python declarations, formal-status ledger, and Lean crosswalk.
+`make lean/check` builds the formal library, audits its source closure, checks the literature crosswalk, and runs the axiom audit.  `make python/check` runs static analysis, tests, provenance adapters, the JAX reference studies, and the native DOLFINx normal-fibre, surface, and volume-shell studies.  `make claims/check` verifies agreement among the shared registry, Python declarations, formal-status ledger, and Lean crosswalk.

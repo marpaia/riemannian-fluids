@@ -8,10 +8,13 @@ The package follows the chain
 geometry -> tensors -> operators -> function spaces -> discretization -> solver -> evidence
 ```
 
+The backend and evidence boundaries are specified in [`../docs/computational-architecture.md`](../docs/computational-architecture.md).
+
 ## Package structure
 
 ```text
 riemannian_fluids/
+  discrete.py        typed semidiscrete velocity-pressure flow contract
   geometry/          metrics, connections, curvature, domains, embeddings, normal geometry
   tensors/           covariant calculus, musical maps, tensor operations, differential forms
   operators/         viscosity, Stokes, and Navier--Stokes operators
@@ -38,9 +41,9 @@ The implementation supports:
 - rough, Hodge, and deformation viscosity operators with analysis-positive signs;
 - incompressibility constraints, pressure gauges, Hodge decompositions, and harmonic sectors;
 - vector-spherical-harmonic Stokes spectra and mixed saddle systems;
-- nonlinear and transient reference solves;
+- constrained stationary and implicit-transient semidiscrete Navier--Stokes reference solves;
 - Fermi-coordinate shell fields, two-wall profiles, divergence corrections, and transverse averages; and
-- finite-element manufactured solutions through a native, pinned DOLFINx environment.
+- mixed Taylor--Hood surface Stokes and resolved three-dimensional shell solves through native, pinned DOLFINx.
 
 ## Evidence produced by Python
 
@@ -63,17 +66,25 @@ The evidence record identifies the geometry, parameters, convention, observable,
 
 The spherical Stokes implementation uses vector spherical harmonics.  It represents exact and coexact modes, the three viscosity spectra, incompressibility, pressure recovery, the pressure gauge, and the Killing-field kernel of deformation viscosity.
 
-The FEniCSx study runs natively from the `fenicsx` Pixi environment and verifies a manufactured finite-element problem with DOLFINx 0.11.  The image defined by `Dockerfile.fenicsx` realizes that same locked Pixi environment on Linux; it remains an explicit reference path, not the macOS development default.
+`surface-stokes` solves a mixed P2/P1 resolvent-deformation Stokes problem on successively refined polyhedral spheres.  Its target is a degree-one coexact rotational Killing mode from the spherical spectral implementation.  The study reports velocity error, surface divergence, normal leakage, and pressure gauge diagnostics.
+
+`navier-stokes` exercises the general semidiscrete contract with nonzero energy-preserving quadratic convection.  It recovers a manufactured stationary velocity-pressure state with constrained Newton and advances an unforced flow with implicit Euler while checking incompressibility and energy decay.  This is solver-level finite-dimensional evidence, not yet a spatially resolved surface Navier--Stokes simulation.
+
+`resolved-shell` constructs a genuine tetrahedral three-dimensional spherical shell with independently tagged inner and outer walls.  A mixed P2/P1 manufactured Stokes solve tracks velocity, pressure, divergence, no-slip wall-trace geometry error, transverse-average error, thickness, tangential mesh size, normal layers, and \(h/\varepsilon\).  The current no-slip study establishes the volume-mesh and diagnostics path; it does not establish the paper's Navier/Hodge wall-selected thin-shell convergence theorem.
+
+`wall-selection` solves the Navier deformation form, Hodge div--curl form, and signed-curvature intermediate wall forms on the resolved shell.  It compares transverse averages with exact spherical rotational resolvents, first at fixed thickness under mesh refinement and then along a coupled sequence with constant \(h/\varepsilon\).  This is proof-oriented numerical evidence for one mode; [`../docs/thin-shell-convergence.md`](../docs/thin-shell-convergence.md) records the remaining continuous Mosco proof obligations.
+
+All FEniCSx studies run natively from the single default Pixi environment with DOLFINx 0.11 and MUMPS-backed PETSc factorization.  The image defined by `Dockerfile.fenicsx` realizes that same locked Pixi environment on Linux; it remains an explicit reference path, not the macOS development default.
 
 ## Active validation targets
 
-The computational program is extending toward:
+The remaining computational program includes:
 
-- a resolved curved three-dimensional volume shell with two tagged walls;
-- independent refinement in mesh size \(h\), thickness \(\varepsilon\), and \(h/\varepsilon\);
+- multi-mode and non-spherical Navier, Hodge, and partial-slip volume-shell comparisons beyond the current rotational sphere mode;
+- proof-quality separated limits in mesh size \(h\), thickness \(\varepsilon\), and \(h/\varepsilon\);
 - FEEC realizations and convergence for noncompact Hodge decompositions;
 - expanding-domain hyperbolic Stokes and Navier--Stokes studies; and
-- global curved-surface Navier--Stokes simulations.
+- spatially resolved curved-surface Navier--Stokes simulations beyond the current surface Stokes and dense nonlinear references.
 
 Backend capability records identify which observables and validation gates each implementation supplies.
 
@@ -91,11 +102,16 @@ pixi run --locked check
 pixi run --locked literature
 pixi run --locked literature WBS26
 pixi run --locked surface-viscosity
+pixi run --locked surface-stokes
+pixi run --locked navier-stokes
 pixi run --locked thin-shell
 pixi run --locked finite-elements
+pixi run --locked resolved-shell
+pixi run --locked wall-selection
+pixi run --locked fenicsx-check
 pixi run --locked finite-elements-mpi
 ```
 
 `make check` runs Ruff, the test suite, all literature adapters, the reference surface-viscosity and thin-shell studies, and the native DOLFINx study.
 
-On macOS, `pixi shell` exposes JAX, DOLFINx, UFL, PETSc, and MPI together to an interactive shell or editor.  `make -C python finite-elements/check` runs only the native FEniCSx study, while the container reference remains available as `make -C python finite-elements/check/docker`.
+On macOS, `pixi shell` exposes JAX, DOLFINx, UFL, PETSc, and MPI together to an interactive shell or editor.  `pixi run --locked fenicsx-check` runs the normal-fibre, surface, and volume-shell finite-element gates, while the container reference remains available as `make -C python finite-elements/check/docker`.

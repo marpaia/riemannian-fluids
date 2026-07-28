@@ -24,6 +24,8 @@ from riemannian_fluids.shells.problems import (
     ShellResolution,
     ShellSolveDiagnostics,
     WallLaw,
+    WallSelectionDiagnostics,
+    wall_parameter,
 )
 
 __all__ = (
@@ -31,6 +33,7 @@ __all__ = (
     "ResolvedShellProblem",
     "ShellResolution",
     "ShellSolveDiagnostics",
+    "WallSelectionDiagnostics",
     "TwoWallTangentialField",
     "WallLaw",
     "ambient_cartesian_field",
@@ -49,4 +52,5 @@ __all__ = (
     "transverse_average",
     "tubular_jacobian",
     "wall_residual",
+    "wall_parameter",
 )

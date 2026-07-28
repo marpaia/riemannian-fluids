@@ -7,7 +7,8 @@ from enum import StrEnum
 
 import jax.numpy as jnp
 
-from riemannian_fluids.operators import MixedStokesSystem, ViscosityModel
+from riemannian_fluids.discrete import SemiDiscreteFlowSystem
+from riemannian_fluids.operators import ViscosityModel
 from riemannian_fluids.types import Array
 
 
@@ -72,22 +73,34 @@ class SphereStokesBasis:
     def killing_mode_indices(self) -> tuple[int, ...]:
         return tuple(index for index, mode in enumerate(self.velocity_modes) if mode.degree == 1 and mode.family is OneFormFamily.COEXACT)
 
+    def interpolating_viscosity_eigenvalues(self, alpha: float) -> Array:
+        """Eigenvalues of the wall-selected family on the unit sphere."""
+
+        if not 0.0 <= alpha <= 1.0:
+            raise ValueError("alpha must lie in [0, 1]")
+        extrinsic_shift = 2.0 * alpha + 4.0 * alpha * (1.0 - alpha)
+        return self.viscosity_eigenvalues(ViscosityModel.DEFORMATION) + extrinsic_shift
+
     def stokes_system(
         self,
         force: Array,
         *,
         model: ViscosityModel | str = ViscosityModel.DEFORMATION,
         viscosity: float = 1.0,
-    ) -> MixedStokesSystem:
+        reaction: float = 0.0,
+    ) -> SemiDiscreteFlowSystem:
         if force.shape != (len(self.velocity_modes),):
             raise ValueError("force must contain one coefficient per velocity mode")
-        operator = viscosity * jnp.diag(self.viscosity_eigenvalues(model))
+        if viscosity <= 0.0 or reaction < 0.0:
+            raise ValueError("viscosity must be positive and reaction nonnegative")
+        operator = viscosity * jnp.diag(self.viscosity_eigenvalues(model)) + reaction * jnp.eye(len(self.velocity_modes))
         divergence = self.divergence_matrix()
         pressure_weights = jnp.zeros((divergence.shape[0],), dtype=force.dtype).at[0].set(1.0)
-        return MixedStokesSystem(
+        return SemiDiscreteFlowSystem(
             operator,
             divergence,
             force,
             jnp.zeros((divergence.shape[0],), dtype=force.dtype),
             pressure_weights,
+            name="sphere-spectral-stokes",
         )

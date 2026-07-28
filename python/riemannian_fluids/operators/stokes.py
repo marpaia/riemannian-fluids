@@ -6,10 +6,13 @@ from dataclasses import dataclass
 
 import jax.numpy as jnp
 
+from riemannian_fluids.discrete import SemiDiscreteFlowSystem
 from riemannian_fluids.geometry import Geometry, metric
 from riemannian_fluids.operators.viscosity import ViscosityModel, viscosity_operator
 from riemannian_fluids.tensors import deformation_tensor, divergence, gradient
 from riemannian_fluids.types import Array, ScalarField, VectorField
+
+MixedStokesSystem = SemiDiscreteFlowSystem
 
 
 @dataclass(frozen=True)
@@ -49,22 +52,3 @@ def deformation_dissipation_density(
     inverse = jnp.linalg.inv(metric(geometry, q))
     squared_norm = jnp.einsum("ia,jb,ij,ab->", inverse, inverse, deformation, deformation)
     return 2.0 * viscosity * squared_norm
-
-
-@dataclass(frozen=True)
-class MixedStokesSystem:
-    """Discrete saddle system ``[A B^T; B 0][u,p]=[f,g]``."""
-
-    velocity_operator: Array
-    divergence: Array
-    force: Array
-    constraint: Array
-    pressure_weights: Array | None = None
-
-    def block_matrix(self) -> Array:
-        pressure_count = self.divergence.shape[0]
-        zero = jnp.zeros((pressure_count, pressure_count), dtype=self.velocity_operator.dtype)
-        return jnp.block([[self.velocity_operator, self.divergence.T], [self.divergence, zero]])
-
-    def right_hand_side(self) -> Array:
-        return jnp.concatenate((self.force, self.constraint))

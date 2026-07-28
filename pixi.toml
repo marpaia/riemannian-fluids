@@ -10,14 +10,23 @@ lint = { cmd = "ruff check .", cwd = "python" }
 test = { cmd = "python -m pytest tests", cwd = "python" }
 literature = { cmd = "python -m reproductions", cwd = "python" }
 surface-viscosity = { cmd = "python -m experiments surface-viscosity", cwd = "python" }
+surface-stokes = { cmd = "python -m experiments surface-stokes", cwd = "python" }
+navier-stokes = { cmd = "python -m experiments navier-stokes", cwd = "python" }
 thin-shell = { cmd = "python -m experiments thin-shell", cwd = "python" }
+resolved-shell = { cmd = "python -m experiments resolved-shell", cwd = "python" }
+wall-selection = { cmd = "python -m experiments wall-selection", cwd = "python" }
 surface-viscosity-check = { cmd = "python -m experiments surface-viscosity --samples 2", cwd = "python" }
+surface-stokes-check = { cmd = "python -m experiments surface-stokes --refinements 0,1,2,3", cwd = "python" }
+navier-stokes-check = { cmd = "python -m experiments navier-stokes", cwd = "python" }
 thin-shell-check = { cmd = "python -m experiments thin-shell --samples 2", cwd = "python" }
+resolved-shell-check = { cmd = "python -m experiments resolved-shell", cwd = "python" }
+wall-selection-check = { cmd = "python -m experiments wall-selection", cwd = "python" }
 claims-check = { cmd = "python ../tools/validate_claims.py", cwd = "python" }
 lean-contracts-check = { cmd = "python ../tools/validate_lean.py", cwd = "python" }
 finite-elements = { cmd = "python -m experiments finite-elements", cwd = "python" }
 finite-elements-mpi = { cmd = "mpiexec -n 2 python -m experiments finite-elements", cwd = "python" }
-check = { depends-on = ["lint", "test", "literature", "surface-viscosity-check", "thin-shell-check", "finite-elements"] }
+fenicsx-check = { depends-on = ["finite-elements", "surface-stokes-check", "resolved-shell-check", "wall-selection-check"] }
+check = { depends-on = ["lint", "test", "literature", "surface-viscosity-check", "navier-stokes-check", "thin-shell-check", "fenicsx-check"] }
 
 [dependencies]
 fenics-dolfinx = "==0.11.0"

@@ -31,3 +31,29 @@ def test_global_sphere_stokes_recovers_pressure_and_killing_modes() -> None:
     assert jnp.linalg.norm(solution.velocity) < 1.0e-10
     assert jnp.isclose(solution.pressure[1 + scalar_index], -1.0 / jnp.sqrt(6.0))
     assert len(basis.killing_mode_indices()) == 3
+
+
+def test_reaction_shift_resolves_deformation_killing_mode() -> None:
+    basis = SphereStokesBasis(1)
+    index = basis.killing_mode_indices()[0]
+    force = jnp.zeros((len(basis.velocity_modes),)).at[index].set(1.0)
+    solution = solve_mixed_stokes(
+        basis.stokes_system(
+            force,
+            model=ViscosityModel.DEFORMATION,
+            reaction=1.0,
+        )
+    )
+    assert solution.result.converged
+    assert solution.residual_norm < 1.0e-12
+    assert jnp.isclose(solution.velocity[index], 1.0)
+
+
+def test_spherical_wall_family_interpolates_endpoints_and_extrinsic_middle() -> None:
+    basis = SphereStokesBasis(1)
+    index = basis.killing_mode_indices()[0]
+    assert jnp.isclose(basis.interpolating_viscosity_eigenvalues(0.0)[index], 0.0)
+    assert jnp.isclose(basis.interpolating_viscosity_eigenvalues(0.25)[index], 1.25)
+    assert jnp.isclose(basis.interpolating_viscosity_eigenvalues(0.5)[index], 2.0)
+    assert jnp.isclose(basis.interpolating_viscosity_eigenvalues(0.75)[index], 2.25)
+    assert jnp.isclose(basis.interpolating_viscosity_eigenvalues(1.0)[index], 2.0)
