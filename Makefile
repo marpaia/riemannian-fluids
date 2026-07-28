@@ -1,4 +1,4 @@
-.PHONY: python/sync python/check lean/sync lean/check lean/statements lean/progress claims/check check
+.PHONY: python/sync python/check lean/sync lean/check lean/statements claims/check check
 
 python/sync:
 	$(MAKE) -C python sync
@@ -11,13 +11,10 @@ lean/sync:
 
 lean/check:
 	cd lean && lake build RiemannianFluids
-	cd python && uv run --frozen python ../tools/validate_lean.py check
+	cd python && uv run --frozen python ../tools/validate_lean.py
 	cd lean && lake env lean RiemannianFluids/AxiomAudit.lean
 
 lean/statements: lean/check
-
-lean/progress: lean/check
-	cd python && uv run --frozen python ../tools/validate_lean.py progress
 
 claims/check:
 	cd python && uv run --frozen python ../tools/validate_claims.py

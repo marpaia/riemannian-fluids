@@ -1,120 +1,37 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "claims": [
     {
       "id": "CZ24-operator-census",
-      "lean_module": "RiemannianFluids.Reproductions.CZ24.OperatorCensus",
-      "declaration": "RiemannianFluids.cz24OperatorCensusStatement"
+      "intellectual_thread": "curvature separates intrinsic viscosity candidates",
+      "lean_module": "RiemannianFluids.Viscosity.CurvatureComparison",
+      "declaration": "RiemannianFluids.candidateOperators_pairwiseDistinct_of_curvatureWitness",
+      "relationship": "conditional-theorem",
+      "limitation": "Lean proves the comparison from an explicit curved divergence-free witness; construction of such a witness is not claimed here."
     },
     {
       "id": "CCD17-divfree-def-hodge",
-      "lean_module": "RiemannianFluids.Reproductions.CCD17.Statements",
-      "declaration": "RiemannianFluids.ccd17DivergenceFreeStatement"
-    },
-    {
-      "id": "CCD17-hyperbolic-energy-obstruction",
-      "lean_module": "RiemannianFluids.Reproductions.CCD17.Statements",
-      "declaration": "RiemannianFluids.ccd17HyperbolicEnergyObstructionStatement"
-    },
-    {
-      "id": "CCD17-relativistic-limit",
-      "lean_module": "RiemannianFluids.Reproductions.CCD17.Statements",
-      "declaration": "RiemannianFluids.ccd17RelativisticLimitStatement"
-    },
-    {
-      "id": "CCY23-invariant-restriction",
-      "lean_module": "RiemannianFluids.Reproductions.CCY23.Statements",
-      "declaration": "RiemannianFluids.ccy23InvariantRestrictionStatement"
-    },
-    {
-      "id": "CCY23-eccentricity-expansion",
-      "lean_module": "RiemannianFluids.Reproductions.CCY23.Statements",
-      "declaration": "RiemannianFluids.ccy23EccentricityExpansionStatement"
-    },
-    {
-      "id": "CCG25-gauss-ricci-codimension-two",
-      "lean_module": "RiemannianFluids.Reproductions.CCG25.Statements",
-      "declaration": "RiemannianFluids.ccg25GaussRicciCodimensionTwoStatement"
-    },
-    {
-      "id": "CCG25-laplacian-gauss-family",
-      "lean_module": "RiemannianFluids.Reproductions.CCG25.Statements",
-      "declaration": "RiemannianFluids.ccg25LaplacianGaussFamilyStatement"
-    },
-    {
-      "id": "CCF25-four-candidates-sphere",
-      "lean_module": "RiemannianFluids.Reproductions.CCF25.Statements",
-      "declaration": "RiemannianFluids.ccf25FourCandidatesSphereStatement"
-    },
-    {
-      "id": "CCF25-averaging-dependence",
-      "lean_module": "RiemannianFluids.Reproductions.CCF25.Statements",
-      "declaration": "RiemannianFluids.ccf25AveragingDependenceStatement"
+      "intellectual_thread": "curvature comparison of intrinsic viscosity operators",
+      "lean_module": "RiemannianFluids.Operators.GeometricIdentities",
+      "declaration": "RiemannianFluids.ccd17_divfree_def_hodge",
+      "relationship": "interface-theorem",
+      "limitation": "The Weitzenbock and symmetric-gradient identities are explicit hypotheses; the divergence-free cancellation is constructed."
     },
     {
       "id": "WBK26-lie-strain",
-      "lean_module": "RiemannianFluids.Reproductions.WBK26.Kinematics",
-      "declaration": "RiemannianFluids.wbk26LieStrainStatement"
-    },
-    {
-      "id": "WBK26-negative-curvature-decay",
-      "lean_module": "RiemannianFluids.Reproductions.WBK26.Kinematics",
-      "declaration": "RiemannianFluids.wbk26Theorem6_1Statement"
+      "intellectual_thread": "intrinsic strain as the kinematic origin of deformation viscosity",
+      "lean_module": "RiemannianFluids.Viscosity.IntrinsicStrain",
+      "declaration": "RiemannianFluids.infinitesimalMetricRate_apply",
+      "relationship": "proved-core",
+      "limitation": "The intrinsic infinitesimal metric rate is constructed; identification with the derivative of a flow pullback awaits a formal flow theory."
     },
     {
       "id": "WBS26-local-interpolating-family",
-      "lean_module": "RiemannianFluids.Reproductions.WBS26.Statements",
-      "declaration": "RiemannianFluids.wbs26LocalInterpolatingFamilyStatement"
-    },
-    {
-      "id": "WBS26-two-wall-profile",
-      "lean_module": "RiemannianFluids.Reproductions.WBS26.Statements",
-      "declaration": "RiemannianFluids.wbs26TwoWallProfileStatement"
-    },
-    {
-      "id": "WBS26-mosco-resolvent-spectrum",
-      "lean_module": "RiemannianFluids.Reproductions.WBS26.Statements",
-      "declaration": "RiemannianFluids.wbs26MoscoResolventSpectrumStatement"
-    },
-    {
-      "id": "WBS26-resolved-volume-shell",
-      "lean_module": "RiemannianFluids.Numerics.WBS26ResolvedShell",
-      "declaration": "RiemannianFluids.wbs26ResolvedVolumeShellStatement"
-    },
-    {
-      "id": "CC13-hyperbolic-curvature-model",
-      "lean_module": "RiemannianFluids.Reproductions.CC13.MainResults",
-      "declaration": "RiemannianFluids.cc13HyperbolicCurvatureModelStatement"
-    },
-    {
-      "id": "CC13-leray-hopf-nonuniqueness",
-      "lean_module": "RiemannianFluids.Reproductions.CC13.MainResults",
-      "declaration": "RiemannianFluids.cc13LerayHopfNonuniquenessStatement"
-    },
-    {
-      "id": "CC15-stationary-liouville",
-      "lean_module": "RiemannianFluids.Reproductions.CC15.MainResults",
-      "declaration": "RiemannianFluids.cc15StationaryLiouvilleStatement"
-    },
-    {
-      "id": "CC21-nontrivial-stokes-exterior",
-      "lean_module": "RiemannianFluids.Reproductions.CC21.MainResults",
-      "declaration": "RiemannianFluids.cc21NontrivialStokesExteriorStatement"
-    },
-    {
-      "id": "CC21-nontrivial-navier-stokes-exterior",
-      "lean_module": "RiemannianFluids.Reproductions.CC21.MainResults",
-      "declaration": "RiemannianFluids.cc21NontrivialNavierStokesExteriorStatement"
-    },
-    {
-      "id": "CCP25-discrete-hodge-gate",
-      "lean_module": "RiemannianFluids.Numerics.CCP25Discrete",
-      "declaration": "RiemannianFluids.ccp25DiscreteHodgeGateStatement"
-    },
-    {
-      "id": "CCP25-h1-noncompact-decomposition",
-      "lean_module": "RiemannianFluids.Reproductions.CCP25.Statements",
-      "declaration": "RiemannianFluids.ccp25H1NoncompactDecompositionStatement"
+      "intellectual_thread": "boundary laws select effective surface viscosity",
+      "lean_module": "RiemannianFluids.Viscosity.BoundarySelection",
+      "declaration": "RiemannianFluids.boundarySelectedOperator",
+      "relationship": "definition-and-endpoint-algebra",
+      "limitation": "The family and its endpoints are formalized; its derivation from a resolved thin shell and Mosco convergence remain open."
     }
   ]
 }

@@ -35,6 +35,45 @@ namespace RiemannianFluids
 open Bundle
 open scoped Bundle ContDiff Manifold
 
+/-- A first-class witness for the geometric hypotheses in the compact Hodge theorem.
+
+The carrier types and Mathlib instances are fields so that a literature package can retain
+the actual manifold setting as data instead of replacing it by a Boolean-style `Prop`
+flag.  The analytic realization of differential forms may still be supplied separately. -/
+structure CompactBoundarylessRiemannianManifoldData where
+  E : Type
+  [normedAddCommGroupE : NormedAddCommGroup E]
+  [normedSpaceE : NormedSpace ℝ E]
+  [finiteDimensionalE : FiniteDimensional ℝ E]
+  H : Type
+  [topologicalSpaceH : TopologicalSpace H]
+  I : ModelWithCorners ℝ E H
+  M : Type
+  [metricSpaceM : MetricSpace M]
+  [chartedSpaceM : ChartedSpace H M]
+  [isManifoldM : IsManifold I 1 M]
+  [compactSpaceM : CompactSpace M]
+  [boundarylessManifoldM : BoundarylessManifold I M]
+  [riemannianBundleM : RiemannianBundle (fun x : M => TangentSpace I x)]
+
+/-- A first-class witness for the geometric hypotheses in the complete-manifold
+Hodge--Kodaira theorem. -/
+structure CompleteBoundarylessRiemannianManifoldData where
+  E : Type
+  [normedAddCommGroupE : NormedAddCommGroup E]
+  [normedSpaceE : NormedSpace ℝ E]
+  [finiteDimensionalE : FiniteDimensional ℝ E]
+  H : Type
+  [topologicalSpaceH : TopologicalSpace H]
+  I : ModelWithCorners ℝ E H
+  M : Type
+  [metricSpaceM : MetricSpace M]
+  [chartedSpaceM : ChartedSpace H M]
+  [isManifoldM : IsManifold I 1 M]
+  [completeSpaceM : CompleteSpace M]
+  [boundarylessManifoldM : BoundarylessManifold I M]
+  [riemannianBundleM : RiemannianBundle (fun x : M => TangentSpace I x)]
+
 /--
 The intrinsic, rather than ambient, dimension-two requirement for a surface model. `E` is the model vector space used by `ModelWithCorners`; asserting
 `finrank E = 2` says that tangent spaces are two-dimensional regardless of any later embedding into an ambient Euclidean space.

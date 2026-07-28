@@ -78,30 +78,36 @@ def main() -> None:
     contracts_by_id = {entry["id"]: entry for entry in contract_entries}
     if len(contracts_by_id) != len(contract_entries):
         raise SystemExit("claims/lean-contracts.json contains duplicate claim IDs")
-    if set(contracts_by_id) != claim_ids:
-        missing = sorted(claim_ids - set(contracts_by_id))
+    if not set(contracts_by_id) <= claim_ids:
         extra = sorted(set(contracts_by_id) - claim_ids)
         raise SystemExit(
-            f"Lean contract coverage mismatch: missing={missing}, extra={extra}"
+            f"Lean crosswalk contains unknown claims: {extra}"
         )
     for claim_id, contract in contracts_by_id.items():
         if not contract.get("lean_module") or not contract.get("declaration"):
-            raise SystemExit(f"{claim_id} has an incomplete Lean contract mapping")
+            raise SystemExit(f"{claim_id} has an incomplete Lean crosswalk entry")
+        for field in ("intellectual_thread", "relationship", "limitation"):
+            if not contract.get(field):
+                raise SystemExit(
+                    f"{claim_id} Lean crosswalk is missing explanatory field {field}"
+                )
 
     for claim_id, entry in entries_by_id.items():
         state = entry.get("state")
         if state not in FORMALIZATION_STATES:
             raise SystemExit(f"{claim_id} has invalid formalization state {state!r}")
         if state != "catalogued" and not (
-            entry.get("lean_module")
-            and entry.get("declaration")
-            and entry.get("terminal_declaration")
+            entry.get("lean_module") and entry.get("declaration")
         ):
             raise SystemExit(
-                f"{claim_id} is {state!r} without a Lean statement and terminal declaration"
+                f"{claim_id} is {state!r} without a Lean declaration"
             )
         if state != "catalogued":
-            contract = contracts_by_id[claim_id]
+            contract = contracts_by_id.get(claim_id)
+            if contract is None:
+                raise SystemExit(
+                    f"{claim_id} is {state!r} but has no selective Lean crosswalk entry"
+                )
             if (
                 entry["lean_module"] != contract["lean_module"]
                 or entry["declaration"] != contract["declaration"]
@@ -113,7 +119,7 @@ def main() -> None:
     claim_count = len(claim_ids)
     print(
         f"validated {len(registry['papers'])} papers, {claim_count} claims, "
-        f"{len(contracts_by_id)} Lean statement contracts, and "
+        f"{len(contracts_by_id)} selective Lean crosswalk entries, and "
         f"{len(analytic_ids)} analytic formalization records"
     )
 

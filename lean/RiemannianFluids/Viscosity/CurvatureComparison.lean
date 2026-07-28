@@ -1,16 +1,25 @@
-import RiemannianFluids.ProofStatus
 import RiemannianFluids.Operators.GeometricIdentities
+import RiemannianFluids.Operators.Viscosity
 
 /-!
-# CZ24 operator-census contract
+# Curvature separates the intrinsic viscosity candidates
 
-Czubak's 2024 Notices survey emphasizes that the rough/Bochner, Hodge, and deformation constructions are not one context-free vector Laplacian on a
-curved manifold. The broad survey sentence is made falsifiable here: for a fixed curved witness, the three resulting linear maps are pairwise
-distinct.
+The rough, Hodge, and deformation Laplacians agree in Euclidean coordinates for reasons that
+do not survive commuting covariant derivatives.  The intellectual thread running from the
+classical operator comparison to the recent viscosity-selection literature is therefore:
 
-The current route takes a divergence-free field on which Ricci acts nontrivially. CCD17's Weitzenbock and deformation/Hodge identities then distinguish
-all three operators. Constructing such a witness on a concrete curved manifold remains separate from this conditional route; the statement does not
-claim that every curved manifold distinguishes all candidates.
+1. construct the three candidates independently;
+2. derive the Weitzenbock and symmetric-gradient comparison identities;
+3. impose incompressibility only after the full identity is visible; and
+4. ask which geometry or physical limiting procedure selects a candidate.
+
+`Operators.GeometricIdentities` carries out the algebraic middle of this program.  Its
+geometric Weitzenbock and formal-adjoint inputs remain explicit theorem hypotheses.  This
+module records the important consequence for the *space of candidates*: a single
+divergence-free field with nonzero Ricci action distinguishes all three operators.
+
+This is stronger and more reusable than a paper census.  It says exactly what a curved
+witness must accomplish, while leaving the genuinely geometric existence question visible.
 -/
 
 namespace RiemannianFluids
@@ -28,31 +37,30 @@ variable
     [RiemannianBundle (TangentSpace I : M → Type _)]
     [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)]
 
-/-- The precise operator-census conclusion for a fixed geometric realization: all three candidate linear maps are distinct. -/
-def cz24OperatorCensusStatement
+/-- Pairwise inequivalence of the three intrinsic viscosity candidates. -/
+def CandidateOperatorsPairwiseDistinct
     (regularity : ℕ∞ω)
     [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
-    [IsContMDiffRiemannianBundle I (SecondOrderRegularity regularity) E (TangentSpace I : M → Type _)]
+    [IsContMDiffRiemannianBundle I (SecondOrderRegularity regularity) E
+      (TangentSpace I : M → Type _)]
     (connection : LeviCivitaConnection (M := M) I)
     (smooth : LeviCivitaConnection.IsContMDiff I connection (regularity + 1))
     (operators : CCD17OperatorData (M := M) I regularity) : Prop :=
   operators.roughLaplacian ≠ operators.hodgeLaplacian I regularity connection smooth ∧
     operators.roughLaplacian ≠ operators.deformationLaplacian ∧
-    operators.hodgeLaplacian I regularity connection smooth ≠ operators.deformationLaplacian
+    operators.hodgeLaplacian I regularity connection smooth ≠
+      operators.deformationLaplacian
 
 omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
 /--
-The source-level inequivalence route from a divergence-free curved witness.  This comparison is
-pure assembly: CCD17 identifies the three operator values on the witness, and nonvanishing
-Ricci action separates them.  A concrete CZ24 reproduction must still construct such a witness;
-that geometric existence statement belongs below this interface rather than in this algebraic
-comparison.
+A divergence-free field on which Ricci acts nontrivially is a witness that the rough, Hodge,
+and deformation candidates are pairwise distinct.
 -/
-@[proof_assembly]
-theorem cz24_operator_census_of_curved_witness
+theorem candidateOperators_pairwiseDistinct_of_curvatureWitness
     (regularity : ℕ∞ω)
     [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
-    [IsContMDiffRiemannianBundle I (SecondOrderRegularity regularity) E (TangentSpace I : M → Type _)]
+    [IsContMDiffRiemannianBundle I (SecondOrderRegularity regularity) E
+      (TangentSpace I : M → Type _)]
     (connection : LeviCivitaConnection (M := M) I)
     (smooth : LeviCivitaConnection.IsContMDiff I connection (regularity + 1))
     (operators : CCD17OperatorData (M := M) I regularity)
@@ -61,7 +69,7 @@ theorem cz24_operator_census_of_curved_witness
     (field : SmoothVectorField (M := M) I (SecondOrderRegularity regularity))
     (hdiv : IsDivergenceFree I connection (regularity + 1) smooth field)
     (hRicci : operators.ricci.action I regularity field ≠ 0) :
-    cz24OperatorCensusStatement I regularity connection smooth operators := by
+    CandidateOperatorsPairwiseDistinct I regularity connection smooth operators := by
   have hRoughAt :
       operators.roughLaplacian field =
         operators.hodgeLaplacian I regularity connection smooth field -
@@ -112,23 +120,5 @@ theorem cz24_operator_census_of_curved_witness
         (2 : ℝ) • operators.ricci.action I regularity field = 0 :=
       sub_eq_self.mp hDifference
     exact hRicci ((smul_eq_zero.mp hTwiceRicci).resolve_left (by norm_num))
-
-omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
-/-- Literature-facing CZ24 route. Its transitive axiom audit remains open until the curved-witness comparison above is proved. -/
-@[literature_terminal]
-theorem cz24_operator_census_route
-    (regularity : ℕ∞ω)
-    [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
-    [IsContMDiffRiemannianBundle I (SecondOrderRegularity regularity) E (TangentSpace I : M → Type _)]
-    (connection : LeviCivitaConnection (M := M) I)
-    (smooth : LeviCivitaConnection.IsContMDiff I connection (regularity + 1))
-    (operators : CCD17OperatorData (M := M) I regularity)
-    (hWeitzenbock : WeitzenbockIdentity I regularity connection smooth operators)
-    (hSymmetric : SymmetricGradientIdentity I regularity connection smooth operators)
-    (field : SmoothVectorField (M := M) I (SecondOrderRegularity regularity))
-    (hdiv : IsDivergenceFree I connection (regularity + 1) smooth field)
-    (hRicci : operators.ricci.action I regularity field ≠ 0) :
-    cz24OperatorCensusStatement I regularity connection smooth operators :=
-  cz24_operator_census_of_curved_witness I regularity connection smooth operators hWeitzenbock hSymmetric field hdiv hRicci
 
 end RiemannianFluids

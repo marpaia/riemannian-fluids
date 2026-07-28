@@ -1,124 +1,136 @@
-# RiemannianFluids
+# The Lean development
 
-A narrow Lean research library for theorem-based analysis of incompressible Navier–Stokes equations on intrinsic Riemannian surfaces.
+The Lean library formalizes the geometry and analysis of incompressible viscous flow on Riemannian manifolds.  It is written as checked mathematical exposition: module narratives introduce the construction, declarations state it precisely, and proofs certify the advertised dependencies.
 
-The project builds on mathlib's manifold, tangent-bundle, Riemannian-bundle, and covariant-derivative APIs. It does not attempt to replace mathlib with a general differential-geometry library.
+The library uses Lean 4 and Mathlib's manifold, vector-bundle, Riemannian-bundle, and covariant-derivative infrastructure.  [`RiemannianFluids.lean`](RiemannianFluids.lean) is the complete import root.
 
-The module layout intentionally follows the executable project in `../python/riemannian_fluids`:
+## Mathematical layers
 
-| Lean module | Executable counterpart |
-| --- | --- |
-| `RiemannianFluids.Geometry.Manifolds` | `geometry/manifolds.py` |
-| `RiemannianFluids.Geometry.Connections` | `geometry/manifolds.py` |
-| `RiemannianFluids.Geometry.Musical` | `geometry/manifolds.py`, `tensors/calculus.py` |
-| `RiemannianFluids.Tensors.SmoothSections` | `tensors/calculus.py` |
-| `RiemannianFluids.Tensors.ScalarCalculus` | `tensors/calculus.py` |
-| `RiemannianFluids.Tensors.Contraction` | `tensors/calculus.py` |
-| `RiemannianFluids.Tensors.Symmetry` | `tensors/calculus.py` |
-| `RiemannianFluids.Tensors.VectorCalculus` | `tensors/calculus.py` |
-| `RiemannianFluids.Tensors.DifferentialForms` | degree-indexed weak `d`, `d*`, harmonic, exact, and coexact definitions |
-| `RiemannianFluids.Tensors.ExteriorCalculus` | graded `d`, `d*`, Hodge-star, and Hodge-Laplacian leaf API |
-| `RiemannianFluids.Analysis.AbstractEnergy` | analytic interfaces used across operator modules |
-| `RiemannianFluids.Analysis.ExhaustionCompactness` | WBK26 equations (46)--(48) compactness gates |
-| `RiemannianFluids.Analysis.VariationalConvergence` | Mosco, resolvent, semigroup, and spectral contracts |
-| `RiemannianFluids.FunctionSpaces.Constraints` | `function_spaces/constraints.py` |
-| `RiemannianFluids.FunctionSpaces.Evolution` | solenoidal closures and Bochner evolution spaces |
-| `RiemannianFluids.FunctionSpaces.HodgeDecomposition` | Sobolev Hodge-decomposition contract |
-| `RiemannianFluids.FunctionSpaces.SobolevForms` | CCP25 weak derivatives, `H1`, and current definitions |
-| `RiemannianFluids.Geometry.BoundedGeometry` | WBK26 completeness, injectivity radius, curvature, and derivative bounds |
-| `RiemannianFluids.Geometry.Curvature` | curvature commutator, Ricci contraction, and surface Ricci API |
-| `RiemannianFluids.Geometry.SpaceForms` | hyperbolic, pinched-curvature, cutoff, and harmonic-potential profiles |
-| `RiemannianFluids.Geometry.Submanifolds` | Gauss/Weingarten, normal connection, and contracted Codazzi API |
-| `RiemannianFluids.Geometry.ThinShells` | tubular/Fermi geometry and separated mesh/thickness limits |
-| `RiemannianFluids.PDE.LerayHopf` | Leray--Hopf solution contract |
-| `RiemannianFluids.PDE.PressureRecovery` | distributional de Rham pressure gate |
-| `RiemannianFluids.PDE.Stationary` | exterior stationary-flow contracts |
-| `RiemannianFluids.PDE.WeakNavierStokes` | weak evolution equation, trace, uniqueness, and pressure contracts |
-| `RiemannianFluids.Operators.FormalAdjoints` | rough and deformation formal-adjoint constructions |
-| `RiemannianFluids.Operators.Restriction` | ambient-to-intrinsic restriction and extension independence |
-| `RiemannianFluids.Operators.Viscosity` | `operators/viscosity.py` |
-| `RiemannianFluids.Operators.Hodge` | `operators/viscosity.py` |
-| `RiemannianFluids.Operators.GeometricIdentities` | `operators/viscosity.py` |
-| `RiemannianFluids.Operators.Stokes` | `operators/stokes.py` |
-| `RiemannianFluids.Operators.NavierStokes` | `operators/navier_stokes.py` |
-| `RiemannianFluids.Reproductions.<paper>.*` | source sections, main-result assembly, numbered remarks, and local inventory for that paper |
-| `RiemannianFluids.Reproductions.<paper>.Inventory` | complete import endpoint for one version-pinned paper package |
-| `RiemannianFluids.Reproductions.Inventory` | common checked source-locator and remark-classification types |
-| `RiemannianFluids.LiteratureInventory` | corpus-wide assembly of 104 results, 6 definitions, and 51 numbered remarks |
+### Geometry and tensors
 
-The correspondence is semantic, not a claim that numerical JAX functions have already been verified by Lean.
+`Geometry/` defines manifold conventions, connections, curvature data, bounded geometry, space forms, immersed submanifolds, surfaces of revolution, and tubular geometry.
 
-For an equation-by-equation guide to the formal development, including the CCD17 notation and sign-convention crosswalk, see [`formal-analysis.md`](../docs/formal-analysis.md). The Lean source is written as an annotated mathematical essay: each substantive module first presents the idea and proof in prose, then uses declarations as checked bookends. Comments inside nontrivial proofs explain how each mathematical movement is adapted to Lean.
+`Tensors/` defines smooth sections, musical maps, scalar and vector calculus, tensor contraction and symmetry, differential forms, and exterior-calculus interfaces.  First-order operators display their regularity loss in their types.
 
-## Current proved kernel
+### Function spaces and analysis
 
-The current kernel formalizes:
+`FunctionSpaces/` defines solenoidal constraints, Sobolev forms, evolution spaces, and Hodge-decomposition data.
 
-1. the analysis-positive operator convention;
-2. an intrinsic dimension-two surface-model predicate;
-3. regularity-indexed smooth vector fields, one-forms, differential forms, tangent-valued one-forms, and covariant two-tensors;
-4. an explicit metric-compatible, torsion-free tangent-connection witness;
-5. covariant differentiation as a linear map from `C^(k+1)` vector fields to `C^k` tangent-valued one-forms, using mathlib's native connection regularity;
-6. smooth metric lowering and raising on sections, proved mutually inverse;
-7. a regularity-losing scalar differential and metric gradient, with the characterization $g(\operatorname{grad}f,X) = df(X)$;
-8. coordinate-invariant smooth trace of tangent endomorphisms, intrinsic divergence, and a pointwise characterization of divergence-free fields;
-9. coordinate-natural transpose and symmetrization of covariant two-tensors, giving the concrete formula for $\operatorname{Def}u$;
-10. the one-form codifferential $d^*\alpha = -\operatorname{div}(\alpha^\sharp)$, the exact correction $(d d^*(u^\flat))^\sharp$, and its vanishing on divergence-free fields;
-11. construction of the positive Hodge Laplacian from explicit degree-one de
-    Rham data and pointwise action of an explicit smooth Ricci endomorphism;
-12. separately stated positive Weitzenböck and symmetric-gradient identities;
-13. the conditional full CCD17 identity and its proved divergence-free specialization $L_{\mathrm{Def}}u = L_{\mathrm{Hodge}}u - 2\operatorname{Ric}(u)$;
-14. distinct rough, Hodge, and deformation viscosity candidates;
-15. operator agreement modulo a vanishing correction;
-16. incompressibility and pressure-gradient/divergence duality;
-17. energy-conserving advection;
-18. separate stationary Stokes and instantaneous Navier–Stokes predicates;
-19. equivalence of Navier–Stokes formulations when their viscosity operators agree on incompressible fields;
-20. the instantaneous energy identity and its unforced dissipation corollary.
+`Analysis/` defines energy identities, compactness routes, harmonic and real-analytic function data, and variational convergence on fixed and varying Hilbert spaces.
 
-The connection is chosen data: its existence and uniqueness have not yet been proved. Tensor transposition, $\operatorname{Def}u$, and the one-form codifferential are concrete. The degree-one exterior derivative, degree-two codifferential, Ricci endomorphism derived from curvature, and the formal-adjoint construction $2\operatorname{Def}^*\operatorname{Def}$ remain explicit inputs. Accordingly, `ccd17_divfree_def_hodge` is an interface theorem from visible Weitzenböck and symmetric-gradient hypotheses, not yet an end-to-end formal reproduction of CCD17. The kernel also does not prove PDE existence, regularity, uniqueness, or time evolution.
+### Fluid operators and equations
 
-The abstract energy interfaces live under `RiemannianFluids.Analysis.AbstractEnergy`, so downstream theorems cannot be mistaken for a concrete Riemannian calculus implementation.
+`Operators/` defines the rough, Hodge, and deformation viscosity candidates; their curvature and codifferential corrections; ambient restriction; formal-adjoint interfaces; Stokes operators; and Navier--Stokes operators.
 
-The repository-wide [`claim-to-proof`](../docs/claim-to-proof.md) document places this kernel in the full dependency graph for the registered literature claims. In particular, it distinguishes an abstract consequence proved from visible hypotheses from a paper theorem whose geometric and analytic hypotheses have been discharged.
+`PDE/` defines weak Navier--Stokes frameworks, pressure recovery, Leray--Hopf solutions, stationary equations, uniqueness, and energy statements.
 
-## Operator-choice policy
+`Viscosity/` contains the high-level formal synthesis:
 
-There is no default vector Laplacian. Rough/Bochner, Hodge, and deformation operators remain distinct until a geometric or physical derivation supplies a proof. Comparison identities carry their correction term explicitly; a later theorem may show that term vanishes on a specified admissible space.
+- `IntrinsicStrain` constructs the infinitesimal metric-rate tensor from `Def`;
+- `CurvatureComparison` proves pairwise operator inequivalence from a curved divergence-free witness; and
+- `BoundarySelection` defines the wall-parameter operator family and proves its endpoint algebra.
 
-## Development and proof status
+## Reading order
 
-The package has one root: `RiemannianFluids.lean`. It imports completed proofs and unfinished source-facing theorem routes together. A placeholder is
-legal only inside a declaration tagged `proof_obligation`; an untagged `sorry`, any `admit`, or a project `axiom`/`constant` fails the source audit.
-Sorry-free internal composition nodes carry `proof_assembly`; the validator prints their explicit
-source-level dependency edges. Paper-facing endpoints carry `literature_terminal`, so their
-transitive axiom sets report whether a whole route is complete.
+### Intrinsic viscosity
 
-The graph is expository before it is proof-engineering-oriented.  In a literature route, the
-primary nodes are the source's definitions, named results, displayed equations, and explicit
-proof steps, in source order.  A Lean-specific helper may sit below one of those nodes, but it
-does not replace a source node, merge several named lemmas, or become the public explanation of
-why the paper's theorem follows.  This keeps the unfinished code readable as a formal rendering
-of the proof rather than merely as a dependency graph optimized for the prover.  The source
-validator rejects an unfinished declaration whose name merges multiple named lemmas or theorems;
-registered endpoints may still package several final conclusions when the claim registry calls
-for that combined contract.
+```text
+Geometry.Manifolds
+  -> Geometry.Connections
+  -> Geometry.Musical
+  -> Tensors.Symmetry
+  -> Tensors.VectorCalculus
+  -> Operators.Hodge
+  -> Operators.GeometricIdentities
+  -> Viscosity.IntrinsicStrain
+  -> Viscosity.CurvatureComparison
+```
 
-Each `RiemannianFluids.Reproductions.<paper>.Inventory` module owns that paper's named-result,
-numbered-definition, and numbered-remark census.  `RiemannianFluids.LiteratureInventory`
-assembles those local inventories, uses Lean name quotation for declaration-backed items, and
-proves the corpus-wide totals, per-kind counts, unique `(paper, source label)` keys, and remark
-coverage split.  A missing or renamed mapped declaration therefore fails elaboration; Markdown
-documentation is only a guide to that executable inventory.
+### Weak fluid equations
+
+```text
+FunctionSpaces.Constraints
+  -> Analysis.AbstractEnergy
+  -> Operators.Stokes
+  -> Operators.NavierStokes
+  -> PDE.PressureRecovery
+  -> PDE.Stationary
+  -> PDE.LerayHopf
+  -> PDE.WeakNavierStokes
+```
+
+### Submanifolds and thin domains
+
+```text
+Geometry.Submanifolds
+  -> Operators.Restriction
+  -> Operators.SubmanifoldConstraints
+  -> Viscosity.BoundarySelection
+  -> Geometry.ThinShells
+  -> Analysis.VariationalConvergence
+```
+
+### Noncompact and negatively curved geometry
+
+```text
+Geometry.SpaceForms
+  -> Geometry.BoundedGeometry
+  -> FunctionSpaces.SobolevForms
+  -> FunctionSpaces.HodgeDecomposition
+  -> Analysis.HarmonicFunctions
+  -> Analysis.ExhaustionCompactness
+  -> PDE.Stationary / PDE.WeakNavierStokes
+```
+
+## Meaning of declarations
+
+Every public theorem states its mathematical commitment in its type.
+
+- A **constructed object** is defined from Mathlib structures and explicit input data.
+- A **conditional theorem** proves a conclusion from named geometric or analytic hypotheses.
+- A **source theorem** instantiates the source geometry and function spaces and proves the source conclusion.
+
+For example, `deformationTensor_apply` is a construction theorem.  It expands intrinsic strain into
+
+\[
+\operatorname{Def}u(X,Y)
+=\frac12\bigl(g(\nabla_Xu,Y)+g(\nabla_Yu,X)\bigr).
+\]
+
+`ccd17_divfree_def_hodge` is a conditional theorem.  Its hypotheses contain the Weitzenbock and symmetric-gradient identities, while its proof constructs the divergence-free cancellation and verifies
+
+\[
+L_{\mathrm{Def}}u=L_{\mathrm{Hodge}}u-2\operatorname{Ric}(u).
+\]
+
+The distinction is recorded by theorem types and the formalization ledger.
+
+## Operator conventions
+
+Names beginning with `L_` denote analysis-positive operators.  The library keeps the following constructions individually named:
+
+\[
+L_{\mathrm{rough}}=\nabla^*\nabla,
+\qquad
+L_{\mathrm{Hodge}}=d d^*+d^*d,
+\qquad
+L_{\mathrm{Def}}=2\operatorname{Def}^*\operatorname{Def}.
+\]
+
+Comparison theorems display Ricci, grad-div, shape, and boundary corrections explicitly.  Admissibility hypotheses identify the fields on which a correction vanishes.
+
+## Trust boundary
+
+The compiled root contains zero `sorry`, `admit`, project `axiom`, and project `constant` declarations.  [`RiemannianFluids/AxiomAudit.lean`](RiemannianFluids/AxiomAudit.lean) applies `#print axioms` to representative milestones.  Accepted output consists of Lean and Mathlib foundations such as `propext`, `Classical.choice`, and `Quot.sound`.
+
+The claim crosswalk records the exact relationship between literature claims and Lean declarations, including each declaration's mathematical scope.
+
+## Build
 
 ```sh
 lake update
 lake exe cache get
 make -C .. lean/check
-make -C .. lean/progress
 ```
 
-`lean/check` builds the library, verifies all 23 claim-to-declaration mappings, rejects unauthorized placeholders, and audits representative completed
-kernel declarations. `lean/progress` additionally prints the direct and transitive `sorryAx`
-frontier and explicit dependency edges of every tagged obligation, assembly, and terminal theorem.
-`lean/statements` remains a compatibility alias for `lean/check`. The project is pinned to Lean and mathlib `v4.32.1`.
+The project is pinned to Lean and Mathlib `v4.32.1`.

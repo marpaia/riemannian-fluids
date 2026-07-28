@@ -1,24 +1,48 @@
-# Claim registry
+# Claims and evidence
 
-`registry.json` is the language-neutral source of truth for paper metadata, claim IDs, locators, assumptions, conventions, required evidence kinds, and current evidence status.
+The `claims/` directory connects the literature, Lean declarations, and Python evidence through stable claim identifiers.
 
-`lean-contracts.json` is the total claim-to-Lean map. Every claim, including computational claims, must name one declaration in its permanent
-`RiemannianFluids.Reproductions.<paper>.<source-part>` module. Each paper's
-`Inventory` module is its complete package import endpoint. This means statement design
-is reviewable in Lean without pretending that computational evidence is a formal proof.
+## `registry.json`
 
-`formalization.json` tracks analytic claims through four states:
+`registry.json` is the source-provenance ledger.  Each paper record contains bibliographic metadata and version information.  Each claim contains:
 
-- `catalogued`
-- `contract-checked`
-- `interface-proved`
-- `formally-reproduced`
+- a stable ID;
+- a source locator;
+- the mathematical statement;
+- geometric and analytic assumptions;
+- sign and notation conventions;
+- the required evidence class; and
+- the status of available computational evidence.
 
-Only `formally-reproduced` satisfies an `analytic-theorem` evidence gate. `contract-checked` means the source statement elaborates and is mapped, not
-that its proof is complete. Every non-catalogued analytic record maps both its
-statement and its `literature_terminal` endpoint. `lean_module` owns the statement;
-`terminal_module` records the endpoint owner when it differs. Mathematical statements
-remain in typed Lean; JSON summaries do not generate theorem statements.
+The Python literature adapters generate the same registry data from typed declarations.  `make claims/check` verifies exact agreement between those declarations and `registry.json`.
 
-The registries are evidence ledgers, not substitutes for mathematical exposition. The current proof boundary is computed by `make lean/progress`,
-which inspects `proof_obligation` and `literature_terminal` declarations with Lean's axiom printer. A status change must agree with that audit.
+## `lean-contracts.json`
+
+`lean-contracts.json` records formal connections between source claims and reusable Lean declarations.  Each connection identifies:
+
+- the intellectual thread;
+- the owning Lean module and declaration;
+- the logical relationship between the declaration and source claim; and
+- the mathematical scope of the formal result.
+
+The relationship field distinguishes a definition, a proved core identity, a conditional theorem, and an interface theorem.  `make lean/check` verifies declaration ownership and audits each mapped declaration for `sorryAx`.
+
+## `formalization.json`
+
+`formalization.json` records the status of every claim whose evidence class is `analytic-theorem`.
+
+- `catalogued`: the source theorem and formal target are recorded.
+- `contract-checked`: the Lean theorem statement, source assumptions, and conventions are fixed.
+- `interface-proved`: Lean proves the conclusion from explicit intermediate hypotheses.
+- `formally-reproduced`: Lean realizes the source setting, discharges the intermediate hypotheses, and proves the source conclusion.
+
+`formally-reproduced` satisfies the analytic evidence gate.
+
+## Validation
+
+```sh
+make claims/check
+make lean/check
+```
+
+Together these commands verify source provenance, analytic-status coverage, Python agreement, Lean declaration ownership, and the formal trust boundary.

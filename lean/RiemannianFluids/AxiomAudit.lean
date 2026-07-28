@@ -13,9 +13,9 @@ Each command below asks Lean for the logical axioms used by one representative m
       → musical inverse laws
       → scalar gradient and divergence
       → tensor lowering, transpose, and symmetrization
-      → Def and codifferential
-      → divergence-free correction
-      → CCD17 operator identities
+      → intrinsic strain and codifferential
+      → divergence-free curvature comparison
+      → candidate inequivalence and boundary-selection algebra
       → abstract pressure and energy cancellations.
 
 `make lean/check` executes this file and rejects `sorryAx`. The accepted output consists only of standard Lean/mathlib foundations such as `propext`,
@@ -36,9 +36,13 @@ with no hidden project postulate or unfinished proof. That distinction is exactl
 #print axioms RiemannianFluids.symmetrizeCovariantTwoTensor_apply
 #print axioms RiemannianFluids.deformationTensor_apply
 #print axioms RiemannianFluids.deformationTensor_symmetric
+#print axioms RiemannianFluids.infinitesimalMetricRate_apply
 #print axioms RiemannianFluids.codifferentialOne_flat
 #print axioms RiemannianFluids.exactCodifferentialCorrection_eq_zero_of_divergenceFree
 #print axioms RiemannianFluids.ccd17_positive_full
 #print axioms RiemannianFluids.ccd17_divfree_def_hodge
+#print axioms RiemannianFluids.candidateOperators_pairwiseDistinct_of_curvatureWitness
+#print axioms RiemannianFluids.boundarySelectedOperator_zero
+#print axioms RiemannianFluids.boundarySelectedOperator_one
 #print axioms RiemannianFluids.pressure_work_eq_zero
 #print axioms RiemannianFluids.navierStokes_energy_identity

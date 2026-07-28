@@ -1,4 +1,6 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected
+import RiemannianFluids.Geometry.Curvature
 
 /-!
 # Hyperbolic and constant-curvature geometry contracts
@@ -12,18 +14,147 @@ is kept separate because CC13 first proves several estimates in the more general
 
 namespace RiemannianFluids
 
-/-- Observable geometry for a complete Riemannian manifold. -/
+open Bundle
+open scoped Bundle ContDiff Manifold
+
+/-- Mathlib-backed geometric setting for `H^N(-a²)` before Cartan--Hadamard is used to infer
+noncompactness.  The nonnegative parameter convention includes the flat case `a = 0`. -/
+def IsRiemannianNonpositiveSpaceFormSetting
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
+    {H : Type*} [TopologicalSpace H]
+    (I : ModelWithCorners ℝ E H)
+    {M : Type*} [MetricSpace M] [ChartedSpace H M] [IsManifold I 1 M]
+    [CompleteSpace M] [SimplyConnectedSpace M] [BoundarylessManifold I M]
+    [RiemannianBundle (fun x : M => TangentSpace I x)]
+    (curvature : RiemannianCurvatureData (I := I) (M := M))
+    (dimension : ℕ) (scale : ℝ) : Prop :=
+  1 ≤ dimension ∧
+    0 ≤ scale ∧
+    Module.finrank ℝ E = dimension ∧
+    HasRiemannianConstantSectionalCurvature I curvature (-(scale ^ 2))
+
+/-- A first-class carrier for the full Mathlib-backed geometry denoted by `H^N(-a²)`
+when the paper allows the flat case `a = 0`.  Keeping the carrier types, instances,
+curvature data, and defining proposition together lets paper-level operator packages refer
+to real manifold geometry without acquiring dozens of ambient type parameters. -/
+structure RiemannianNonpositiveSpaceFormData where
+  E : Type
+  [normedAddCommGroupE : NormedAddCommGroup E]
+  [normedSpaceE : NormedSpace ℝ E]
+  [finiteDimensionalE : FiniteDimensional ℝ E]
+  H : Type
+  [topologicalSpaceH : TopologicalSpace H]
+  I : ModelWithCorners ℝ E H
+  M : Type
+  [metricSpaceM : MetricSpace M]
+  [chartedSpaceM : ChartedSpace H M]
+  [isManifoldM : IsManifold I 1 M]
+  [completeSpaceM : CompleteSpace M]
+  [simplyConnectedSpaceM : SimplyConnectedSpace M]
+  [boundarylessManifoldM : BoundarylessManifold I M]
+  [riemannianBundleM : RiemannianBundle (fun x : M => TangentSpace I x)]
+  curvature : RiemannianCurvatureData (I := I) (M := M)
+  dimension : ℕ
+  scale : ℝ
+  satisfies : IsRiemannianNonpositiveSpaceFormSetting I curvature dimension scale
+
+/-- Re-expose the defining proposition after installing the first-class witness's stored
+Mathlib instances. -/
+def RiemannianNonpositiveSpaceFormData.hasExpectedGeometry
+    (data : RiemannianNonpositiveSpaceFormData) : Prop :=
+  letI := data.normedAddCommGroupE
+  letI := data.normedSpaceE
+  letI := data.finiteDimensionalE
+  letI := data.topologicalSpaceH
+  letI := data.metricSpaceM
+  letI := data.chartedSpaceM
+  letI := data.isManifoldM
+  letI := data.completeSpaceM
+  letI := data.simplyConnectedSpaceM
+  letI := data.boundarylessManifoldM
+  letI := data.riemannianBundleM
+  IsRiemannianNonpositiveSpaceFormSetting data.I data.curvature data.dimension data.scale
+
+/-- The exact Mathlib-backed space-form setting behind the notation `H^N(-a²)`.  Completeness,
+simple connectivity, noncompactness, and absence of boundary are expressed by Mathlib
+typeclasses; the repository only supplies the curvature operations still missing from the
+manifold API. -/
+def IsRiemannianHyperbolicSpaceForm
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
+    {H : Type*} [TopologicalSpace H]
+    (I : ModelWithCorners ℝ E H)
+    {M : Type*} [MetricSpace M] [ChartedSpace H M] [IsManifold I 1 M]
+    [CompleteSpace M] [SimplyConnectedSpace M] [NoncompactSpace M]
+    [BoundarylessManifold I M]
+    [RiemannianBundle (fun x : M => TangentSpace I x)]
+    (curvature : RiemannianCurvatureData (I := I) (M := M))
+    (dimension : ℕ) (scale : ℝ) : Prop :=
+  IsRiemannianNonpositiveSpaceFormSetting I curvature dimension scale ∧
+    2 ≤ dimension ∧ 0 < scale ∧
+    (∀ x vector,
+      curvature.ricciAction x vector =
+        (-((dimension - 1 : ℕ) : ℝ) * scale ^ 2) • vector) ∧
+    ∀ x,
+      curvature.scalarCurvature x =
+        -((dimension * (dimension - 1) : ℕ) : ℝ) * scale ^ 2
+
+/-- A first-class Mathlib manifold witness for a complete, simply connected, noncompact,
+boundaryless Riemannian manifold on the specified point carrier. -/
+structure RiemannianHadamardManifoldData (M : Type*) where
+  E : Type
+  [normedAddCommGroupE : NormedAddCommGroup E]
+  [normedSpaceE : NormedSpace ℝ E]
+  [finiteDimensionalE : FiniteDimensional ℝ E]
+  H : Type
+  [topologicalSpaceH : TopologicalSpace H]
+  I : ModelWithCorners ℝ E H
+  [metricSpaceM : MetricSpace M]
+  [chartedSpaceM : ChartedSpace H M]
+  [isManifoldM : IsManifold I 1 M]
+  [completeSpaceM : CompleteSpace M]
+  [simplyConnectedSpaceM : SimplyConnectedSpace M]
+  [noncompactSpaceM : NoncompactSpace M]
+  [boundarylessManifoldM : BoundarylessManifold I M]
+  [riemannianBundleM : RiemannianBundle (fun x : M => TangentSpace I x)]
+  curvature : RiemannianCurvatureData (I := I) (M := M)
+
+/-- Observable geometry for a complete Riemannian manifold.  Global topological and metric
+hypotheses are carried by actual Mathlib instances; only scalarized quantities consumed by the
+source estimates remain explicit observables. -/
 structure RiemannianGeometryProfile (Point : Type*) where
+  globalGeometry : RiemannianHadamardManifoldData Point
   intrinsicDimension : ℕ
   sectionalCurvature : Point → ℝ
   ricciEigenvalue : Point → ℝ
   scalarCurvature : Point → ℝ
   distanceFromBasepoint : Point → ℝ
   injectivityRadius : Point → ℝ
-  geodesicallyComplete : Prop
-  simplyConnected : Prop
-  noncompact : Prop
-  withoutBoundary : Prop
+
+def RiemannianGeometryProfile.geodesicallyComplete
+    {Point : Type*} (profile : RiemannianGeometryProfile Point) : Prop :=
+  letI := profile.globalGeometry.metricSpaceM
+  CompleteSpace Point
+
+def RiemannianGeometryProfile.simplyConnected
+    {Point : Type*} (profile : RiemannianGeometryProfile Point) : Prop :=
+  letI := profile.globalGeometry.metricSpaceM
+  SimplyConnectedSpace Point
+
+def RiemannianGeometryProfile.noncompact
+    {Point : Type*} (profile : RiemannianGeometryProfile Point) : Prop :=
+  letI := profile.globalGeometry.metricSpaceM
+  NoncompactSpace Point
+
+def RiemannianGeometryProfile.withoutBoundary
+    {Point : Type*} (profile : RiemannianGeometryProfile Point) : Prop :=
+  letI := profile.globalGeometry.normedAddCommGroupE
+  letI := profile.globalGeometry.normedSpaceE
+  letI := profile.globalGeometry.finiteDimensionalE
+  letI := profile.globalGeometry.topologicalSpaceH
+  letI := profile.globalGeometry.metricSpaceM
+  letI := profile.globalGeometry.chartedSpaceM
+  letI := profile.globalGeometry.isManifoldM
+  BoundarylessManifold profile.globalGeometry.I Point
 
 /-- The exact space-form geometry `H^N(-a^2)` used by the Czubak papers. -/
 def IsHyperbolicSpaceForm

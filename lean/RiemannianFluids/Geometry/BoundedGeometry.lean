@@ -1,4 +1,7 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Topology.Compactness.Compact
+import RiemannianFluids.Geometry.Curvature
+import RiemannianFluids.Geometry.Manifolds
 
 /-!
 # Bounded geometry and negative-curvature contracts
@@ -17,20 +20,55 @@ radius and derivative-norm functions lets a future manifold instance prove the d
 
 namespace RiemannianFluids
 
-/-- The geometric observables required by the bounded-geometry hypothesis in WBK26 Theorem 6.1. -/
-structure CompleteBoundedSurfaceProfile (M : Type*) where
-  /-- Gaussian curvature `K : M -> R`. -/
-  gaussianCurvature : M → ℝ
-  /-- Pointwise injectivity radius. -/
+open Bundle
+open scoped Bundle ContDiff Manifold
+
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
+  {H : Type*} [TopologicalSpace H]
+  (I : ModelWithCorners ℝ E H)
+  {M : Type*} [MetricSpace M] [ChartedSpace H M] [IsManifold I 1 M]
+
+/-- Bounded-geometry observables attached to an actual Mathlib Riemannian manifold. -/
+structure BoundedRiemannianSurfaceData where
+  curvature : RiemannianCurvatureData (I := I) (M := M)
   injectivityRadius : M → ℝ
-  /-- Norm of the indicated covariant derivative of curvature at a point. -/
   curvatureDerivativeNorm : ℕ → M → ℝ
-  /-- The concrete predicate expressing geodesic completeness for the eventual Riemannian realization. -/
-  geodesicallyComplete : Prop
-  /-- The concrete predicate expressing noncompactness for the eventual manifold realization. -/
-  noncompact : Prop
-  /-- Intrinsic manifold dimension. -/
-  intrinsicDimension : ℕ
+
+/-- Complete, noncompact, intrinsically two-dimensional bounded geometry with uniformly negative
+Gaussian curvature.  Metric completeness and noncompactness use Mathlib typeclasses; only the
+missing injectivity-radius and curvature-derivative constructions are supplied as data. -/
+def SatisfiesRiemannianWBK26Geometry
+    [CompleteSpace M] [NoncompactSpace M] [IsSurfaceModel E]
+    (data : BoundedRiemannianSurfaceData (I := I) (M := M))
+    (gaussianCurvature : M → ℝ) (κ : ℝ) : Prop :=
+  HasRiemannianSurfaceRicciIdentity I data.curvature gaussianCurvature ∧
+    (∃ injectivityLower : ℝ,
+      0 < injectivityLower ∧ ∀ x, injectivityLower ≤ data.injectivityRadius x) ∧
+    (∀ order : ℕ,
+      ∃ bound : ℝ, 0 ≤ bound ∧ ∀ x, data.curvatureDerivativeNorm order x ≤ bound) ∧
+    0 < κ ∧
+    ∀ x, gaussianCurvature x ≤ -(κ ^ 2)
+
+/-- A first-class Mathlib-backed carrier for the geometric setting in WBK26 Theorem 6.1.
+The actual manifold `M` is shared with the paper's PDE data; the model, manifold instances,
+curvature tensor, injectivity radius, and curvature-derivative norms remain inspectable. -/
+structure CompleteBoundedSurfaceProfile (M : Type*) where
+  E : Type
+  [normedAddCommGroupE : NormedAddCommGroup E]
+  [normedSpaceE : NormedSpace ℝ E]
+  [finiteDimensionalE : FiniteDimensional ℝ E]
+  [surfaceModelE : IsSurfaceModel E]
+  H : Type
+  [topologicalSpaceH : TopologicalSpace H]
+  I : ModelWithCorners ℝ E H
+  [metricSpaceM : MetricSpace M]
+  [chartedSpaceM : ChartedSpace H M]
+  [isManifoldM : IsManifold I 1 M]
+  [completeSpaceM : CompleteSpace M]
+  [noncompactSpaceM : NoncompactSpace M]
+  boundedGeometry : BoundedRiemannianSurfaceData (I := I) (M := M)
+  gaussianCurvature : M → ℝ
 
 /--
 The complete bounded-geometry, dimension-two, uniformly negative-curvature hypotheses immediately preceding WBK26 Theorem 6.1.
@@ -38,13 +76,19 @@ The complete bounded-geometry, dimension-two, uniformly negative-curvature hypot
 Bounded geometry is expanded into a uniform positive injectivity-radius lower bound and uniform bounds on every covariant curvature derivative. The
 curvature parameter is positive and satisfies `K(x) <= -kappa^2` at every point.
 -/
-def SatisfiesWBK26Geometry {M : Type*} (profile : CompleteBoundedSurfaceProfile M) (κ : ℝ) : Prop :=
-  profile.geodesicallyComplete ∧
-    profile.noncompact ∧
-    profile.intrinsicDimension = 2 ∧
-    (∃ injectivityLower : ℝ, 0 < injectivityLower ∧ ∀ x, injectivityLower ≤ profile.injectivityRadius x) ∧
-    (∀ order : ℕ, ∃ bound : ℝ, 0 ≤ bound ∧ ∀ x, profile.curvatureDerivativeNorm order x ≤ bound) ∧
-    0 < κ ∧
-    ∀ x, profile.gaussianCurvature x ≤ -(κ ^ 2)
+def SatisfiesWBK26Geometry {M : Type*}
+    (profile : CompleteBoundedSurfaceProfile M) (κ : ℝ) : Prop :=
+  letI := profile.normedAddCommGroupE
+  letI := profile.normedSpaceE
+  letI := profile.finiteDimensionalE
+  letI := profile.surfaceModelE
+  letI := profile.topologicalSpaceH
+  letI := profile.metricSpaceM
+  letI := profile.chartedSpaceM
+  letI := profile.isManifoldM
+  letI := profile.completeSpaceM
+  letI := profile.noncompactSpaceM
+  SatisfiesRiemannianWBK26Geometry profile.I profile.boundedGeometry
+    profile.gaussianCurvature κ
 
 end RiemannianFluids

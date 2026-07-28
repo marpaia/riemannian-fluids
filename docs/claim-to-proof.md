@@ -1,200 +1,137 @@
-# From literature claims to checked proofs
+# From research questions to formal theorems
 
-Riemannian Fluids exists to answer a specific class of questions: which geometric operators and analytic structures actually govern incompressible flow on a Riemannian surface, and which conclusions in the literature can be reproduced with evidence appropriate to the claim?
+The formal program studies how Riemannian geometry determines the operators, spaces, and estimates of incompressible viscous flow.  Literature claims identify decisive mathematical phenomena.  Shared formal layers make the mechanisms behind those phenomena explicit and reusable.
 
-This is not a general-purpose differential-geometry library and it is not a numerical demonstration gallery. The unit of work is a located claim in a source paper. Reusable geometry, analysis, and computation are developed when they are prerequisites for such a claim.
+## Construction, comparison, and selection
 
-This document records logical dependencies. It is not a schedule. A later rung cannot discharge the hypotheses of an earlier one, but independent branches may advance at different rates.
+Every viscosity result belongs to one or more of three tasks.
 
-The companion [`formal-analysis.md`](formal-analysis.md) explains how these dependencies appear in Lean declarations and how to read the tactic-level comments as an expository formal proof.
+1. **Construction:** define an operator on a specified geometric and functional domain.
+2. **Comparison:** derive the curvature, divergence, topology, or boundary correction relating two operators.
+3. **Selection:** prove that kinematics, an energy principle, an ambient restriction, a wall law, or a limiting process produces a particular operator.
 
-## The central question is not “which Laplacian?”
+The rough, Hodge, and deformation operators therefore remain individually named throughout the library.  A theorem records every equality or selection principle and its hypotheses.
 
-There is no context-free vector Laplacian on a curved manifold that should be chosen once and hidden behind a default. The rough/Bochner, Hodge, and deformation operators arise from different constructions. Curvature, incompressibility, topology, boundary conditions, and the mechanism by which a surface model is derived can make them agree, differ by an explicit correction, or select one of them physically.
-
-The project therefore separates three questions:
-
-1. **Construction:** what is each operator on the stated geometric and functional domain?
-2. **Comparison:** under which hypotheses are two formulations related, and what is the correction term when they are not?
-3. **Selection:** does a variational principle, energy law, relativistic limit, wall law, or thin-domain limit select one operator for a particular model?
-
-A “decision” about the Laplacian is consequently a theorem with assumptions, not a repository setting.
-
-## What reproduction means
-
-Every paper claim begins in [`claims/registry.json`](../claims/registry.json) with a source version, locator, statement, assumptions, convention, evidence class, and acceptance status. The two implementations then have different jobs:
+## Formal and computational evidence
 
 ```mermaid
 flowchart LR
-    S["Located source claim"] --> C["Mathematical contract"]
-    C --> F["Lean statement and dependencies"]
-    F --> T["Checked theorem"]
-    T --> A["Accepted axiom audit"]
-    C --> P["Python model or discretization"]
-    P --> E["Numerical evidence gate"]
-    A --> R["Formal reproduction"]
-    E --> N["Computational reproduction"]
+    S["Versioned source claim"] --> M["Mathematical specification"]
+    M --> L["Lean definitions and hypotheses"]
+    L --> P["Checked proof"]
+    P --> A["Axiom audit"]
+    M --> C["Python model and discretization"]
+    C --> E["Measured evidence gate"]
+    A --> F["Formal evidence"]
+    E --> N["Computational evidence"]
 ```
 
-The branches share provenance and conventions, not epistemic force. A pointwise residual, manufactured solution, or convergence study may expose a bad statement or sign convention; it cannot prove an analytic theorem. Conversely, a formal identity does not establish that a discretization converges to the intended PDE.
+Formal evidence certifies logical consequence.  Computational evidence certifies a measured property of an explicit model or discretization.  Shared claim IDs, assumptions, and conventions connect the two branches.
 
-The formal states in [`claims/formalization.json`](../claims/formalization.json) mean:
-
-- **catalogued:** the analytic claim is known, but no checked Lean statement is yet attached;
-- **contract-checked:** the source-faithful theorem statement, assumptions, and conventions have been reviewed;
-- **interface-proved:** the conclusion has been proved from explicit abstract hypotheses, but the project has not yet constructed or discharged all of those hypotheses for the source setting;
-- **formally-reproduced:** the concrete source theorem is checked and its axiom audit is accepted.
-
-An abstract energy lemma can therefore be valuable without being mislabeled as a reproduction of an existence, uniqueness, decay, or convergence theorem.
-
-## Reusable proof architecture
-
-The graph below shows the mathematical dependencies shared by the registered analytic claims. An arrow means “must supply definitions or theorems used by,” not merely “is conceptually related to.”
+## Shared dependency graph
 
 ```mermaid
 flowchart TD
-    claim["Claim contract and conventions"]
-    mathlib["Mathlib manifold and bundle foundations"]
-    geometry["Concrete Levi-Civita and Riemannian calculus"]
+    foundations["Manifolds, bundles, and smooth sections"]
+    calculus["Connection, musical maps, tensors, and forms"]
     operators["Rough, Hodge, and deformation operators"]
-    identities["Weitzenbock, curvature, and comparison identities"]
-    spaces["L2, Sobolev, form, and divergence-free spaces"]
-    weak["Integration by parts and weak formulations"]
-    stokes["Stationary Stokes and pressure theory"]
-    stationaryNS["Nonlinear advection and stationary Navier-Stokes"]
-    evolution["Time-dependent weak solutions and energy inequality"]
-    hyperbolic["Hyperbolic and noncompact geometry"]
-    forms["General k-form Hodge theory"]
-    tubular["Tubular geometry and thickness-dependent forms"]
-    convergence["Mosco, resolvent, semigroup, and spectral convergence"]
+    comparison["Curvature and divergence corrections"]
+    spaces["L2, Sobolev, solenoidal, and evolution spaces"]
+    weak["Weak formulations, pressure, and energy"]
+    stokes["Stationary Stokes theory"]
+    ns["Stationary and evolving Navier--Stokes theory"]
+    submanifold["Submanifold and restriction geometry"]
+    shell["Tubular geometry and thin-domain forms"]
+    convergence["Mosco and operator convergence"]
+    noncompact["Noncompact geometry and Hodge structure"]
 
-    claim --> mathlib --> geometry
-    geometry --> operators --> identities
-    geometry --> spaces
-    spaces --> weak
-    identities --> weak
-    weak --> stokes --> stationaryNS --> evolution
-    geometry --> hyperbolic
-    spaces --> hyperbolic
-    spaces --> forms
-    geometry --> tubular
-    spaces --> tubular --> convergence
+    foundations --> calculus
+    calculus --> operators --> comparison
+    calculus --> spaces --> weak
+    comparison --> weak
+    weak --> stokes --> ns
+    calculus --> submanifold --> shell --> convergence
+    spaces --> shell
+    calculus --> noncompact
+    spaces --> noncompact
+    noncompact --> stokes
+    noncompact --> ns
 
-    identities --> CZ24["CZ24 operator inequivalence"]
-    weak --> WBK26["WBK26 negative-curvature decay"]
-    hyperbolic --> WBK26
-    evolution --> WBK26
-    convergence --> WBS26["WBS26 Mosco/resolvent/spectrum theorem"]
-    hyperbolic --> CC13["CC13 Leray-Hopf nonuniqueness"]
-    evolution --> CC13
-    hyperbolic --> CC15["CC15 stationary Liouville theorem"]
-    stationaryNS --> CC15
-    hyperbolic --> CC21S["CC21 exterior Stokes existence"]
-    stokes --> CC21S
-    CC21S --> CC21N["CC21 exterior Navier-Stokes existence"]
-    stationaryNS --> CC21N
-    forms --> CCP25["CCP25 noncompact H1 decomposition"]
-    hyperbolic --> CCP25
+    comparison --> CZ24["CZ24 operator inequivalence"]
+    comparison --> WBK26["WBK26 curvature coercivity and decay"]
+    weak --> WBK26
+    convergence --> WBS26["WBS26 thin-shell convergence"]
+    noncompact --> CC13["CC13 Leray--Hopf nonuniqueness"]
+    ns --> CC13
+    noncompact --> CC15["CC15 stationary Liouville theorem"]
+    ns --> CC15
+    noncompact --> CC21["CC21 exterior-domain flows"]
+    stokes --> CC21
+    noncompact --> CCP25["CCP25 Sobolev Hodge decomposition"]
 ```
 
-The graph deliberately has branches. Thin-shell convergence does not depend on first proving nonlinear Navier--Stokes existence, while hyperbolic nonuniqueness does. General \(k\)-form infrastructure is included because `CCP25-h1-noncompact-decomposition` requires it, not because the repository is quietly expanding into unrestricted differential geometry.
+## Formal layers
 
-## The dependency order
+### Geometric calculus
 
-### Lock the claim before proving it
+This layer supplies regularity-indexed fields, covariant differentiation, metric duality, gradient, divergence, tensor symmetry, deformation strain, curvature data, and differential forms.  Coordinate naturality and regularity loss are theorem-level properties.
 
-The source version, theorem locator, hypotheses, sign convention, geometric dimension, boundary behavior, and evidence class must be explicit. This is where an informal phrase such as “the Hodge Laplacian” becomes a typed mathematical contract. Without this rung, later formal work can be correct but prove the wrong theorem.
+### Intrinsic viscosity
 
-### Cross the Mathlib boundary once
+This layer constructs and compares the rough, Hodge, and deformation operators.  Weitzenbock, Ricci, grad-div, and symmetric-gradient identities determine their relationships.  Incompressibility removes the exact codifferential correction.
 
-Mathlib supplies manifolds, tangent bundles, Riemannian bundles, and covariant derivative infrastructure. This project should add only the constructions needed by its claims: initially intrinsic two-dimensional surfaces, a concrete Levi-Civita connection, musical maps, curvature contractions, gradient, divergence, deformation, and covariant advection.
+### Function spaces and weak equations
 
-The present Lean code now exposes regularity-indexed bundled sections, a metric-compatible torsion-free tangent-connection *witness*, and covariant differentiation as a linear operator $C^{k+1}(TM) \to C^k(\operatorname{Hom}(TM,TM))$. It also constructs smooth metric musical equivalences, the scalar differential and gradient, coordinate-invariant fiberwise trace, intrinsic divergence, the lowered tensor $(X,Y) \mapsto g(\nabla_Xu,Y)$, coordinate-natural transposition, and the concrete deformation tensor $\operatorname{Def}u$. The regularity loss is visible in each first-order operator. The inverse musical map, fiberwise trace, and tensor transpose have coordinate proofs: smooth metric inversion, trace invariance under conjugation, and naturality under the induced tangent/cotangent coordinate changes are proved rather than assumed.
+This layer supplies \(L^2\), Sobolev, solenoidal, harmonic, and evolution structures; integration-by-parts principles; pressure recovery; weak Stokes equations; and weak Navier--Stokes equations.  Coercivity, density, compactness, and trace theorems attach the abstract equations to a source setting.
 
-These constructions use mathlib's native covariant derivative, connection-regularity, and torsion APIs. A localized compatibility predicate records the tangent specialization of mathlib's metric-derivative identity because the pinned mathlib version has incompatible tangent-fiber instance paths for the generic bundled predicate.
+### Submanifolds and thin domains
 
-Existence and uniqueness of the Levi-Civita connection, the equivalence of the localized metric predicate with the generic predicate once that instance issue is resolved, and the remaining curvature and formal-adjoint calculus are still obligations. The one-form codifferential $d^*\alpha = -\operatorname{div}(\alpha^\sharp)$ and its exact correction $d d^*$ are concrete. Positive-degree exterior differentiation, degree-two codifferentiation, curvature contraction to Ricci, and the realization of $2\operatorname{Def}^*\operatorname{Def}$ are explicit data boundaries. They must be constructed before the comparison identity becomes a concrete theorem about Riemannian surfaces.
+This layer supplies immersions, tangent/normal splittings, second fundamental forms, shape operators, ambient restriction, tubular coordinates, wall profiles, transverse averaging, and varying quadratic forms.  Mosco convergence connects thin-domain energies to surface operators; resolvent, semigroup, and spectral results follow through operator theory.
 
-### Construct the operators before comparing them
+### Noncompact and hyperbolic analysis
 
-The rough, Hodge, and deformation operators must be defined on an explicit class of smooth fields or one-forms with the analysis-positive signs fixed in [`RiemannianFluids.Conventions`](../lean/RiemannianFluids/Conventions.lean). Only then should the library prove Weitzenböck, Ricci, grad-div, and symmetric gradient identities.
+This layer supplies bounded geometry, cutoffs, harmonic fields, real-analytic local structure, exhaustion compactness, exterior domains, and noncompact Hodge decomposition.  These ingredients determine the energy spaces and asymptotic estimates used by the hyperbolic flow theorems.
 
-This rung is the mathematical center of the operator-choice problem. It must preserve correction terms until hypotheses such as incompressibility or a boundary condition make them vanish.
+## Analytic theorem targets
 
-### State the PDE on its real function spaces
+The analytic-status ledger currently records eight `catalogued` source theorems.
 
-Paper theorems concern \(L^2\), \(H^1\), \(H^1_0\), divergence-free closures, weak derivatives, and differential forms—not an arbitrary inner-product space. These spaces, their density results, trace or decay conditions, and the relevant integration-by-parts theorems must be present before positivity, coercivity, or pressure cancellation has the meaning used in the papers.
-
-The existing `ScalarVectorCalculus` and `EnergyConservingAdvection` structures package the identities needed downstream. They are interfaces to be realized, not substitutes for this rung.
-
-Those interfaces live in `RiemannianFluids.Analysis.AbstractEnergy`. This module boundary makes the gap between a proved abstract consequence and a constructed geometric operator explicit in the code.
-
-### Establish the linear Stokes problem first
-
-Weak Stokes theory isolates the elliptic operator, incompressibility constraint, pressure gauge, kernel or Killing fields, and boundary conditions. Coercivity, inf-sup or de Rham pressure results, and domain-specific existence belong here. This rung supports the exterior-domain Stokes claim and supplies the linear estimates used in nonlinear arguments.
-
-### Add nonlinearity, then evolution
-
-Covariant advection must be shown to act on the chosen spaces and to satisfy the appropriate trilinear estimates and cancellation identities. Stationary Navier--Stokes arguments can then build on Stokes theory. Time-dependent Leray-Hopf theory additionally requires Bochner spaces, weak time derivatives, Galerkin or compactness machinery, and an energy inequality.
-
-The current Lean theorem proves an instantaneous energy identity from abstract hypotheses. It does not yet supply a trajectory, a weak solution, or the compactness argument needed by the hyperbolic claims.
-
-### Specialize to noncompact, form, or thin-shell settings only when needed
-
-Hyperbolic papers require noncompact Sobolev spaces, cutoffs, harmonic fields, exterior domains, and curvature-sensitive estimates. The CCP25 claim requires general \(k\)-forms and noncompact Hodge decomposition. The WBS26 claim instead requires tubular geometry, two-wall quadratic forms, transverse averaging, and variational convergence.
-
-These are claim-driven branches. They should reuse the core without forcing surface APIs to pretend they already support arbitrary dimension, arbitrary codimension, or every boundary regime.
-
-## Analytic claims and their proof routes
-
-All eight analytic claims are currently `catalogued`. The table describes what would have to exist before changing that status; it does not assert that the listed paper theorem has already been formalized.
-
-| Claim | Route through the graph | Formal completion requires |
+| Claim | Formal route | Completion milestone |
 | --- | --- | --- |
-| `CZ24-operator-census` | Concrete Riemannian calculus → operator constructions → comparison identities | Concrete candidate operators and a source-faithful proof of inequivalence or an explicit curved witness, with conventions reconciled. |
-| `WBK26-negative-curvature-decay` | Operator identities and weak spaces → weak Navier–Stokes evolution on hyperbolic geometry | The weak deformation-viscosity equation, negative-curvature coercivity, a valid energy inequality, and the exponential decay argument. |
-| `WBS26-mosco-resolvent-spectrum` | Riemannian and tubular geometry → thickness-dependent forms → variational convergence | Thickness-dependent closed forms, liminf and recovery-sequence proofs, then justified resolvent, semigroup, and spectral consequences. |
-| `CC13-leray-hopf-nonuniqueness` | Weak function spaces → Navier–Stokes evolution on the hyperbolic plane | The stated hyperbolic model, admissible harmonic-field construction, Leray-Hopf solutions, energy inequality, and distinctness proof. |
-| `CC15-stationary-liouville` | Weak stationary Navier–Stokes theory → noncompact hyperbolic estimates | The paper's finite-Dirichlet class, noncompact cutoff and integration arguments, and the exact Liouville conclusion under its stated hypotheses. |
-| `CC21-nontrivial-stokes-exterior` | Weak Stokes and pressure theory → hyperbolic exterior domains | The hyperbolic exterior domain, \(H^1_0\) setting, pressure treatment, nonzero construction, and verification of the steady Stokes equations. |
-| `CC21-nontrivial-navier-stokes-exterior` | Exterior-domain Stokes existence → stationary nonlinear theory | The nonlinear correction or fixed-point argument, estimates keeping it in the claimed space, and proof that the resulting steady solution is nontrivial. |
-| `CCP25-h1-noncompact-decomposition` | Sobolev spaces of forms → noncompact Hodge theory | The paper's \(H^1\) spaces of \(k\)-forms, exact/coexact/harmonic summands, closedness and orthogonality results, and the noncompact space-form theorem. |
+| `CZ24-operator-census` | concrete operators → comparison identities → curved witness | construct a source-faithful curved divergence-free witness and prove candidate inequivalence |
+| `WBK26-negative-curvature-decay` | deformation viscosity → hyperbolic coercivity → weak evolution | construct the weak solution framework, energy inequality, uniqueness estimate, and exponential decay |
+| `WBS26-mosco-resolvent-spectrum` | tubular geometry → varying forms → Mosco convergence | prove liminf and recovery theorems and derive the scoped operator and spectral conclusions |
+| `CC13-leray-hopf-nonuniqueness` | harmonic fields → solenoidal energy spaces → weak evolution | construct the hyperbolic solutions, verify the energy inequality, and prove distinctness |
+| `CC15-stationary-liouville` | finite-Dirichlet space → cutoffs → stationary equation | formalize the noncompact integration argument and Liouville conclusion |
+| `CC21-nontrivial-stokes-exterior` | exterior domain → weak Stokes and pressure | construct and verify a nonzero finite-energy Stokes solution |
+| `CC21-nontrivial-navier-stokes-exterior` | exterior Stokes solution → nonlinear correction | formalize the fixed-point estimates and verify the stationary solution |
+| `CCP25-h1-noncompact-decomposition` | Sobolev forms → exact/coexact/harmonic sectors | prove closedness, orthogonality, and decomposition on the stated space forms |
 
-Claim-specific final statements should live under a future `RiemannianFluids.Reproductions` namespace mirroring `python/reproductions/`. Reusable geometry and analysis remain in their domain modules. This keeps a paper theorem traceable without burying reusable mathematics inside a paper adapter.
+## The first vertical slice
 
-## The first coherent formal slice
+`CCD17-divfree-def-hodge` is the first formal vertical slice because it connects smooth Riemannian calculus to a fluid-operator conclusion.
 
-The most informative first vertical slice is the registered identity `CCD17-divfree-def-hodge`, even though its current evidence class is a validated pointwise identity rather than an analytic-theorem gate. It sits directly on the route to the Laplacian-selection claims and forces the foundational layers to become concrete.
+The slice contains:
 
-That slice consists of:
+1. smooth vector fields and one-forms;
+2. musical maps and covariant differentiation;
+3. divergence and deformation strain;
+4. Hodge, rough, Ricci, and deformation operator data;
+5. Weitzenbock and symmetric-gradient identities;
+6. the full operator comparison; and
+7. the divergence-free specialization.
 
-1. regularity-indexed vector fields and one-forms on a Riemannian surface, followed by the still-missing orientation infrastructure needed by the form branch;
-2. musical equivalences, divergence, deformation, and the rough and Hodge Laplacians with fixed signs;
-3. the required Weitzenböck and symmetric-gradient identities;
-4. specialization to divergence-free fields;
-5. the source-convention statement \(L_{\mathrm{Def}} = L_{\mathrm{Hodge}} - 2\operatorname{Ric}\);
-6. an axiom audit of the final declaration.
+The constructed portion includes musical equivalence, covariant differentiation, trace, divergence, tensor symmetry, `Def`, the one-form codifferential, and the vanishing exact correction.  The formal-adjoint and curvature constructions supply the next milestones toward an end-to-end source theorem.
 
-The current formal milestone supplies the musical equivalence, scalar differential and gradient, regularity-losing covariant derivative, smooth fiberwise trace, intrinsic divergence, and a concrete divergence-free predicate. It also supplies coordinate-natural transposition and symmetrization of covariant two-tensors and therefore the pointwise formula $\operatorname{Def}(u)(X,Y) = \frac12\bigl(g(\nabla_Xu,Y) + g(\nabla_Yu,X)\bigr)$.
+## Integration contract for new work
 
-On the form branch, the implementation proves $d^*(u^\flat) = -\operatorname{div}u$, constructs the regularity-losing exact correction $(d d^*(u^\flat))^\sharp$, and proves that this correction vanishes for the intrinsic divergence-free predicate. The Hodge Laplacian is then assembled as $d d^* + d^* d$ from explicit degree-one exterior derivative and degree-two codifferential data. On the curvature branch, a smooth Ricci endomorphism acts pointwise on vector fields, while its construction by contracting Riemann curvature remains an explicit input.
+Every addition states:
 
-`RiemannianFluids.Operators.GeometricIdentities` separately names the analysis-positive Weitzenböck identity $\nabla^*\nabla = L_{\mathrm{Hodge}} - \operatorname{Ric}$ and symmetric-gradient identity $L_{\mathrm{Def}} = \nabla^*\nabla + d d^* - \operatorname{Ric}$. From those visible hypotheses it proves the full translation of [CCD17 equation (1.3)](https://arxiv.org/abs/1608.05114), $L_{\mathrm{Def}} = L_{\mathrm{Hodge}} + d d^* - 2\operatorname{Ric}$, and the theorem `ccd17_divfree_def_hodge`, whose conclusion is $L_{\mathrm{Def}}u = L_{\mathrm{Hodge}}u - 2\operatorname{Ric}(u)$ for divergence-free $u$.
+1. the mathematical layer that owns it;
+2. the source question or downstream theorem it serves;
+3. its geometric, analytic, and sign conventions;
+4. its evidence class;
+5. its formal or computational acceptance criterion; and
+6. the declaration or experiment that exposes the result.
 
-This is an interface proof, not yet a formal reproduction: the pinned mathlib version does not supply the required positive-degree de Rham, Riemann/Ricci, or formal-adjoint infrastructure, and the two comparison identities are still hypotheses. No registered claim changes formalization status at this milestone.
-
-The existing Python residual tests remain the computational companion to this theorem. Agreement between the two branches is evidence that they implement the same statement; the numerical residual is not used as a premise in Lean.
-
-This slice unlocks meaningful formal work on operator inequivalence, curvature coercivity, energy decay, and thin-shell selection without prematurely taking on a full weak Navier--Stokes existence theory.
-
-## How new work fits the repository
-
-A contribution should be understandable through the following questions:
-
-1. Which registered claim or reusable dependency does it serve?
-2. Which mathematical layer owns the definition or theorem?
-3. Which assumptions and sign conventions are visible in its statement?
-4. Is its evidence formal, symbolic, manufactured, discrete, or convergent?
-5. What exact declaration or acceptance test would justify changing status?
-
-If those answers are absent, the work may still be interesting mathematics or software, but it is not yet integrated into the reproduction program.
+This contract keeps definitions reusable, claims traceable, and evidence scientifically interpretable.

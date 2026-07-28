@@ -56,4 +56,41 @@ structure EnergyConservingAdvection (incompressible : V → Prop) where
   /-- The kinetic-energy cancellation `⟪∇_u u,u⟫ = 0`. -/
   energy_cancel : ∀ u, incompressible u → inner ℝ (advect u u) u = 0
 
+/-- Korn's inequality for a concrete first derivative and deformation operator between normed
+spaces.  The lower-order `‖u‖` term is retained for manifolds with Killing fields. -/
+def KornInequality
+    {Velocity FullGradient SymmetricGradient : Type*}
+    [NormedAddCommGroup Velocity] [NormedSpace ℝ Velocity]
+    [NormedAddCommGroup FullGradient] [NormedSpace ℝ FullGradient]
+    [NormedAddCommGroup SymmetricGradient] [NormedSpace ℝ SymmetricGradient]
+    (covariantDerivative : Velocity →L[ℝ] FullGradient)
+    (deformation : Velocity →L[ℝ] SymmetricGradient) : Prop :=
+  ∃ constant : ℝ, 0 < constant ∧ ∀ velocity,
+    ‖covariantDerivative velocity‖ ≤
+      constant * (‖deformation velocity‖ + ‖velocity‖)
+
+/-- Gaffney's inequality controlling the first derivative of a form by `d`, `d*`, and its
+lower-order norm. -/
+def GaffneyInequality
+    {Form FullGradient ExteriorDerivative Codifferential : Type*}
+    [NormedAddCommGroup Form] [NormedSpace ℝ Form]
+    [NormedAddCommGroup FullGradient] [NormedSpace ℝ FullGradient]
+    [NormedAddCommGroup ExteriorDerivative] [NormedSpace ℝ ExteriorDerivative]
+    [NormedAddCommGroup Codifferential] [NormedSpace ℝ Codifferential]
+    (covariantDerivative : Form →L[ℝ] FullGradient)
+    (exteriorDerivative : Form →L[ℝ] ExteriorDerivative)
+    (codifferential : Form →L[ℝ] Codifferential) : Prop :=
+  ∃ constant : ℝ, 0 < constant ∧ ∀ form,
+    ‖covariantDerivative form‖ ≤
+      constant * (‖exteriorDerivative form‖ + ‖codifferential form‖ + ‖form‖)
+
+/-- Ladyzhenskaya's two-dimensional interpolation inequality, stated for the actual norms supplied
+by a function-space realization. -/
+def LadyzhenskayaInequality
+    {FunctionSpace : Type*}
+    (l2Norm h1Norm l4Norm : FunctionSpace → ℝ) : Prop :=
+  ∃ constant : ℝ, 0 < constant ∧ ∀ function,
+    l4Norm function ^ 2 ≤
+      constant * l2Norm function * h1Norm function
+
 end RiemannianFluids

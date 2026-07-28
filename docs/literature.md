@@ -1,43 +1,105 @@
-# Executable literature
+# Literature program
 
-This repository is a claim-driven computational laboratory for Riemannian fluids.  A paper belongs here when it studies geometric viscosity, Stokes or Navier--Stokes equations, Hodge structure, or a thin-domain mechanism that selects a surface operator.  Czubak papers on unrelated PDE families are not silently folded into this library.
+The literature collected by Riemannian Fluids develops a common scientific question: how do curvature, topology, embeddings, boundaries, and noncompact geometry determine incompressible viscous flow?
 
-Each source has exactly one lean Python adapter in `reproductions/`.  The adapter records paper metadata, locates each registered claim in the source, states its assumptions and evidence class, and invokes reusable mathematics in `riemannian_fluids/`.  Paper files must not implement reusable geometry, operators, discretizations, or solvers.
+The repository organizes that question into three connected research threads.
 
-## Evidence language
+## Intrinsic viscosity and curvature
 
-- **validated**: the repository currently runs the evidence gate stated by the claim and tests its acceptance criterion.
-- **executable**: a computational analogue runs, but the full reproduction gate has not yet passed.
-- **catalogued**: the claim is represented and its missing capability is known.
-- **analytic-only**: the source claim is a theorem.  Computation may illustrate it or test a discrete analogue, but does not prove it.
+### CCD17 — formulation on Riemannian manifolds
 
-Pointwise identities, manufactured PDE solutions, mesh convergence, spectra, and thin-domain limits are different evidence classes.  Passing one never promotes a claim in another class.
+Chan--Czubak--Disconzi identify the rough, Hodge, and deformation constructions of vector viscosity and derive the curvature and divergence corrections relating them.  This work supplies the operator conventions and comparison identities at the center of the formal library.
 
-For the mathematical dependencies behind the analytic claims, see [`claim-to-proof.md`](claim-to-proof.md). That document explains how the shared geometry, operator, function-space, and PDE layers lead to the claim-specific Lean theorems.
+Formal implementation: smooth strain, codifferential cancellation, Hodge data, Ricci action, Weitzenbock and symmetric-gradient hypotheses, and the divergence-free deformation/Hodge comparison.
 
-For a source-to-Lean reading of those dependencies, see [`formal-analysis.md`](formal-analysis.md). It records the notation and sign translations and distinguishes concrete constructions from interface hypotheses and derived theorems.
+### CZ24 — viscosity operator survey
 
-## Corpus and live formal map
+Czubak synthesizes the geometric ambiguity of vector viscosity and emphasizes the role of curvature and physical derivation.  This work supplies the operator-census question and the curved-witness criterion.
 
-The corpus contains `CZ24`, `CCD17`, `CCY23`, `CCG25`, `CCF25`, `WBK26`, `WBS26`, `CC13`, `CC15`, `CC21`, and `CCP25`. The source list below is
-stable, but a hand-maintained coverage table is not: it becomes stale as soon as an obligation is discharged.
+Formal implementation: pairwise inequivalence of the three intrinsic candidates from a divergence-free field with nonzero Ricci action.
 
-The current map is therefore executable. [`../claims/registry.json`](../claims/registry.json) owns exact source claims and hypotheses;
-[`../claims/lean-contracts.json`](../claims/lean-contracts.json) maps all 23 claims to typed statements; and `make lean/progress` prints every open proof
-obligation and the transitive status of each literature-facing terminal theorem.
+### CCY23 — invariant restriction to an ellipsoid
 
-The finer paper map lives under [`../lean/RiemannianFluids/Reproductions/`](../lean/RiemannianFluids/Reproductions/).
-Every paper ID has a directory containing its source-ordered statement/proof modules, numbered
-remarks, and local executable `Inventory.lean` import endpoint.  The corpus-level
-[`LiteratureInventory.lean`](../lean/RiemannianFluids/LiteratureInventory.lean) checks 104 named
-results, 6 numbered definitions, and all 51 numbered remarks.  Remark records distinguish exact
-formal links, mathematical statements still needing extraction, and non-propositional provenance
-or interpretation; the last category remains part of the source map without being presented as
-a theorem.
+Chan--Czubak--Yoneda study the relationship between ambient differential operators and intrinsic surface operators.  Extension, tangent projection, and geometric correction terms determine the restriction problem.
 
-## Sources
+Formal implementation: immersion data, tangent/normal splitting, ambient extension, tangential restriction, correction formulas, and extension independence.
 
-Version-pinned PDFs are stored in [`../literature/pdfs/`](../literature/pdfs/). [`../literature/manifest.json`](../literature/manifest.json) records their retrieval URLs, sizes, page counts, and SHA-256 digests.
+### CCG25 — Gauss formulas for Laplacians
+
+Chan--Czubak develop Laplacian restriction formulas for submanifolds, including ambient curvature, the second fundamental form, the normal connection, and higher-codimension Ricci terms.
+
+Formal implementation: submanifold geometry, shape and mean-curvature data, Gauss--Codazzi interfaces, and operator restriction constraints.
+
+### CCF25 — ellipsoid candidates and thin-shell derivation
+
+Chan--Czubak--Fuster Aguilera compare surface operators produced by ambient restriction, scaling, normal-direction analysis, and averaging.  Their work makes the derivation procedure part of the operator specification.
+
+Computational implementation: the four candidate operators on the sphere and spheroid, with parameterized comparisons and source-linked validation gates.
+
+## Kinematic and boundary selection
+
+### WBK26 — kinematic selection
+
+Wang--Braunstein derive deformation viscosity from the infinitesimal rate of metric strain and connect negative curvature with coercivity, uniqueness, and energy decay.
+
+Formal implementation: the intrinsic infinitesimal metric-rate tensor and its identity with twice the deformation tensor.
+
+Analytic target: weak deformation-viscosity evolution on negatively curved surfaces, including coercivity, existence, pressure recovery, uniqueness, and exponential decay.
+
+### WBS26 — boundary-selected thin-shell limits
+
+Wang--Braunstein derive a wall-parameter family of effective surface operators and formulate a variational thin-shell convergence theorem for selected geometries and wall conditions.
+
+Formal implementation: the boundary-selected operator family, endpoint algebra, tubular geometry, varying quadratic-form data, and Hilbert-space Mosco and operator-convergence interfaces.
+
+Computational implementation: two-wall finite-thickness profiles, divergence corrections, wall diagnostics, and thickness studies.
+
+Analytic target: liminf and recovery theorems followed by strong resolvent, semigroup, and scoped spectral convergence.
+
+## Noncompact and hyperbolic flow
+
+### CC13 — Leray--Hopf nonuniqueness
+
+Chan--Czubak connect finite-energy harmonic fields on the hyperbolic plane with nonuniqueness of Leray--Hopf solutions.  The theorem depends on the choice of solenoidal closure and harmonic sector.
+
+Formal target: hyperbolic harmonic fields, weak trajectories, energy inequalities, and distinct solutions in the source energy class.
+
+### CC15 — stationary Liouville theorem
+
+Chan--Czubak study stationary finite-Dirichlet Navier--Stokes flow on hyperbolic space through cutoff arguments, decay, and noncompact integration by parts.
+
+Formal target: the finite-Dirichlet function space, stationary weak equation, cutoff estimates, and Liouville conclusion.
+
+### CC21 — hyperbolic exterior-domain flows
+
+Chan--Czubak construct nontrivial stationary Stokes and Navier--Stokes flows in exterior domains of the hyperbolic plane.  Linear Stokes solvability and pressure recovery support the nonlinear construction.
+
+Formal target: exterior-domain Sobolev spaces, nonzero Stokes solution, pressure, nonlinear correction, and stationary Navier--Stokes verification.
+
+### CCP25 — noncompact Sobolev Hodge decomposition
+
+Chan--Czubak--Pinilla Suarez develop the Hodge decomposition of \(H^1\) differential forms on nonpositively curved space forms.  Exact, coexact, and harmonic sectors provide the function-space structure used throughout the hyperbolic fluid program.
+
+Formal implementation: Sobolev-form and Hodge-decomposition interfaces, space-form geometry, and harmonic data.
+
+Analytic target: closedness, orthogonality, and direct-sum decomposition on the source spaces.
+
+## Evidence vocabulary
+
+The repository records six evidence classes:
+
+- **formal theorem**: Lean proves the proposition from its displayed assumptions;
+- **pointwise identity**: numerical evaluation bounds a local residual;
+- **manufactured solution**: a prescribed field satisfies a PDE and boundary residual gate;
+- **discrete solve**: a finite-dimensional system satisfies algebraic and constraint diagnostics;
+- **refinement study**: an observable exhibits its specified behavior across resolutions; and
+- **thin-domain study**: thickness and mesh parameters vary independently with wall, divergence, pressure, and averaging diagnostics.
+
+Claim IDs connect every evidence record to a source version, locator, convention, and acceptance criterion.
+
+## Source archive
+
+[`../literature/manifest.json`](../literature/manifest.json) records retrieval URLs, sizes, page counts, and SHA-256 digests for the version-pinned PDFs in [`../literature/pdfs/`](../literature/pdfs/).
 
 - `CZ24`: [local PDF](../literature/pdfs/CZ24-notices-71-1.pdf) · [DOI](https://doi.org/10.1090/noti2840)
 - `CCD17`: [local PDF](../literature/pdfs/CCD17-arxiv-1608.05114v2.pdf) · [arXiv](https://arxiv.org/abs/1608.05114v2)
@@ -50,5 +112,3 @@ Version-pinned PDFs are stored in [`../literature/pdfs/`](../literature/pdfs/). 
 - `CC15`: [local PDF](../literature/pdfs/CC15-arxiv-1501.04928v1.pdf) · [arXiv](https://arxiv.org/abs/1501.04928v1)
 - `CC21`: [local PDF](../literature/pdfs/CC21-arxiv-1708.05134v1.pdf) · [arXiv](https://arxiv.org/abs/1708.05134v1)
 - `CCP25`: [local PDF](../literature/pdfs/CCP25-arxiv-1812.11764v1.pdf) · [arXiv](https://arxiv.org/abs/1812.11764v1)
-
-The version and locator stored next to each executable claim are authoritative for a run.  If a source version changes, it is a new provenance event rather than an invisible metadata edit.

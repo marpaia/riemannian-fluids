@@ -1,4 +1,5 @@
 import Mathlib.Data.Real.Basic
+import RiemannianFluids.Tensors.SmoothSections
 
 /-!
 # Differential-form calculus contracts
@@ -14,6 +15,72 @@ particular, none of the mathematical conclusions to be proved are stored as stru
 -/
 
 namespace RiemannianFluids
+
+open scoped ContDiff Manifold
+
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+  {H : Type*} [TopologicalSpace H]
+  (I : ModelWithCorners ℝ E H)
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I 1 M]
+
+/-- A raw degree-`k` differential-form section on Mathlib tangent fibers.  No smoothness or
+integrability is imposed, so this is the common carrier on which the literature packages place
+`L²`, weak-derivative, and Sobolev predicates. -/
+abbrev RawDifferentialFormSection (degree : ℕ) :=
+  (x : M) → TangentSpace I x [⋀^Fin degree]→L[ℝ] ℝ
+
+/-- A raw covariant derivative of a degree-`k` form: one tangent input followed by the
+alternating form inputs. -/
+abbrev RawCovariantDifferentialFormSection (degree : ℕ) :=
+  (x : M) → TangentSpace I x →L[ℝ]
+    (TangentSpace I x [⋀^Fin degree]→L[ℝ] ℝ)
+
+/-- A raw section of the tangent bundle, without regularity or integrability assumptions. -/
+abbrev RawTangentFieldSection := (x : M) → TangentSpace I x
+
+/-- Smooth de Rham operators in three adjacent degrees, using Mathlib's actual smooth
+alternating-form sections.  Mathlib supplies these section types but not, at the pinned revision,
+the manifold exterior derivative or codifferential. -/
+structure SmoothAdjacentFormOperators (lowerDegree : ℕ) where
+  exteriorFromLower :
+    SmoothDifferentialForm (M := M) I lowerDegree ∞ →ₗ[ℝ]
+      SmoothDifferentialForm (M := M) I (lowerDegree + 1) ∞
+  exterior :
+    SmoothDifferentialForm (M := M) I (lowerDegree + 1) ∞ →ₗ[ℝ]
+      SmoothDifferentialForm (M := M) I (lowerDegree + 2) ∞
+  codifferentialFromUpper :
+    SmoothDifferentialForm (M := M) I (lowerDegree + 2) ∞ →ₗ[ℝ]
+      SmoothDifferentialForm (M := M) I (lowerDegree + 1) ∞
+  codifferential :
+    SmoothDifferentialForm (M := M) I (lowerDegree + 1) ∞ →ₗ[ℝ]
+      SmoothDifferentialForm (M := M) I lowerDegree ∞
+  hodgeLaplacian :
+    SmoothDifferentialForm (M := M) I (lowerDegree + 1) ∞ →ₗ[ℝ]
+      SmoothDifferentialForm (M := M) I (lowerDegree + 1) ∞
+
+/-- `d ∘ d = 0` in the two adjacent degrees represented by the operator package. -/
+def HasSmoothExteriorNilpotence
+    (lowerDegree : ℕ)
+    (operators : SmoothAdjacentFormOperators (M := M) I lowerDegree) : Prop :=
+  ∀ form,
+    operators.exterior (operators.exteriorFromLower form) = 0
+
+/-- `d* ∘ d* = 0` in the two adjacent degrees represented by the operator package. -/
+def HasSmoothCodifferentialNilpotence
+    (lowerDegree : ℕ)
+    (operators : SmoothAdjacentFormOperators (M := M) I lowerDegree) : Prop :=
+  ∀ form,
+    operators.codifferential (operators.codifferentialFromUpper form) = 0
+
+/-- The analysis-positive Hodge Laplacian `d d* + d* d` on the central degree. -/
+def HasSmoothHodgeLaplacianFormula
+    (lowerDegree : ℕ)
+    (operators : SmoothAdjacentFormOperators (M := M) I lowerDegree) : Prop :=
+  ∀ form,
+    operators.hodgeLaplacian form =
+      operators.exteriorFromLower (operators.codifferential form) +
+        operators.codifferentialFromUpper (operators.exterior form)
 
 /-- Operations involving one fixed form degree and its two adjacent degrees. -/
 structure FormDegreeCalculus

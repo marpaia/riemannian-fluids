@@ -1,54 +1,96 @@
 # Riemannian Fluids
 
-This is a research repository for formal and computational analysis of fluid equations on Riemannian manifolds, with an initial focus on Navier--Stokes equations and viscosity operators on surfaces.
+Riemannian Fluids is a research library for incompressible viscous flow on Riemannian manifolds.  It develops the geometric operators, function spaces, weak equations, and limiting arguments that give Navier-Stokes equations their meaning on curved spaces.
 
-There are two independently buildable implementations:
+The scientific program has four parts:
 
-- `lean/` supplies machine-checked definitions and proofs for analytic claims.
-- `python/` supplies executable geometry, numerical studies, manufactured solutions, discretizations, and convergence evidence.
+1. construct covariant differential operators on vector fields and differential forms;
+2. compare the rough, Hodge, and deformation viscosity operators through curvature identities;
+3. derive surface operators from intrinsic kinematics, ambient restriction, boundary laws, and thin-domain limits; and
+4. formulate stationary and evolving incompressible flow on compact, noncompact, and negatively curved manifolds.
 
-Shared paper and claim provenance lives in `claims/`. Neither implementation may silently redefine a paper claim or its mathematical convention.
+The repository contains a formal implementation in Lean and a computational implementation in Python.  They share mathematical conventions and literature provenance.
 
-## Research program
+## Lean
 
-The authoritative dependency structure is executable rather than prose-only:
+[`lean/`](lean/) is the formal mathematical development.  It gives definitions and theorems precise types, tracks regularity loss, exposes every geometric hypothesis, and verifies proofs with Lean and Mathlib.
 
-- [`claims/registry.json`](claims/registry.json) owns source wording, locators, assumptions, and evidence classes;
-- [`claims/lean-contracts.json`](claims/lean-contracts.json) maps every registered claim to a declaration in its permanent Lean module;
-- [`lean/RiemannianFluids.lean`](lean/RiemannianFluids.lean) imports the complete codebase layout;
-- each `lean/RiemannianFluids/Reproductions/<paper>/` package follows the paper's source and proof sections, owns its numbered-item and remark inventory, and is re-exported by a stable `<paper>.lean` facade;
-- `make lean/progress` computes the current direct and transitive proof frontier.
+The formal development contains:
 
-[`docs/claim-to-proof.md`](docs/claim-to-proof.md) remains an explanatory guide to why the project constructs geometry before comparing Laplacians and develops weak Stokes theory before nonlinear evolution, but it is not the progress ledger.
+- smooth scalar fields, vector fields, one-forms, differential forms, and covariant tensors;
+- Levi-Civita connection data, musical maps, covariant differentiation, gradient, divergence, and deformation strain;
+- rough, Hodge, and deformation viscosity operators with analysis-positive signs;
+- curvature and codifferential corrections relating those operators;
+- incompressibility, Stokes, pressure, Navier--Stokes, Leray--Hopf, and stationary-flow formulations;
+- Sobolev, evolution, Hodge-decomposition, bounded-geometry, submanifold, and thin-shell structures; and
+- variational language for Mosco, resolvent, semigroup, and spectral convergence.
 
-The companion [`docs/formal-analysis.md`](docs/formal-analysis.md) explains how to read the Lean development as executable mathematical exposition: it gives the CCD17 notation crosswalk, sign translation, proof order, and current concrete/interface boundary.
+Lean declarations have three semantic roles:
 
-The companion [`docs/literature.md`](docs/literature.md) gives the paper corpus, current evidence, and next missing gate for each source. Together these documents answer two different questions: what the literature claims, and what must be proved or computed for this repository to reproduce it.
+- **construction**: Lean builds the mathematical object from the available geometric data;
+- **conditional theorem**: Lean proves a conclusion from hypotheses displayed in the theorem type; and
+- **source theorem**: Lean realizes the source setting and discharges its geometric and analytic hypotheses.
 
-## Expository formal analysis
+The compiled library is free of `sorry`, `admit`, project `axiom`, and project `constant`.  [`lean/RiemannianFluids/AxiomAudit.lean`](lean/RiemannianFluids/AxiomAudit.lean) audits representative results for hidden proof assumptions.
 
-The Lean code is written as an annotated mathematical essay, not merely to obtain a green theorem declaration. The opening narrative of each substantive module develops the idea and proof in ordinary mathematical language. Lean declarations then bookend that explanation with precise statements; declaration documentation explains representation and regularity choices, and comments inside nontrivial proofs translate formal steps back into mathematics. Definitions proved by `rfl` are documented as representation choices, since the definition itself is their proof.
+The formal entrance is [`lean/RiemannianFluids.lean`](lean/RiemannianFluids.lean).  [`lean/README.md`](lean/README.md) gives the mathematical reading order, and [`docs/formal-analysis.md`](docs/formal-analysis.md) gives the detailed notation and convention crosswalk.
 
-The intended reading experience is therefore:
+## Python
 
-1. locate the paper statement in `claims/registry.json` and its declaration in `claims/lean-contracts.json`;
-2. read its convention and notation crosswalk in `docs/formal-analysis.md`;
-3. follow the actual import/declaration graph in a Lean IDE;
-4. read the module narrative as the proof, then inspect the Lean comments to see where mathematics ends and library adaptation begins;
-5. run `make lean/progress` and check the formal-status boundary before treating the result as a reproduction.
+[`python/`](python/) is the executable scientific implementation.  It evaluates geometric identities, constructs reference discretizations, solves model equations, and measures numerical evidence.
 
-## Evidence boundary
+The Python package provides:
 
-Computational evidence can validate pointwise identities, manufactured solutions, and stated numerical convergence gates. It cannot validate an analytic theorem. A compiled statement with open obligations is only `contract-checked`; an analytic claim is reproduced only when its terminal Lean declaration has no transitive `sorryAx` dependency and the formalization ledger records the stronger state.
+- intrinsic and embedded geometry for surfaces and space forms;
+- tensor calculus, differential forms, and Hodge diagnostics;
+- rough, Hodge, deformation, Stokes, and Navier--Stokes operators;
+- Fermi coordinates, wall profiles, transverse averaging, and finite-thickness shell fields;
+- vector-spherical-harmonic, mixed, nonlinear, transient, and generalized spectral solvers;
+- an explicit FEniCSx backend for finite-element studies; and
+- validation tools for residuals, refinement studies, spectra, constraints, and literature claim gates.
+
+Python evidence is identified by its mathematical kind: pointwise identity, manufactured solution, discrete solve, mesh refinement, spectral comparison, or thin-domain study.  Each experiment reports the claim, geometry, parameters, observable, and acceptance criterion that determine its meaning.
+
+[`python/README.md`](python/README.md) documents the package and executable studies.
+
+## Literature and provenance
+
+The literature supplies the definitions, comparison principles, examples, and analytic theorems developed by the repository.  [`literature/manifest.json`](literature/manifest.json) identifies the version-pinned source archive.  [`claims/registry.json`](claims/registry.json) records claim IDs, source locators, assumptions, conventions, evidence classes, and computational status.
+
+[`claims/lean-contracts.json`](claims/lean-contracts.json) links source claims to formal declarations that implement part of their mathematics.  [`claims/formalization.json`](claims/formalization.json) records the formal status of analytic theorems.  [`docs/literature.md`](docs/literature.md) explains how the sources contribute to the common research program.
+
+Formal proof and computational evidence answer different scientific questions.  Lean establishes logical consequences of explicit hypotheses.  Python establishes measured behavior of explicit models and discretizations.  The claim registry keeps both forms of evidence attached to the same source conventions.
+
+## Mathematical architecture
+
+```text
+geometry and smooth tensors
+  -> intrinsic differential operators
+  -> viscosity comparison and selection
+  -> function spaces and weak formulations
+  -> stationary and evolving Navier--Stokes equations
+
+submanifold and tubular geometry
+  -> boundary-selected operators
+  -> quadratic forms on thin domains
+  -> variational and operator convergence
+
+noncompact geometry and Hodge structure
+  -> harmonic sectors and solenoidal closures
+  -> hyperbolic Stokes and Navier--Stokes phenomena
+```
+
+[`docs/claim-to-proof.md`](docs/claim-to-proof.md) records this dependency structure and the formal milestones associated with each analytic claim.
 
 ## Layout
 
 ```text
-claims/     language-neutral paper and claim registry
-docs/       literature census and research documentation
-lean/       theorem-based Riemannian geometry and fluid analysis
-python/     JAX, NumPy, FEniCSx, experiments, and computational reproductions
-tools/      cross-language provenance and evidence audits
+lean/        formal definitions, constructions, and proofs
+python/      executable geometry, operators, solvers, and studies
+claims/      source claims and evidence status
+literature/  version-pinned papers and retrieval metadata
+docs/        mathematical exposition and research architecture
+tools/       provenance and trust-boundary validation
 ```
 
 ## Validation
@@ -56,11 +98,10 @@ tools/      cross-language provenance and evidence audits
 ```sh
 make lean/sync
 make lean/check
-make lean/progress
 make python/sync
 make python/check
 make claims/check
 make check
 ```
 
-The Lean and Python environments remain separately pinned by `lean/lake-manifest.json` and `python/uv.lock`.
+`make lean/check` builds the formal library, audits its source closure, checks the literature crosswalk, and runs the axiom audit.  `make python/check` runs static analysis, tests, provenance adapters, and the reference studies.  `make claims/check` verifies agreement among the shared registry, Python declarations, formal-status ledger, and Lean crosswalk.

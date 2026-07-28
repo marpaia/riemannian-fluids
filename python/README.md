@@ -1,76 +1,98 @@
-# Riemannian fluids
+# The Python implementation
 
-A minimal, mathematics-first research codebase for making the Riemannian-fluid literature executable.  Reusable differential geometry, fluid operators, function spaces, discretizations, and solvers live in `riemannian_fluids/`. Every paper is represented by one lean Python adapter in `reproductions/`.
+The Python package is the executable scientific layer of Riemannian Fluids.  It implements geometric models, differential operators, reference solvers, and validation studies for incompressible flow on curved manifolds.
 
-The organizing chain is:
+The package follows the chain
 
 ```text
-source paper -> located claim -> reusable mathematical API -> evidence gate
+geometry -> tensors -> operators -> function spaces -> discretization -> solver -> evidence
 ```
 
-The claim census and present coverage are in [`literature.md`](literature.md).
-
-## Structure
+## Package structure
 
 ```text
 riemannian_fluids/
-  geometry/          metrics, connections, curvature, embeddings, normal bundles
-  tensors/           covariant calculus, musical maps, and differential forms
-  operators/         rough, Hodge, deformation, Stokes, and Navier--Stokes operators
-  function_spaces/   constraints, Sobolev diagnostics, and Hodge decomposition
-  shells/            Fermi geometry, wall profiles, averaging, and shell problems
-  discretization/    explicit backend capabilities and the optional FEniCSx path
-  solvers/           mixed, nonlinear, transient, and generalized spectral references
-  validation/        claims, provenance, evidence classes, and refinement diagnostics
+  geometry/          metrics, connections, curvature, domains, embeddings, normal geometry
+  tensors/           covariant calculus, musical maps, tensor operations, differential forms
+  operators/         viscosity, Stokes, and Navier--Stokes operators
+  function_spaces/   constraints, Sobolev diagnostics, and Hodge decompositions
+  shells/            Fermi geometry, wall profiles, transverse averaging, shell problems
+  discretization/    backend capabilities, spherical spectra, and FEniCSx
+  solvers/           mixed, nonlinear, transient, and generalized spectral solvers
+  validation/        residuals, provenance, evidence classes, and refinement diagnostics
 
-reproductions/       exactly one lean Python file per paper
-experiments/         cross-paper parameter studies and reports
-literature.md        human-readable research census
+experiments/          parameter studies and report-producing entry points
+reproductions/        source claim metadata and executable evidence adapters
+tests/                mathematical and software verification
 ```
 
-The old top-level `calculus`, `viscosity`, `thin_shell`, and `fenics` imports are small compatibility shims.  New code should use the domain packages above.
+The top-level `calculus`, `viscosity`, `thin_shell`, and `fenics` modules provide compatibility imports for the domain packages.
 
-## Run it
+## Mathematical content
 
-The host path is locked to Python 3.12 with `uv`:
+The implementation supports:
+
+- round spheres, spheroids, tori of revolution, perturbed spheres, hyperbolic models, and embedded submanifolds;
+- metric, inverse metric, Christoffel symbols, curvature, Ricci action, shape operators, and Gauss identities;
+- intrinsic gradient, divergence, strain, covariant advection, and differential-form operations;
+- rough, Hodge, and deformation viscosity operators with analysis-positive signs;
+- incompressibility constraints, pressure gauges, Hodge decompositions, and harmonic sectors;
+- vector-spherical-harmonic Stokes spectra and mixed saddle systems;
+- nonlinear and transient reference solves;
+- Fermi-coordinate shell fields, two-wall profiles, divergence corrections, and transverse averages; and
+- finite-element manufactured solutions through a pinned DOLFINx container.
+
+## Evidence produced by Python
+
+Every result belongs to a declared evidence class:
+
+- **pointwise identity**: evaluates a geometric or operator residual on sampled points;
+- **manufactured solution**: verifies a prescribed field against a differential equation and boundary data;
+- **discrete solve**: solves a stated finite-dimensional variational or algebraic problem;
+- **spectral comparison**: compares eigenvalues, multiplicities, kernels, or mode decompositions;
+- **refinement study**: measures an observable across mesh or resolution scales; and
+- **thin-domain study**: varies thickness, mesh size, and their ratio while tracking wall, divergence, pressure, and averaging diagnostics.
+
+The evidence record identifies the geometry, parameters, convention, observable, tolerance, and claim ID.
+
+## Reference studies
+
+`surface-viscosity` evaluates divergence, the metric-rate identity, Gauss and Weitzenbock relations, deformation/Hodge comparison, wall-selected operators, and ellipsoid candidates on the supported surfaces.
+
+`thin-shell` constructs finite-thickness two-wall fields, evaluates their asymptotic coefficients, and measures raw and corrected divergence across thickness values.
+
+The spherical Stokes implementation uses vector spherical harmonics.  It represents exact and coexact modes, the three viscosity spectra, incompressibility, pressure recovery, the pressure gauge, and the Killing-field kernel of deformation viscosity.
+
+The FEniCSx study runs in the image defined by `Dockerfile.fenicsx` and verifies a manufactured finite-element problem with the pinned DOLFINx environment.
+
+## Active validation targets
+
+The computational program is extending toward:
+
+- a resolved curved three-dimensional volume shell with two tagged walls;
+- independent refinement in mesh size \(h\), thickness \(\varepsilon\), and \(h/\varepsilon\);
+- FEEC realizations and convergence for noncompact Hodge decompositions;
+- expanding-domain hyperbolic Stokes and Navier--Stokes studies; and
+- global curved-surface Navier--Stokes simulations.
+
+Backend capability records identify which observables and validation gates each implementation supplies.
+
+## Conventions
+
+All Laplacians use the analysis-positive convention.  Intrinsic dimension, ambient dimension, and codimension are explicit model data.  The wall-parameter family records its Ricci and shape-square coefficients explicitly.  Solvers report their mass-space interpretation, pressure gauge, nullspace handling, and convergence observable.
+
+## Run
+
+The environment is locked to Python 3.12 with `uv`.
 
 ```sh
 uv sync --frozen --extra dev
 make check
 make literature
 uv run --frozen python -m reproductions WBS26
-```
-
-The existing studies remain available:
-
-```sh
 make surface-viscosity
 make thin-shell
-```
-
-FEniCSx is isolated in the official pinned DOLFINx container rather than silently replaced by a NumPy calculation:
-
-```sh
 make finite-elements/check
 ```
 
-## Mathematical conventions
-
-All reported Laplacians use the analysis-positive convention.  The 2026 interpolating family is
-
-\[
-L_\alpha=L_{\mathrm{Def}}+2\alpha\operatorname{Ric}
-  +4\alpha(1-\alpha)S^2.
-\]
-
-Intrinsic dimension, ambient dimension, and codimension are separate explicit contracts.  Bare embedding callables remain accepted for small calculations; new work should use `RiemannianManifold` or `EmbeddedSubmanifold` so dimensional and ambient assumptions are visible.
-
-## What the evidence currently establishes
-
-The repository validates local curvature/operator identities, the four 2025 ellipsoid candidates on their stated geometry, the 2026 wall-selected family, finite-thickness two-wall polynomial fields, and a manufactured FEniCSx PDE on the normal fibre.  It also supplies tested reference APIs for differential forms, discrete Hodge decomposition, incompressible saddle systems, mass-matrix generalized eigenproblems, nonlinear solves, and time stepping.
-
-The global Stokes reference is a vector-spherical-harmonic Galerkin model on the round sphere.  It handles exact/coexact modes, all three viscosity spectra, incompressibility, pressure recovery, the pressure gauge, and deformation's three Killing modes without hiding the mass-space interpretation.
-
-The repository does **not** yet claim a resolved curved volume-shell reproduction, FEEC convergence, an expanding-domain hyperbolic theorem reproduction, or a global curved-surface Navier--Stokes simulation.  The backend capability object records those limits explicitly.  In particular, the local shell identity and the normal-fibre manufactured solution are not thin-shell PDE convergence.
-
-For `WBS26-resolved-volume-shell`, success requires a curved 3D volume mesh, two independently tagged walls, a mixed incompressible solve, transverse averaging, wall/divergence/pressure diagnostics, and separate studies of mesh size \(h\), thickness \(\varepsilon\), and \(h/\varepsilon\).
+`make check` runs Ruff, the test suite, all literature adapters, and the reference surface-viscosity and thin-shell studies.

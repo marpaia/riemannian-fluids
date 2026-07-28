@@ -1,10 +1,41 @@
-import Mathlib.Analysis.InnerProductSpace.Basic
+import Mathlib.Analysis.InnerProductSpace.Adjoint
 
 /-! # Formal adjoints and second-order energy operators -/
 
 namespace RiemannianFluids
 
-/-- Pairings and a first-order operator together with its proposed formal adjoint. -/
+open scoped InnerProduct
+
+/-- A bounded adjoint pair on actual Hilbert spaces.  This is an adapter to Mathlib's canonical
+continuous-linear-map adjoint, not a second definition of it. -/
+structure BoundedHilbertAdjointData
+    (Domain Codomain : Type*)
+    [NormedAddCommGroup Domain] [InnerProductSpace ℝ Domain] [CompleteSpace Domain]
+    [NormedAddCommGroup Codomain] [InnerProductSpace ℝ Codomain] [CompleteSpace Codomain] where
+  operator : Domain →L[ℝ] Codomain
+  proposedAdjoint : Codomain →L[ℝ] Domain
+
+/-- The proposed bounded adjoint is exactly Mathlib's adjoint. -/
+def IsBoundedHilbertAdjointPair
+    {Domain Codomain : Type*}
+    [NormedAddCommGroup Domain] [InnerProductSpace ℝ Domain] [CompleteSpace Domain]
+    [NormedAddCommGroup Codomain] [InnerProductSpace ℝ Codomain] [CompleteSpace Codomain]
+    (data : BoundedHilbertAdjointData Domain Codomain) : Prop :=
+  data.proposedAdjoint = data.operator†
+
+/-- Mathlib's defining inner-product identity for a registered bounded adjoint pair. -/
+theorem boundedHilbertAdjoint_inner
+    {Domain Codomain : Type*}
+    [NormedAddCommGroup Domain] [InnerProductSpace ℝ Domain] [CompleteSpace Domain]
+    [NormedAddCommGroup Codomain] [InnerProductSpace ℝ Codomain] [CompleteSpace Codomain]
+    (data : BoundedHilbertAdjointData Domain Codomain)
+    (h : IsBoundedHilbertAdjointPair data) (u : Domain) (v : Codomain) :
+    inner ℝ (data.operator u) v = inner ℝ u (data.proposedAdjoint v) := by
+  rw [h]
+  exact (ContinuousLinearMap.adjoint_inner_right data.operator u v).symm
+
+/-- Pairings and a possibly unbounded first-order operator together with its proposed formal
+adjoint.  Unlike `BoundedHilbertAdjointData`, this explicitly retains test domains. -/
 structure FormalAdjointData (Domain Codomain : Type*) where
   domainPairing : Domain → Domain → ℝ
   codomainPairing : Codomain → Codomain → ℝ
