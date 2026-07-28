@@ -42,6 +42,7 @@ with no hidden project postulate or unfinished proof. That distinction is exactl
 #print axioms RiemannianFluids.ccd17_positive_full
 #print axioms RiemannianFluids.ccd17_divfree_def_hodge
 #print axioms RiemannianFluids.candidateOperators_pairwiseDistinct_of_curvatureWitness
+#print axioms RiemannianFluids.wbs26_analysisPositive_crosswalk
 #print axioms RiemannianFluids.boundarySelectedOperator_zero
 #print axioms RiemannianFluids.boundarySelectedOperator_one
 #print axioms RiemannianFluids.pressure_work_eq_zero

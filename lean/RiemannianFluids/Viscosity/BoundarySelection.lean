@@ -17,18 +17,41 @@ derivation, the local family has a deformation term, a Ricci correction linear i
 parameter, and an extrinsic shape-square correction that vanishes at both endpoints.
 
 The elementary endpoint theorems below are intentionally modest.  They check the algebra and
-the coefficients.  They are not a thin-shell convergence theorem, and they do not identify
-the signs here with a different convention without an explicit comparison hypothesis.
+the coefficients.  They are not a thin-shell convergence theorem.  The WBS source writes the
+family in the signed convention
+
+`Delta_a = Delta_Def - 2 a Ric - 4 a (1 - a) S^2`.
+
+This repository uses the analysis-positive convention `L = -Delta`, so the corresponding family
+is `L_a = L_Def + 2 a Ric + 4 a (1 - a) S^2`.  Both formulas are represented below, and
+`wbs26_analysisPositive_crosswalk` checks their conversion.
 -/
 
 namespace RiemannianFluids
 
 variable {V : Type*} [AddCommGroup V] [Module ℝ V]
 
-/-- The algebraic family produced by a boundary-selection calculation. -/
-noncomputable def boundarySelectedOperator
+/-- The WBS boundary-selected family in the source paper's signed `Delta` convention. -/
+noncomputable def signedBoundarySelectedOperator
     (deformation ricci shapeSquare : V →ₗ[ℝ] V) (a : ℝ) : V →ₗ[ℝ] V :=
   deformation - (2 * a) • ricci - (4 * a * (1 - a)) • shapeSquare
+
+/-- The WBS boundary-selected family in the repository's analysis-positive `L = -Delta`
+convention. -/
+noncomputable def boundarySelectedOperator
+    (deformation ricci shapeSquare : V →ₗ[ℝ] V) (a : ℝ) : V →ₗ[ℝ] V :=
+  deformation + (2 * a) • ricci + (4 * a * (1 - a)) • shapeSquare
+
+/-- Negating the WBS signed family gives the repository's analysis-positive family when
+`deformation = -signedDeformation`.  This is the convention crosswalk for
+`WBS26-local-interpolating-family`. -/
+theorem wbs26_analysisPositive_crosswalk
+    (signedDeformation ricci shapeSquare : V →ₗ[ℝ] V) (a : ℝ) :
+    boundarySelectedOperator (-signedDeformation) ricci shapeSquare a =
+      -signedBoundarySelectedOperator signedDeformation ricci shapeSquare a := by
+  ext field
+  simp [boundarySelectedOperator, signedBoundarySelectedOperator]
+  abel
 
 /-- The zero endpoint is the deformation operator. -/
 @[simp]
@@ -43,7 +66,7 @@ theorem boundarySelectedOperator_zero
 theorem boundarySelectedOperator_one
     (deformation ricci shapeSquare : V →ₗ[ℝ] V) :
     boundarySelectedOperator deformation ricci shapeSquare 1 =
-      deformation - (2 : ℝ) • ricci := by
+      deformation + (2 : ℝ) • ricci := by
   ext field
   simp [boundarySelectedOperator]
 

@@ -29,9 +29,9 @@
       "id": "WBS26-local-interpolating-family",
       "intellectual_thread": "boundary laws select effective surface viscosity",
       "lean_module": "RiemannianFluids.Viscosity.BoundarySelection",
-      "declaration": "RiemannianFluids.boundarySelectedOperator",
-      "relationship": "definition-and-endpoint-algebra",
-      "limitation": "The family and its endpoints are formalized; its derivation from a resolved thin shell and Mosco convergence remain open."
+      "declaration": "RiemannianFluids.wbs26_analysisPositive_crosswalk",
+      "relationship": "signed-to-analysis-positive-crosswalk",
+      "limitation": "Lean checks the algebraic conversion from the source paper's signed Delta convention to the repository's analysis-positive L = -Delta convention, together with the endpoint algebra; derivation from a resolved thin shell and Mosco convergence remain open."
     }
   ]
 }
