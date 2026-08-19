@@ -93,14 +93,14 @@ Every public theorem states its mathematical commitment in its type.
 For example, `deformationTensor_apply` is a construction theorem.  It expands intrinsic strain into
 
 ```math
-\operatorname{Def}u(X,Y)
+\mathrm{Def}\,u(X,Y)
 =\frac12\bigl(g(\nabla_Xu,Y)+g(\nabla_Yu,X)\bigr).
 ```
 
 `ccd17_divfree_def_hodge` is a conditional theorem.  Its hypotheses contain the Weitzenbock and symmetric-gradient identities, while its proof constructs the divergence-free cancellation and verifies
 
 ```math
-L_{\mathrm{Def}}u=L_{\mathrm{Hodge}}u-2\operatorname{Ric}(u).
+L_{\mathrm{Def}}u=L_{\mathrm{Hodge}}u-2\,\mathrm{Ric}(u).
 ```
 
 The distinction is recorded by theorem types and the formalization ledger.
@@ -114,7 +114,7 @@ L_{\mathrm{rough}}=\nabla^*\nabla,
 \qquad
 L_{\mathrm{Hodge}}=d d^*+d^*d,
 \qquad
-L_{\mathrm{Def}}=2\operatorname{Def}^*\operatorname{Def}.
+L_{\mathrm{Def}}=2\,\mathrm{Def}^*\mathrm{Def}.
 ```
 
 Comparison theorems display Ricci, grad-div, shape, and boundary corrections explicitly.  Admissibility hypotheses identify the fields on which a correction vanishes.
