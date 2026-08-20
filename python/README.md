@@ -20,6 +20,7 @@ riemannian_fluids/
   operators/         viscosity, Stokes, and Navier--Stokes operators
   function_spaces/   constraints, Sobolev diagnostics, and Hodge decompositions
   shells/            Fermi geometry, wall profiles, transverse averaging, shell problems
+  symbolic/          exact SymPy backend: charts, covariant kernel, energy integrals, thin-shell limits
   discretization/    backend capabilities, spherical spectra, and FEniCSx
   solvers/           mixed, nonlinear, transient, and generalized spectral solvers
   validation/        residuals, provenance, evidence classes, and refinement diagnostics
@@ -44,6 +45,21 @@ The implementation supports:
 - constrained stationary and implicit-transient semidiscrete Navier--Stokes reference solves;
 - Fermi-coordinate shell fields, two-wall profiles, divergence corrections, and transverse averages; and
 - mixed Taylor--Hood surface Stokes and resolved three-dimensional shell solves through native, pinned DOLFINx.
+
+## The symbolic backend
+
+`riemannian_fluids.symbolic` is the exact companion to the numeric layer.  It implements the same charts, conventions, and operators in SymPy and cross-checks every operator against the JAX implementation at sampled points in float64.
+
+The backend provides:
+
+- symbolic charts with declared positive parameters and validated volume densities (sphere, hyperbolic geodesic-polar, torus of revolution, spheroid);
+- the covariant kernel: Christoffel symbols, curvature, musical maps, deformation strain, and the rough, Hodge, and deformation viscosity operators;
+- structured fields whose properties hold by construction (coexact stream fields, gradient fields, rotation Killing fields) in a closed, type-checked hierarchy;
+- the energy-integral solver: symmetry reduction to radial integrals with tiered certificates (exact closed form, proven finiteness or divergence by endpoint comparison, or an honest unresolved verdict), a derivation ledger, and mpmath quadrature verification;
+- the identity engine: the divergence form of the deformation energy with its explicit boundary flux, and chart-level verification of `L_Def = L_Hodge - 2 Ric` for a generic stream function; and
+- the thin-shell solver: truncation-tracked epsilon-series, sphere tube charts in the numeric `det(I - sigma S)` convention, two-wall rotational profiles, and transverse-averaged pairing eigenvalues that recover the interpolating family `L_Def + 2 alpha Ric + 4 alpha (1 - alpha) S^2` with the rotational eigenvalue `6 alpha - 4 alpha^2`.
+
+[`examples/`](examples/) contains worked, narrated computations for both solvers; `pixi run --locked symbolic-examples` runs them.
 
 ## Evidence produced by Python
 

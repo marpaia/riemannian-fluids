@@ -15,6 +15,7 @@ navier-stokes = { cmd = "python -m experiments navier-stokes", cwd = "python" }
 thin-shell = { cmd = "python -m experiments thin-shell", cwd = "python" }
 resolved-shell = { cmd = "python -m experiments resolved-shell", cwd = "python" }
 wall-selection = { cmd = "python -m experiments wall-selection", cwd = "python" }
+symbolic-examples = { cmd = "python -m examples.energy_integrals && python -m examples.thin_shell_limits", cwd = "python" }
 surface-viscosity-check = { cmd = "python -m experiments surface-viscosity --samples 2", cwd = "python" }
 surface-stokes-check = { cmd = "python -m experiments surface-stokes --refinements 0,1,2,3", cwd = "python" }
 navier-stokes-check = { cmd = "python -m experiments navier-stokes", cwd = "python" }
@@ -34,6 +35,7 @@ numpy = ">=2.4,<2.6"
 pytest = ">=8,<10"
 python = "3.12.*"
 ruff = ">=0.12,<0.15"
+sympy = ">=1.13,<2"
 
 [pypi-dependencies]
 jax = "==0.8.3"
