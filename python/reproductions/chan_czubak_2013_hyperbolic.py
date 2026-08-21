@@ -22,6 +22,8 @@ CLAIMS = (
         "arXiv:1006.2819v1, Section 2.1, constant-curvature identities specialized to H2(-a^2)",
         EvidenceKind.POINTWISE_IDENTITY,
         ClaimStatus.VALIDATED,
+        geometry_coverage="hyperbolic upper half-plane H^2(-2.25)",
+        sample_coverage="1 interior point",
     ),
     Claim(
         "CC13-leray-hopf-nonuniqueness",

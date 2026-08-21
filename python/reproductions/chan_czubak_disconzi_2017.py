@@ -1,8 +1,9 @@
 """Core operator relations from Chan--Czubak--Disconzi (2017)."""
 
+import jax
 import jax.numpy as jnp
 
-from riemannian_fluids.geometry import sphere, vector_norm
+from riemannian_fluids.geometry import sphere, spheroid, torus_of_revolution, vector_norm
 from riemannian_fluids.operators import deformation_laplacian, hodge_laplacian, ricci_action
 from riemannian_fluids.tensors import stream_vector_field
 from riemannian_fluids.validation import Claim, ClaimResult, ClaimStatus, EvidenceKind, Paper
@@ -25,6 +26,8 @@ CLAIMS = (
         EvidenceKind.POINTWISE_IDENTITY,
         ClaimStatus.VALIDATED,
         {"field": "divergence-free", "manifold": "oriented surface"},
+        geometry_coverage="sphere+spheroid+torus_of_revolution",
+        sample_coverage="3 generic points per surface, divergence-free stream fields",
     ),
     Claim(
         "CCD17-hyperbolic-energy-obstruction",
@@ -57,11 +60,33 @@ CLAIMS = (
 )
 
 
+def _spherical_stream(q):
+    return jnp.sin(q[0]) ** 2 * jnp.cos(2.0 * q[1]) + 0.17 * jnp.sin(3.0 * q[0]) * jnp.sin(q[1])
+
+
+def _torus_stream(q):
+    return jnp.sin(q[0]) + 0.31 * jnp.cos(2.0 * q[1]) + 0.19 * jnp.sin(q[0] + q[1])
+
+
 def run() -> tuple[ClaimResult, ...]:
-    surface = sphere()
-    velocity = stream_vector_field(surface, lambda q: jnp.sin(q[0]) ** 2 * jnp.cos(2 * q[1]))
-    q = jnp.asarray((1.1, 0.7), dtype=jnp.float64)
-    left = deformation_laplacian(surface, velocity, q)
-    right = hodge_laplacian(surface, velocity, q) - 2.0 * ricci_action(surface, velocity, q)
-    residual = float(vector_norm(surface, left - right, q))
-    return (ClaimResult(CLAIMS[0].id, residual < 1.0e-10, {"absolute_residual": residual}),)
+    cases = (
+        ("sphere", sphere().embedding, _spherical_stream, ((0.9, 0.8), (1.7, 2.6), (2.3, 5.1))),
+        ("spheroid", spheroid().embedding, _spherical_stream, ((0.9, 0.8), (1.7, 2.6), (2.3, 5.1))),
+        ("torus_of_revolution", torus_of_revolution().embedding, _torus_stream, ((0.9, 0.7), (1.7, 2.6), (2.4, 4.1))),
+    )
+    measurements: dict[str, float | int | str] = {}
+    worst = 0.0
+    for name, embedding, stream, points in cases:
+        velocity = stream_vector_field(embedding, stream)
+
+        def residual(q, embedding=embedding, velocity=velocity):
+            left = deformation_laplacian(embedding, velocity, q)
+            right = hodge_laplacian(embedding, velocity, q) - 2.0 * ricci_action(embedding, velocity, q)
+            return vector_norm(embedding, left - right, q)
+
+        values = jax.jit(jax.vmap(residual))(jnp.asarray(points, dtype=jnp.float64))
+        surface_max = float(jnp.max(values))
+        measurements[f"{name}_max_absolute_residual"] = surface_max
+        worst = max(worst, surface_max)
+    measurements["max_absolute_residual"] = worst
+    return (ClaimResult(CLAIMS[0].id, worst < 1.0e-10, measurements),)

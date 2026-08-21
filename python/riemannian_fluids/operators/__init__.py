@@ -4,6 +4,10 @@ from riemannian_fluids.operators.navier_stokes import (
     SurfaceNavierStokesProblem,
     convective_power_density,
 )
+from riemannian_fluids.operators.scaling import (
+    ellipsoid_2025_candidates,
+    ellipsoid_scaling_generator,
+)
 from riemannian_fluids.operators.stokes import (
     MixedStokesSystem,
     SurfaceStokesProblem,
@@ -29,6 +33,8 @@ __all__ = (
     "convective_power_density",
     "deformation_dissipation_density",
     "deformation_laplacian",
+    "ellipsoid_2025_candidates",
+    "ellipsoid_scaling_generator",
     "hodge_laplacian",
     "interpolating_viscosity",
     "kinetic_energy_density",

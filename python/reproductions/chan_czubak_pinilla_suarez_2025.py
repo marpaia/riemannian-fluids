@@ -22,6 +22,8 @@ CLAIMS = (
         "Project FEEC gate motivated by arXiv:1812.11764v1, Theorem 1.3; not a discrete theorem asserted in the paper",
         EvidenceKind.MANUFACTURED_SOLUTION,
         ClaimStatus.VALIDATED,
+        geometry_coverage="three-vertex discrete de Rham complex",
+        sample_coverage="1 one-cochain sample",
     ),
     Claim(
         "CCP25-h1-noncompact-decomposition",
@@ -37,6 +39,23 @@ CLAIMS = (
             "degree": "general k-form",
             "closures": "H1 closures of d Lambda_c^(k-1) and d* Lambda_c^(k+1)",
             "harmonic summand": "L2 harmonic k-forms, which the paper proves lie in H1",
+        },
+    ),
+    Claim(
+        "CCP25-h2-oneform-h1-decomposition",
+        PAPER.id,
+        "On the canonical hyperbolic plane H2(-1), source-normalized H1 one-forms split "
+        "uniquely and H1-orthogonally into the H1 closures of compactly supported exact "
+        "and coexact forms plus an actual distributional L2 harmonic one-form.",
+        "arXiv:1812.11764v1, Theorem 1.3, specialized to N = 2, k = 1, a = 1; "
+        "Theorem 3.2 and Proposition 4.3 supply the harmonic identification",
+        EvidenceKind.ANALYTIC_THEOREM,
+        ClaimStatus.ANALYTIC_ONLY,
+        {
+            "geometry": "canonical complete Poincare half-plane H2(-1)",
+            "degree": "one-forms",
+            "closures": "source H1 closures of compactly supported exact and coexact forms",
+            "harmonic summand": "distributionally closed and coclosed L2 one-forms with canonical H1 representative",
         },
     ),
 )

@@ -1,37 +1,192 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
+  "states": [
+    "specified",
+    "contract-checked",
+    "proved-fragment",
+    "project-proved",
+    "formally-reproduced"
+  ],
   "claims": [
     {
       "id": "CZ24-operator-census",
-      "state": "catalogued"
+      "state": "formally-reproduced",
+      "lean_module": "RiemannianFluids.Literature.CZ24",
+      "declaration": "RiemannianFluids.Literature.CZ24.operator_census_hyperbolic_witness"
     },
     {
-      "id": "WBK26-negative-curvature-decay",
-      "state": "catalogued"
+      "id": "CCD17-divfree-def-hodge",
+      "state": "proved-fragment",
+      "lean_module": "RiemannianFluids.Literature.CCD17",
+      "declaration": "RiemannianFluids.Literature.CCD17.divergenceFree_deformation_eq_hodge_sub_two_ricci"
     },
     {
-      "id": "WBS26-mosco-resolvent-spectrum",
-      "state": "catalogued"
+      "id": "CCD17-hyperbolic-energy-obstruction",
+      "state": "specified"
+    },
+    {
+      "id": "CCD17-relativistic-limit",
+      "state": "specified"
+    },
+    {
+      "id": "CCY23-invariant-restriction",
+      "state": "specified"
+    },
+    {
+      "id": "CCY23-eccentricity-expansion",
+      "state": "specified"
+    },
+    {
+      "id": "CCG25-gauss-ricci-codimension-two",
+      "state": "specified"
+    },
+    {
+      "id": "CCF25-four-candidates-sphere",
+      "state": "specified"
+    },
+    {
+      "id": "WBK26-lie-strain",
+      "state": "proved-fragment",
+      "lean_module": "RiemannianFluids.Literature.WBK26",
+      "declaration": "RiemannianFluids.Literature.WBK26.metric_rate_eq_twice_deformation"
+    },
+    {
+      "id": "WBS26-local-interpolating-family",
+      "state": "proved-fragment",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.local_interpolating_family_analysisPositive"
+    },
+    {
+      "id": "WBS26-two-wall-profile",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-smooth-recovery-mode",
+      "state": "specified"
+    },
+    {
+      "id": "CC13-hyperbolic-curvature-model",
+      "state": "specified"
     },
     {
       "id": "CC13-leray-hopf-nonuniqueness",
-      "state": "catalogued"
-    },
-    {
-      "id": "CC15-stationary-liouville",
-      "state": "catalogued"
-    },
-    {
-      "id": "CC21-nontrivial-stokes-exterior",
-      "state": "catalogued"
-    },
-    {
-      "id": "CC21-nontrivial-navier-stokes-exterior",
-      "state": "catalogued"
+      "state": "specified"
     },
     {
       "id": "CCP25-h1-noncompact-decomposition",
-      "state": "catalogued"
+      "state": "specified"
+    },
+    {
+      "id": "CCP25-h2-oneform-h1-decomposition",
+      "state": "formally-reproduced",
+      "lean_module": "RiemannianFluids.Literature.CCP25",
+      "declaration": "RiemannianFluids.Literature.CCP25.h2_oneForm_h1_decomposition"
+    },
+    {
+      "id": "CCG25-bochner-laplacian-gauss-general-codimension",
+      "state": "specified"
+    },
+    {
+      "id": "CCG25-hodge-laplacian-gauss-general-codimension",
+      "state": "specified"
+    },
+    {
+      "id": "WBK26-negative-curvature-global-weak-existence",
+      "state": "specified"
+    },
+    {
+      "id": "WBK26-negative-curvature-weak-uniqueness",
+      "state": "specified"
+    },
+    {
+      "id": "WBK26-negative-curvature-pressure-recovery",
+      "state": "specified"
+    },
+    {
+      "id": "WBK26-negative-curvature-exponential-decay",
+      "state": "proved-fragment",
+      "lean_module": "RiemannianFluids.Literature.WBK26",
+      "declaration": "RiemannianFluids.Literature.WBK26.exponential_decay_of_energy_identity_and_coercivity"
+    },
+    {
+      "id": "WBS26-canonical-torus-smooth-recovery-admissible",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-canonical-torus-smooth-recovery-identification",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-canonical-torus-smooth-recovery-strong-rate",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-canonical-torus-smooth-recovery-energy-rate",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-mosco-liminf",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-mosco-recovery",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-mosco-smooth-recovery-rate",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-form-operator-association",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-strong-resolvent-convergence",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-compact-time-semigroup-convergence",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-fixed-mode-spectral-convergence",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-uniform-high-mode-gap",
+      "state": "specified"
+    },
+    {
+      "id": "WBS26-full-spectrum-convergence-no-pollution",
+      "state": "specified"
+    },
+    {
+      "id": "CC15-stationary-liouville-dimensions-three-four",
+      "state": "specified"
+    },
+    {
+      "id": "CC15-stationary-liouville-dimension-two",
+      "state": "specified"
+    },
+    {
+      "id": "CC15-stationary-liouville-dimensions-at-least-five",
+      "state": "specified"
+    },
+    {
+      "id": "CC21-nontrivial-stokes-exterior-existence",
+      "state": "specified"
+    },
+    {
+      "id": "CC21-nontrivial-stokes-exterior-nonpotential",
+      "state": "specified"
+    },
+    {
+      "id": "CC21-nontrivial-navier-stokes-exterior-existence",
+      "state": "specified"
+    },
+    {
+      "id": "CC21-nontrivial-navier-stokes-exterior-nonpotential",
+      "state": "specified"
     }
   ]
 }

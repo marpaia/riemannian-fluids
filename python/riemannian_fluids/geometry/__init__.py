@@ -31,6 +31,7 @@ from riemannian_fluids.geometry.space_forms import (
     hyperbolic_upper_half_space,
     sphere,
     spheroid,
+    torus_of_revolution,
 )
 from riemannian_fluids.geometry.submanifolds import (
     EmbeddedSubmanifold,
@@ -72,6 +73,7 @@ __all__ = (
     "sphere",
     "spheroid",
     "tangent_coordinates",
+    "torus_of_revolution",
     "unit_normal",
     "vector_norm",
     "vector_squared_norm",

@@ -63,18 +63,25 @@ evaluates it on `u`, and invokes the concrete codifferential cancellation.
 
 ## What Lean has and has not proved
 
-The first-order ingredients leading to `Def u`, divergence, `d*`, and the vanishing of `d d*` are concrete constructions. The current manifold library
-does not yet provide all of the curvature and formal-adjoint infrastructure needed to derive `B`, `R`, and `2 Def*Def` end to end. Accordingly:
+The first-order ingredients leading to `Def u`, divergence, `d*`, and the vanishing of `d d*` are concrete constructions. This module states the
+comparison at the level of bundled section operators, where the Hodge Laplacian and the formal-adjoint composition `2 Def*Def` are interface data.
+Accordingly:
 
 * `RicciData` can receive the connection-derived raised-index Ricci endomorphism once its smooth
   dependence on the base point is supplied;
 * `OneFormHodgeData` receives the missing degree-one de Rham maps;
-* `CCD17OperatorData` receives the rough and deformation Laplacians;
+* `CCD17OperatorData` receives the rough and deformation Laplacians as bundled operators;
 * the Weitzenböck and symmetric-gradient identities are explicit hypotheses of the final theorem.
 
-They are hypotheses, not hidden axioms: every use appears in the theorem type. Thus the result is presently an expository interface proof of the
-paper's logical reduction, together with a concrete proof of the divergence-free cancellation. Its incompleteness is part of the analysis rather than
-something documentation should conceal.
+They are hypotheses, not hidden axioms: every use appears in the theorem type. Thus `ccd17_divfree_def_hodge` is an interface proof of the paper's
+logical reduction, together with a concrete proof of the divergence-free cancellation.
+
+`Operators.ConstructedLaplacians` proves the geometric core in divergence form: it constructs the pointwise rough Laplacian `-tr_g ∇²u` and the
+deformation Laplacian `-2 (div_g Def u)♯` from the connection and proves `⟨L_Def u, w⟩ = ⟨L_rough u, w⟩ - Ric(w, u)` on divergence-free fields,
+including the Ricci-commutation and divergence-commutation lemmas. `Operators.ConstructedHodge` constructs the Hodge Laplacian from its two de Rham
+halves and proves the Weitzenböck identity for the constructed operators (`weitzenbock_constructedAt`), giving the fully constructed counterpart
+`ccd17_divfree_def_hodge_constructed` of the interface theorem below; this module's interface form remains the statement at the level of bundled
+section operators, where `OneFormHodgeData` still awaits a standalone degree-two codifferential on arbitrary two-forms.
 -/
 
 namespace RiemannianFluids

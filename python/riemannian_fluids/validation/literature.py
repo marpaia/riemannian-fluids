@@ -54,6 +54,8 @@ class Claim:
     status: ClaimStatus
     assumptions: Mapping[str, str] = field(default_factory=dict)
     convention: str = "analysis-positive-v1"
+    geometry_coverage: str = ""
+    sample_coverage: str = ""
 
     def __post_init__(self) -> None:
         if not self.id.startswith(f"{self.paper_id}-"):
@@ -62,6 +64,8 @@ class Claim:
             raise ValueError("every claim needs an equation, theorem, or section locator")
         if self.status is ClaimStatus.VALIDATED and self.evidence is EvidenceKind.ANALYTIC_THEOREM:
             raise ValueError("a computational run cannot validate an analytic theorem")
+        if self.status is ClaimStatus.VALIDATED and not (self.geometry_coverage and self.sample_coverage):
+            raise ValueError("validated claims must declare the geometry and sample coverage of their evidence")
 
 
 @dataclass(frozen=True)

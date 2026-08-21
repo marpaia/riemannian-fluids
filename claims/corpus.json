@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "program": "Czubak Formal Corpus",
+  "release": {
+    "id": "geometric-fluids-v1",
+    "scope": "The eleven pinned geometry-and-fluids papers currently represented in claims/registry.json. This is the first release boundary, not yet Magdalena Czubak's complete publication record.",
+    "paper_count": 11,
+    "claim_count": 26
+  },
+  "vocabularies": {
+    "origin": [
+      "source",
+      "source-specialization",
+      "project"
+    ],
+    "assertion_kind": [
+      "theorem",
+      "identity",
+      "heuristic",
+      "constructed-example",
+      "evidence-gate"
+    ],
+    "verification_target": [
+      "source-proof",
+      "source-specialization-proof",
+      "heuristic-reconstruction",
+      "project-proof",
+      "computational-validation"
+    ],
+    "atomicity": [
+      "atomic",
+      "compound-needs-split"
+    ]
+  },
+  "claims": [
+    {
+      "id": "CZ24-operator-census",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCD17-divfree-def-hodge",
+      "origin": "source",
+      "assertion_kind": "identity",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCD17-hyperbolic-energy-obstruction",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCD17-relativistic-limit",
+      "origin": "source",
+      "assertion_kind": "identity",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCY23-invariant-restriction",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCY23-eccentricity-expansion",
+      "origin": "source",
+      "assertion_kind": "identity",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCG25-gauss-ricci-codimension-two",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCG25-laplacian-gauss-family",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "compound-needs-split"
+    },
+    {
+      "id": "CCF25-four-candidates-sphere",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCF25-averaging-dependence",
+      "origin": "source",
+      "assertion_kind": "heuristic",
+      "verification_target": "heuristic-reconstruction",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "WBK26-lie-strain",
+      "origin": "source",
+      "assertion_kind": "identity",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "WBK26-negative-curvature-decay",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "compound-needs-split"
+    },
+    {
+      "id": "WBS26-local-interpolating-family",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "WBS26-two-wall-profile",
+      "origin": "source",
+      "assertion_kind": "constructed-example",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "WBS26-smooth-recovery-mode",
+      "origin": "project",
+      "assertion_kind": "constructed-example",
+      "verification_target": "project-proof",
+      "atomicity": "atomic",
+      "parent_claims": [
+        "WBS26-smooth-recovery-canonical-torus"
+      ]
+    },
+    {
+      "id": "WBS26-smooth-recovery-canonical-torus",
+      "origin": "project",
+      "assertion_kind": "theorem",
+      "verification_target": "project-proof",
+      "atomicity": "compound-needs-split",
+      "parent_claims": [
+        "WBS26-mosco-resolvent-spectrum"
+      ]
+    },
+    {
+      "id": "WBS26-mosco-resolvent-spectrum",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "compound-needs-split"
+    },
+    {
+      "id": "WBS26-resolved-volume-shell",
+      "origin": "project",
+      "assertion_kind": "evidence-gate",
+      "verification_target": "computational-validation",
+      "atomicity": "atomic",
+      "parent_claims": [
+        "WBS26-mosco-resolvent-spectrum"
+      ]
+    },
+    {
+      "id": "CC13-hyperbolic-curvature-model",
+      "origin": "source-specialization",
+      "assertion_kind": "identity",
+      "verification_target": "source-specialization-proof",
+      "atomicity": "atomic",
+      "parent_claims": [
+        "CC13-leray-hopf-nonuniqueness"
+      ]
+    },
+    {
+      "id": "CC13-leray-hopf-nonuniqueness",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CC15-stationary-liouville",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "compound-needs-split"
+    },
+    {
+      "id": "CC21-nontrivial-stokes-exterior",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "compound-needs-split"
+    },
+    {
+      "id": "CC21-nontrivial-navier-stokes-exterior",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "compound-needs-split"
+    },
+    {
+      "id": "CCP25-discrete-hodge-gate",
+      "origin": "project",
+      "assertion_kind": "evidence-gate",
+      "verification_target": "computational-validation",
+      "atomicity": "atomic",
+      "parent_claims": [
+        "CCP25-h1-noncompact-decomposition"
+      ]
+    },
+    {
+      "id": "CCP25-h1-noncompact-decomposition",
+      "origin": "source",
+      "assertion_kind": "theorem",
+      "verification_target": "source-proof",
+      "atomicity": "atomic"
+    },
+    {
+      "id": "CCP25-h2-oneform-h1-decomposition",
+      "origin": "source-specialization",
+      "assertion_kind": "theorem",
+      "verification_target": "source-specialization-proof",
+      "atomicity": "atomic",
+      "parent_claims": [
+        "CCP25-h1-noncompact-decomposition"
+      ]
+    }
+  ]
+}

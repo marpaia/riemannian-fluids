@@ -18,6 +18,7 @@ from riemannian_fluids.discretization.fenicsx_meshes import create_octahedral_sp
 class SurfaceStokesDiagnostics:
     refinement: int
     degree: int
+    geometry_degree: int
     cells: int
     velocity_dofs: int
     pressure_dofs: int
@@ -42,6 +43,7 @@ def solve_sphere_surface_stokes(
     *,
     refinement: int,
     degree: int = 2,
+    geometry_degree: int = 2,
     viscosity: float = 1.0,
     reaction: float = 1.0,
     tangency_penalty: float = 100.0,
@@ -51,6 +53,10 @@ def solve_sphere_surface_stokes(
     The exact target is the degree-one rotational Killing field.  The positive
     reaction removes its deformation-viscosity kernel; the corresponding
     spherical spectral resolvent response is exactly the target coefficient.
+    The mesh carries degree-``geometry_degree`` coordinates with nodes snapped
+    to the unit sphere, and the tangent projector uses the exact sphere normal
+    ``x/|x|`` so the tangency constraint targets the true surface rather than
+    the faceted approximation.
     """
 
     if refinement < 0:
@@ -60,7 +66,7 @@ def solve_sphere_surface_stokes(
     if viscosity <= 0.0 or reaction <= 0.0 or tangency_penalty <= 0.0:
         raise ValueError("viscosity, reaction, and tangency penalty must be positive")
 
-    domain = create_octahedral_sphere(MPI.COMM_WORLD, refinement)
+    domain = create_octahedral_sphere(MPI.COMM_WORLD, refinement, geometry_degree=geometry_degree)
     cell = domain.basix_cell()
     velocity_element = basix.ufl.element("Lagrange", cell, degree, shape=(3,))
     pressure_element = basix.ufl.element("Lagrange", cell, degree - 1)
@@ -70,7 +76,7 @@ def solve_sphere_surface_stokes(
     velocity_test, pressure_test = ufl.TestFunctions(space)
 
     coordinate = ufl.SpatialCoordinate(domain)
-    cell_normal = ufl.CellNormal(domain)
+    cell_normal = coordinate / ufl.sqrt(ufl.inner(coordinate, coordinate))
     identity = ufl.Identity(3)
     tangent_projector = identity - ufl.outer(cell_normal, cell_normal)
 
@@ -137,6 +143,7 @@ def solve_sphere_surface_stokes(
     return SurfaceStokesDiagnostics(
         refinement=refinement,
         degree=degree,
+        geometry_degree=geometry_degree,
         cells=topology_map.size_global,
         velocity_dofs=velocity_solution.function_space.dofmap.index_map.size_global * velocity_solution.function_space.dofmap.index_map_bs,
         pressure_dofs=pressure_solution.function_space.dofmap.index_map.size_global,

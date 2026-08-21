@@ -10,7 +10,7 @@ from riemannian_fluids.validation.literature import (
     paper_module,
     validate_registry,
 )
-from riemannian_fluids.validation.refinement import monotone_refinement, observed_orders
+from riemannian_fluids.validation.refinement import fitted_order, monotone_refinement, observed_orders
 
 __all__ = (
     "Claim",
@@ -19,6 +19,7 @@ __all__ = (
     "EvidenceKind",
     "Paper",
     "PaperModule",
+    "fitted_order",
     "monotone_refinement",
     "observed_orders",
     "paper_module",

@@ -1,4 +1,5 @@
 import RiemannianFluids.Operators.GeometricIdentities
+import RiemannianFluids.Operators.ConstructedHodge
 import RiemannianFluids.Operators.Viscosity
 
 /-!
@@ -120,5 +121,96 @@ theorem candidateOperators_pairwiseDistinct_of_curvatureWitness
         (2 : ℝ) • operators.ricci.action I regularity field = 0 :=
       sub_eq_self.mp hDifference
     exact hRicci ((smul_eq_zero.mp hTwiceRicci).resolve_left (by norm_num))
+
+/-! ## Constructed pointwise census -/
+
+/-- Pairwise distinction of the actual constructed rough, Hodge, and deformation tangent-vector
+outputs at a chosen point and field. -/
+def ConstructedCandidateOutputsPairwiseDistinct
+    [IsManifold I 3 M]
+    (connection : LeviCivitaConnection (M := M) I) (x : M)
+    (regular : HasConnectionCurvatureRegularityAt I connection.connection x)
+    (field : (y : M) → TangentSpace I y) (hfield : CMDiffAt 2 (T% field) x) : Prop :=
+  roughLaplacianAt I connection.connection x regular field hfield ≠
+      hodgeLaplacianConstructedAt I connection.connection x regular field hfield ∧
+    roughLaplacianAt I connection.connection x regular field hfield ≠
+      deformationLaplacianAt I connection.connection x regular field hfield ∧
+    hodgeLaplacianConstructedAt I connection.connection x regular field hfield ≠
+      deformationLaplacianAt I connection.connection x regular field hfield
+
+/-- Pairwise distinction of the constructed rough, Hodge, and deformation operator tests at a
+chosen point, field, and test vector. -/
+def ConstructedCandidateTestsPairwiseDistinct
+    [IsManifold I 3 M]
+    (connection : LeviCivitaConnection (M := M) I) (x : M)
+    (regular : HasConnectionCurvatureRegularityAt I connection.connection x)
+    (field : (y : M) → TangentSpace I y) (hfield : CMDiffAt 2 (T% field) x)
+    (w : TangentSpace I x) : Prop :=
+  inner ℝ (roughLaplacianAt I connection.connection x regular field hfield) w ≠
+      hodgeLaplacianConstructedTestedAt I connection.connection x regular field hfield w ∧
+    inner ℝ (roughLaplacianAt I connection.connection x regular field hfield) w ≠
+      deformationLaplacianTestedAt I connection.connection x regular field hfield w ∧
+    hodgeLaplacianConstructedTestedAt I connection.connection x regular field hfield w ≠
+      deformationLaplacianTestedAt I connection.connection x regular field hfield w
+
+/-- A nonzero Ricci pairing separates the three pointwise tests constructed from a
+Levi-Civita connection. -/
+theorem constructedCandidateTests_pairwiseDistinct_of_ricciWitness
+    [IsManifold I 3 M]
+    (connection : LeviCivitaConnection (M := M) I) (x : M)
+    (regular : HasConnectionCurvatureRegularityAt I connection.connection x)
+    {field : (y : M) → TangentSpace I y} (hfield : CMDiffAt 2 (T% field) x)
+    (hdiv : ∀ y, tangentTrace I y (connection.connection field y) = 0)
+    (w : TangentSpace I x)
+    (hRicci : connectionRicciFormAt I connection.connection x regular w (field x) ≠ 0) :
+    ConstructedCandidateTestsPairwiseDistinct I connection x regular field hfield w := by
+  have hHodge := weitzenbock_constructedAt I connection x regular hfield w
+  have hDeformation :=
+    deformationLaplacian_rough_ricci_comparisonAt_of_divergenceFree
+      I connection x regular hfield hdiv w
+  unfold ConstructedCandidateTestsPairwiseDistinct
+  refine ⟨?_, ?_, ?_⟩
+  · intro hEqual
+    rw [hHodge] at hEqual
+    apply hRicci
+    linarith
+  · intro hEqual
+    rw [hDeformation] at hEqual
+    apply hRicci
+    linarith
+  · intro hEqual
+    rw [hHodge, hDeformation] at hEqual
+    apply hRicci
+    linarith
+
+/-- A nonzero Ricci pairing separates the actual tangent-vector outputs of all three independently
+constructed candidates.  Equality of two vectors would force equality of their metric tests
+against the Ricci witness, contradicting the tested comparison theorem. -/
+theorem constructedCandidateOutputs_pairwiseDistinct_of_ricciWitness
+    [IsManifold I 3 M]
+    (connection : LeviCivitaConnection (M := M) I) (x : M)
+    (regular : HasConnectionCurvatureRegularityAt I connection.connection x)
+    {field : (y : M) → TangentSpace I y} (hfield : CMDiffAt 2 (T% field) x)
+    (hdiv : ∀ y, tangentTrace I y (connection.connection field y) = 0)
+    (w : TangentSpace I x)
+    (hRicci : connectionRicciFormAt I connection.connection x regular w (field x) ≠ 0) :
+    ConstructedCandidateOutputsPairwiseDistinct I connection x regular field hfield := by
+  have htests := constructedCandidateTests_pairwiseDistinct_of_ricciWitness
+    I connection x regular hfield hdiv w hRicci
+  unfold ConstructedCandidateTestsPairwiseDistinct at htests
+  unfold ConstructedCandidateOutputsPairwiseDistinct
+  refine ⟨?_, ?_, ?_⟩
+  · intro hEqual
+    apply htests.1
+    have hTest := congrArg (fun value ↦ inner ℝ value w) hEqual
+    simpa only [inner_hodgeLaplacianConstructedAt] using hTest
+  · intro hEqual
+    apply htests.2.1
+    have hTest := congrArg (fun value ↦ inner ℝ value w) hEqual
+    simpa only [inner_deformationLaplacianAt] using hTest
+  · intro hEqual
+    apply htests.2.2
+    have hTest := congrArg (fun value ↦ inner ℝ value w) hEqual
+    simpa only [inner_hodgeLaplacianConstructedAt, inner_deformationLaplacianAt] using hTest
 
 end RiemannianFluids

@@ -5,6 +5,8 @@ rotational profile for a symbolic wall parameter alpha, and extract the
 wall-selected surface eigenvalue from the transverse-averaged operator
 pairing.  The limit reproduces the interpolating viscosity family
 ``L_Def + 2 alpha Ric + 4 alpha (1 - alpha) S^2`` on the rotational mode.
+The final sections construct the arbitrary smooth-core recovery at both
+endpoint laws and retain an exactly integrated Navier regression mode.
 
 Run from the repository root with ``pixi run --locked symbolic-examples``.
 """
@@ -15,6 +17,9 @@ import sympy
 
 from riemannian_fluids.symbolic import positive_symbols, sphere_chart
 from riemannian_fluids.symbolic.shells import (
+    RecoveryEndpoint,
+    canonical_navier_torus_recovery,
+    canonical_torus_smooth_recovery,
     pairing_eigenvalue,
     rotational_mode_eigenvalue,
     sphere_shell_chart,
@@ -58,7 +63,10 @@ def wall_selected_eigenvalue() -> None:
     limit = sympy.expand(eigenvalue.coeff(0))
     print(f"\ntransverse-averaged pairing <L_Def U, U> / |U|^2 as {EPS} -> 0:")
     print(f"  lambda(alpha) = {limit}")
-    print(f"  endpoints: alpha=0 (rigid rotation) -> {limit.subs(ALPHA, 0)}, alpha=1 (deformation wall) -> {limit.subs(ALPHA, 1)}")
+    print(
+        f"  endpoints: alpha=0 (Navier/stress-free) -> {limit.subs(ALPHA, 0)}, "
+        f"alpha=1 (Hodge/vorticity-free) -> {limit.subs(ALPHA, 1)}"
+    )
 
 
 def interpolating_family() -> None:
@@ -77,11 +85,44 @@ def interpolating_family() -> None:
         print(f"{row[0]:<10} {row[1]:<19} {row[2]}")
 
 
+def smooth_core_recovery() -> None:
+    _banner("5. Every smooth solenoidal torus field: exact recovery at both endpoints")
+    for endpoint in RecoveryEndpoint:
+        certificate = canonical_torus_smooth_recovery(endpoint, EPS)
+        print(f"{endpoint.value}:")
+        print(f"  surface field: stream-plus-flux components {certificate.surface_field.components}")
+        print(f"  surface/shell divergence: {certificate.surface_divergence}, {certificate.shell_divergence}")
+        print(f"  inner/outer normal traces: {certificate.wall_normal_traces}")
+        print(f"  inner/outer wall residuals: {certificate.wall_law_residuals}")
+        print(f"  transverse identification: {certificate.transverse_flux_average}")
+        print(f"  scope: {certificate.scope}")
+
+
+def integrated_recovery_regression() -> None:
+    _banner("6. Closed mass and energy for the Navier regression mode")
+    certificate = canonical_navier_torus_recovery(EPS)
+    print(f"surface field: {certificate.surface_components}")
+    print(f"shell field:   {certificate.shell_components},  |sigma| < {EPS}")
+    print(f"surface/shell divergence: {certificate.surface_divergence}, {certificate.shell_divergence}")
+    print(f"inner/outer normal traces: {certificate.wall_normal_traces}")
+    print(f"inner/outer stress residuals: {certificate.wall_stress_residuals}")
+    print(f"normalized transverse average: {certificate.weighted_transverse_average}")
+    print(f"surface L2 norm squared: {certificate.surface_l2_norm_squared}")
+    print(f"normalized shell L2 norm squared: {certificate.normalized_shell_l2_norm_squared}")
+    print(f"quadratic norm-defect coefficient: {certificate.norm_error_coefficient}")
+    print(f"surface deformation energy: {certificate.surface_energy}")
+    print(f"normalized shell deformation energy: {certificate.normalized_shell_energy}")
+    print(f"quadratic energy-defect coefficient: {certificate.energy_error_coefficient}")
+    print(f"scope: {certificate.scope}")
+
+
 def main() -> None:
     shell_geometry()
     transverse_averaging()
     wall_selected_eigenvalue()
     interpolating_family()
+    smooth_core_recovery()
+    integrated_recovery_regression()
 
 
 if __name__ == "__main__":

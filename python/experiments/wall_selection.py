@@ -14,7 +14,7 @@ from riemannian_fluids.discretization.fenicsx_shell import (
     wall_selection_diagnostics_dict,
 )
 from riemannian_fluids.shells import WallLaw
-from riemannian_fluids.validation.refinement import monotone_refinement, observed_orders
+from riemannian_fluids.validation.refinement import fitted_order, monotone_refinement, observed_orders
 
 Configuration = tuple[float, int, int, WallLaw, float]
 
@@ -57,10 +57,15 @@ def run_study() -> dict[str, object]:
         coupled_configurations = (
             (0.2, 2, 8, wall_law, alpha),
             (0.1, 3, 8, wall_law, alpha),
+            (0.05, 4, 8, wall_law, alpha),
         )
         coupled_profiles[key] = [solve(configuration) for configuration in coupled_configurations]
+        thicknesses = tuple(configuration[0] for configuration in coupled_configurations)
         errors = tuple(float(profile["relative_surface_coefficient_error"]) for profile in coupled_profiles[key])
-        coupled_orders[key] = observed_orders((0.2, 0.1), errors)[0]
+        coupled_orders[key] = {
+            "pairwise": observed_orders(thicknesses, errors),
+            "fitted": fitted_order(thicknesses, errors),
+        }
     return {
         "evidence_class": "separated resolved-shell discretization and coupled thin-limit study",
         "scope": "one reaction-shifted degree-one rotational resolvent on concentric spherical shells",
@@ -114,13 +119,15 @@ def validate_results(result: dict[str, object]) -> None:
         if float(fine["wall_law_residual_l2"]) >= 0.06:
             failures.append(f"{key} fine-mesh wall residual exceeded 0.06")
         ratios = tuple(float(profile["h_over_thickness"]) for profile in thin_profiles)
-        if abs(ratios[1] / ratios[0] - 1.0) >= 0.02:
+        if any(abs(ratio / ratios[0] - 1.0) >= 0.02 for ratio in ratios[1:]):
             failures.append(f"{key} coupled sequence did not hold h/epsilon fixed")
         thin_errors = tuple(float(profile["relative_surface_coefficient_error"]) for profile in thin_profiles)
-        if thin_errors[1] >= 0.3 * thin_errors[0]:
+        if any(right >= 0.3 * left for left, right in zip(thin_errors, thin_errors[1:], strict=False)):
             failures.append(f"{key} coupled error did not decrease by the expected factor")
-        if float(coupled_orders[key]) <= 1.7:
-            failures.append(f"{key} coupled observed order was not near quadratic")
+        orders = coupled_orders[key]
+        assert isinstance(orders, dict)
+        if float(orders["fitted"]) <= 1.7:
+            failures.append(f"{key} coupled fitted order was not near quadratic")
     if failures:
         raise AssertionError("Wall-selection validation failed:\n  " + "\n  ".join(failures))
 
@@ -150,7 +157,10 @@ def main(argv: Sequence[str] | None = None) -> None:
         )
     orders = result["coupled_observed_orders"]
     assert isinstance(orders, dict)
-    print(f"coupled observed orders: {orders}")
+    for key, value in orders.items():
+        assert isinstance(value, dict)
+        pairwise = ", ".join(f"{float(order):.2f}" for order in value["pairwise"])
+        print(f"{key} coupled orders over thickness 0.2/0.1/0.05: pairwise [{pairwise}] fitted {float(value['fitted']):.2f}")
 
 
 if __name__ == "__main__":

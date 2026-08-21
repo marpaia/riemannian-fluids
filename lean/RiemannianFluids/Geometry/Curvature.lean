@@ -1,3 +1,4 @@
+import Mathlib.Geometry.Manifold.BumpFunction
 import Mathlib.Geometry.Manifold.Riemannian.Basic
 import Mathlib.Geometry.Manifold.ContMDiffMFDeriv
 import Mathlib.Geometry.Manifold.VectorBundle.CovariantDerivative.Basic
@@ -161,7 +162,9 @@ The curvature commutator is second order in the differentiated field. To make it
 arguments pointwise, we need the local regularity statement that differentiating a `C²` field
 along a differentiable direction produces a differentiable field. The pinned Mathlib API exposes
 global connection regularity but not the local consequence needed by its tensoriality criterion,
-so `HasConnectionCurvatureRegularityAt` records exactly that bridge.
+so `HasConnectionCurvatureRegularityAt` records exactly that bridge. On a smooth Hausdorff
+manifold, `hasConnectionCurvatureRegularityAt_of_contMDiff` discharges the bridge from mathlib's
+`C¹` connection-regularity class by cutting fields off with a smooth bump function.
 
 Under this condition, the derivative terms created by multiplying either direction by a scalar
 function cancel against the corresponding Lie-bracket product rule. The resulting
@@ -185,6 +188,80 @@ def HasConnectionCurvatureRegularityAt
   ∀ (direction field : (y : M) → TangentSpace I y),
     MDiffAt (T% direction) x → CMDiffAt 2 (T% field) x →
       MDiffAt (T% (covariantDerivativeAlong I connection direction field)) x
+
+omit [CompleteSpace E] [RiemannianBundle (TangentSpace I : M → Type _)] in
+/-- Mathlib's global connection-regularity class discharges the local curvature-regularity
+bridge on a smooth Hausdorff manifold.
+
+The class consumes globally `C²` sections, while the curvature construction differentiates
+fields that are only `C²` near the base point.  A smooth bump function supported inside the
+regularity neighborhood cuts the field off to a globally `C²` section agreeing with it near
+the point; the class then makes the covariant-derivative section of the cutoff differentiable,
+application to the direction field is differentiable by the bundle-hom calculus, and locality
+of the covariant derivative transports the conclusion back to the original field.  The smooth
+atlas and Hausdorff hypotheses are what mathlib's bump functions require. -/
+theorem hasConnectionCurvatureRegularityAt_of_contMDiff
+    [T2Space M] [IsManifold I ∞ M]
+    (connection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (smooth : CovariantDerivative.ContMDiffCovariantDerivative connection 1)
+    (x : M) :
+    HasConnectionCurvatureRegularityAt I connection x := by
+  intro direction field hdirection hfield
+  -- The field is `C²` on an open neighborhood `v` of `x`.
+  rcases (contMDiffAt_iff_contMDiffOn_nhds (n := 2) (by simp)).mp hfield with ⟨u, hu, hfieldOn⟩
+  rcases mem_nhds_iff.mp hu with ⟨v, hvu, hvopen, hxv⟩
+  have hfieldV : CMDiff[v] 2 (T% field) := hfieldOn.mono hvu
+  -- Choose a smooth bump function at `x` supported inside `v`.
+  obtain ⟨f, hf⟩ :=
+    (SmoothBumpFunction.nhds_basis_support (I := I) (hvopen.mem_nhds hxv)).ex_mem
+  -- Cutting the field off with the bump gives a globally `C²` section.
+  have htwo_le : (2 : ℕ∞ω) ≤ ∞ := WithTop.coe_le_coe.mpr le_top
+  have hcutoff : CMDiff 2 (T% ((f : M → ℝ) • field)) :=
+    ContMDiffOn.smul_section_of_tsupport
+      ((f.contMDiff.of_le htwo_le).contMDiffOn) hvopen hf hfieldV
+  -- The regularity class makes the covariant-derivative section of the cutoff `C¹`.
+  have hhom : MDifferentiableAt I (I.prod 𝓘(ℝ, E →L[ℝ] E))
+      (fun y => TotalSpace.mk' (E →L[ℝ] E)
+        (E := fun z : M => TangentSpace I z →L[ℝ] TangentSpace I z) y
+        (connection ((f : M → ℝ) • field) y)) x := by
+    have hone_one : ((1 : ℕ∞ω) + 1) = 2 := by norm_num
+    have hglobal := smooth.contMDiff.contMDiff
+      (σ := (f : M → ℝ) • field) (hone_one ▸ hcutoff.contMDiffOn)
+    exact ((contMDiffOn_univ.mp hglobal) x).mdifferentiableAt (by norm_num)
+  -- Applying the covariant-derivative section to the direction field is differentiable.
+  have happlied :
+      MDiffAt (T% (covariantDerivativeAlong I connection direction ((f : M → ℝ) • field))) x :=
+    hhom.clm_bundle_apply hdirection
+  -- The bump equals one near `x`, so the cutoff agrees with the field near `x`.
+  have hone_nhds : {y | f y = 1} ∈ nhds x := by
+    filter_upwards [f.eventuallyEq_one] with y hy
+    simpa using hy
+  have hinterior : interior {y | f y = 1} ∩ v ∈ nhds x :=
+    inter_mem (interior_mem_nhds.mpr hone_nhds) (hvopen.mem_nhds hxv)
+  -- Locality of the covariant derivative transfers the differentiated section.
+  have heventually :
+      T% (covariantDerivativeAlong I connection direction field) =ᶠ[nhds x]
+        T% (covariantDerivativeAlong I connection direction ((f : M → ℝ) • field)) := by
+    filter_upwards [eventually_mem_nhds_iff.mpr hinterior] with y hy
+    obtain ⟨hy_one, hy_v⟩ := mem_of_mem_nhds hy
+    have hcutoff_eventually : ∀ᶠ z in nhds y, ((f : M → ℝ) • field) z = field z := by
+      filter_upwards [(isOpen_interior.inter hvopen).mem_nhds (mem_of_mem_nhds hy)]
+        with z hz
+      have hz_one : f z = 1 := by
+        have := interior_subset (s := {y | f y = 1}) hz.1
+        simpa using this
+      show f z • field z = field z
+      rw [hz_one, one_smul]
+    have hfield_at : MDiffAt (T% field) y :=
+      ((hfieldV y hy_v).contMDiffAt (hvopen.mem_nhds hy_v)).mdifferentiableAt (by norm_num)
+    have hcutoff_at : MDiffAt (T% ((f : M → ℝ) • field)) y :=
+      (hcutoff y).mdifferentiableAt (by norm_num)
+    have hvalue :
+        connection field y = connection ((f : M → ℝ) • field) y :=
+      connection.isCovariantDerivativeOn.congr_of_eventuallyEq hfield_at hcutoff_at
+        Filter.univ_mem (hcutoff_eventually.mono fun z hz => hz.symm)
+    simp only [covariantDerivativeAlong, hvalue]
+  exact happlied.congr_of_eventuallyEq heventually
 
 /-- Tensoriality at `x` tested on `C²` scalar functions and tangent fields.
 

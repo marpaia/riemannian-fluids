@@ -91,19 +91,51 @@ def octahedral_sphere_arrays(refinement: int, radius: float = 1.0) -> tuple[np.n
     return points, cells
 
 
+@cache
+def octahedral_sphere_quadratic_arrays(refinement: int, radius: float = 1.0) -> tuple[np.ndarray, np.ndarray]:
+    """Return degree-two sphere geometry with edge nodes snapped to the sphere."""
+
+    unit_points, linear_cells = octahedral_sphere_arrays(refinement)
+    vertices = [np.array(point) for point in unit_points]
+    midpoints: dict[tuple[int, int], int] = {}
+    quadratic_cells = []
+    for first, second, third in linear_cells:
+        quadratic_cells.append(
+            (
+                int(first),
+                int(second),
+                int(third),
+                _unit_midpoint(vertices, midpoints, int(second), int(third)),
+                _unit_midpoint(vertices, midpoints, int(first), int(third)),
+                _unit_midpoint(vertices, midpoints, int(first), int(second)),
+            )
+        )
+    points = radius * np.asarray(vertices, dtype=np.float64)
+    cells = np.asarray(quadratic_cells, dtype=np.int64)
+    points.setflags(write=False)
+    cells.setflags(write=False)
+    return points, cells
+
+
 def create_octahedral_sphere(
     comm: MPI.Comm,
     refinement: int,
     *,
     radius: float = 1.0,
+    geometry_degree: int = 1,
 ) -> mesh.Mesh:
-    """Create a distributed piecewise-linear sphere surface."""
+    """Create a distributed sphere surface with affine or spherically snapped quadratic cells."""
 
-    points, cells = octahedral_sphere_arrays(refinement, radius)
+    if geometry_degree == 1:
+        points, cells = octahedral_sphere_arrays(refinement, radius)
+    elif geometry_degree == 2:
+        points, cells = octahedral_sphere_quadratic_arrays(refinement, radius)
+    else:
+        raise ValueError("geometry_degree must be one or two")
     if comm.rank != 0:
         points = np.empty((0, 3), dtype=np.float64)
-        cells = np.empty((0, 3), dtype=np.int64)
-    coordinate_element = basix.ufl.element("Lagrange", "triangle", 1, shape=(3,))
+        cells = np.empty((0, cells.shape[1]), dtype=np.int64)
+    coordinate_element = basix.ufl.element("Lagrange", "triangle", geometry_degree, shape=(3,))
     coordinate_domain = ufl.Mesh(coordinate_element)
     return mesh.create_mesh(comm, cells, coordinate_domain, points)
 

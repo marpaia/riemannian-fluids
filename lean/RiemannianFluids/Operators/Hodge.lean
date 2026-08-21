@@ -48,12 +48,15 @@ names therefore encode the repository convention, while the comments retain the 
 ## What is constructed and what remains an interface
 
 The degree-zero differential is already available from manifold derivatives, and `d₁*` on one-forms is constructed from divergence, so the entire
-exact piece `d d*` is concrete. The pinned mathlib API does not yet provide the smooth degree-one exterior derivative `d₁` or the degree-two
-codifferential `d₂*` in the form needed here. `OneFormHodgeData` asks a caller to supply those two maps separately. This is intentionally weaker and
-more revealing than accepting an opaque Hodge Laplacian: the declaration still exhibits its two de Rham halves and their derivative losses.
+exact piece `d d*` is concrete. The pinned mathlib API does not provide the smooth degree-one exterior derivative `d₁` or the degree-two
+codifferential `d₂*` as bundled operators on arbitrary forms. `OneFormHodgeData` asks a caller to supply those two maps separately in that bundled
+representation. This is intentionally weaker and more revealing than accepting an opaque Hodge Laplacian: the declaration still exhibits its two de
+Rham halves and their derivative losses. On lowered vector fields — the only degree the CCD17 comparison needs — no such data is required:
+`Tensors.ExteriorDerivativeConstructed` builds `d₁(u♭)` from the connection with its connection-free bracket formula proved, and
+`Operators.ConstructedHodge` builds `d₂* d₁(u♭)`, assembles the Hodge Laplacian, and proves the Weitzenböck identity.
 
-The file therefore reaches exactly the formal boundary. It proves the divergence-free cancellation from concrete geometry, but it does not disguise
-missing differential-form infrastructure as a theorem.
+The file therefore reaches exactly the formal boundary of the bundled representation. It proves the divergence-free cancellation from concrete
+geometry, but it does not disguise missing differential-form infrastructure as a theorem.
 -/
 
 namespace RiemannianFluids

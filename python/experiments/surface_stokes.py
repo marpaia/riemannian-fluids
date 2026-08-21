@@ -42,7 +42,7 @@ def run_study(refinements: Sequence[int]) -> dict[str, object]:
     scales = tuple(2.0 ** (-refinement) for refinement in refinements)
     return {
         "evidence_class": "native mixed surface finite-element refinement and spectral comparison",
-        "geometry": "unit sphere approximated by normalized octahedral refinements",
+        "geometry": "unit sphere approximated by degree-two octahedral refinements with sphere-snapped nodes",
         "spectral_mode": "degree-one coexact rotational Killing field",
         "spectral_deformation_eigenvalues": killing_eigenvalues,
         "spectral_resolvent_coefficient": float(spectral_solution.velocity[killing_indices[0]]),
@@ -55,8 +55,11 @@ def run_study(refinements: Sequence[int]) -> dict[str, object]:
 def validate_results(result: dict[str, object]) -> None:
     profiles = result["profiles"]
     eigenvalues = result["spectral_deformation_eigenvalues"]
-    assert isinstance(profiles, list)
+    orders = result["observed_orders"]
+    assert isinstance(profiles, list) and isinstance(orders, tuple)
     errors = tuple(float(profile["spectral_reference_error"]) for profile in profiles)
+    leakages = tuple(float(profile["tangency_l2"]) for profile in profiles)
+    divergences = tuple(float(profile["divergence_l2"]) for profile in profiles)
     failures = []
     if any(abs(float(value)) > 1.0e-12 for value in eigenvalues):
         failures.append("spherical reference did not identify the deformation Killing kernel")
@@ -66,12 +69,12 @@ def validate_results(result: dict[str, object]) -> None:
         failures.append("reaction-shifted spherical resolvent residual exceeded tolerance")
     if not monotone_refinement(errors):
         failures.append("surface velocity error did not decrease monotonically")
-    if errors[-1] >= 0.25 * errors[0]:
-        failures.append("surface velocity error did not decrease by a factor of four")
-    if float(profiles[-1]["divergence_l2"]) >= 0.04:
-        failures.append("fine-mesh divergence exceeded 0.04")
-    if float(profiles[-1]["tangency_l2"]) >= 0.13:
-        failures.append("fine-mesh normal leakage exceeded 0.13")
+    if float(orders[-1]) < 1.8:
+        failures.append(f"finest-pair velocity convergence order {float(orders[-1]):.2f} fell below 1.8")
+    if not monotone_refinement(leakages[-3:]):
+        failures.append("normal leakage did not decrease across the finest three levels")
+    if not monotone_refinement(divergences[-3:]) or divergences[-1] >= divergences[0]:
+        failures.append("surface divergence did not stay bounded and decreasing under refinement")
     if any(abs(float(profile["pressure_mean"])) >= 1.0e-10 for profile in profiles):
         failures.append("pressure gauge residual exceeded tolerance")
     if failures:
@@ -80,7 +83,7 @@ def validate_results(result: dict[str, object]) -> None:
 
 def main(argv: Sequence[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--refinements", type=parse_refinements, default=parse_refinements("0,1,2,3"))
+    parser.add_argument("--refinements", type=parse_refinements, default=parse_refinements("0,1,2,3,4"))
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
     result = run_study(args.refinements)
@@ -90,16 +93,18 @@ def main(argv: Sequence[str] | None = None) -> None:
     if args.as_json:
         print(json.dumps(result, indent=2, sort_keys=True))
         return
-    print("native mixed surface Stokes on the unit sphere")
-    print("level cells    velocity error divergence    normal leakage")
+    print("native mixed surface Stokes on the unit sphere (degree-2 snapped geometry)")
+    print("level cells    velocity error divergence    normal leakage order")
     profiles = result["profiles"]
-    assert isinstance(profiles, list)
-    for profile in profiles:
+    orders = result["observed_orders"]
+    assert isinstance(profiles, list) and isinstance(orders, tuple)
+    for index, profile in enumerate(profiles):
+        order = f"{float(orders[index - 1]):.2f}" if index else "-"
         print(
             f"{int(profile['refinement']):<5d} {int(profile['cells']):<8d} "
             f"{float(profile['relative_velocity_l2_error']):.3e}      "
             f"{float(profile['divergence_l2']):.3e}      "
-            f"{float(profile['tangency_l2']):.3e}"
+            f"{float(profile['tangency_l2']):.3e}  {order}"
         )
 
 

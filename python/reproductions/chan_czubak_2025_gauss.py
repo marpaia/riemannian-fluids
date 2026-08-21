@@ -27,6 +27,8 @@ CLAIMS = (
         EvidenceKind.POINTWISE_IDENTITY,
         ClaimStatus.VALIDATED,
         {"codimension": "2", "ambient": "Euclidean"},
+        geometry_coverage="Clifford torus+curved graph surface in R^4",
+        sample_coverage="3 generic points per surface",
     ),
     Claim(
         "CCG25-laplacian-gauss-family",
@@ -43,7 +45,29 @@ def run() -> tuple[ClaimResult, ...]:
     def clifford_torus(q):
         return jnp.asarray((jnp.cos(q[0]), jnp.sin(q[0]), jnp.cos(q[1]), jnp.sin(q[1])))
 
-    surface = euclidean_submanifold("Clifford torus", 2, 4, clifford_torus)
-    q = jnp.asarray((0.7, 1.1), dtype=jnp.float64)
-    residual = float(jnp.linalg.norm(intrinsic_ricci_tensor(surface, q) - gauss_ricci_tensor(surface, q)))
-    return (ClaimResult(CLAIMS[0].id, residual < 1.0e-10, {"absolute_residual": residual}),)
+    def graph_surface(q):
+        u, v = q
+        return jnp.asarray((u, v, jnp.sin(u) * jnp.cos(v), 0.4 * jnp.cos(2.0 * u) + 0.3 * jnp.sin(u + v)))
+
+    cases = (
+        euclidean_submanifold("Clifford torus", 2, 4, clifford_torus),
+        euclidean_submanifold("curved graph surface", 2, 4, graph_surface),
+    )
+    points = ((0.7, 1.1), (1.9, 2.8), (2.6, 4.4))
+    measurements: dict[str, float | int | str] = {}
+    worst = 0.0
+    largest_ricci_norm = 0.0
+    for surface in cases:
+        surface_max = 0.0
+        for point in points:
+            q = jnp.asarray(point, dtype=jnp.float64)
+            intrinsic = intrinsic_ricci_tensor(surface, q)
+            surface_max = max(surface_max, float(jnp.linalg.norm(intrinsic - gauss_ricci_tensor(surface, q))))
+            largest_ricci_norm = max(largest_ricci_norm, float(jnp.linalg.norm(intrinsic)))
+        key = surface.name.replace(" ", "_")
+        measurements[f"{key}_max_absolute_residual"] = surface_max
+        worst = max(worst, surface_max)
+    measurements["max_absolute_residual"] = worst
+    measurements["max_intrinsic_ricci_norm"] = largest_ricci_norm
+    passed = worst < 1.0e-10 and largest_ricci_norm > 1.0e-1
+    return (ClaimResult(CLAIMS[0].id, passed, measurements),)

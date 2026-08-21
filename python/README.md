@@ -4,31 +4,30 @@ The Python package is the executable scientific layer of Riemannian Fluids.  It 
 
 The package follows the chain
 
-```text
-geometry -> tensors -> operators -> function spaces -> discretization -> solver -> evidence
+```mermaid
+flowchart LR
+  A[geometry] --> B[tensors] --> C[operators] --> D[function spaces] --> E[discretization] --> F[solver] --> G[evidence]
 ```
 
 The backend and evidence boundaries are specified in [`../docs/computational-architecture.md`](../docs/computational-architecture.md).
 
 ## Package structure
 
-```text
-riemannian_fluids/
-  discrete.py        typed semidiscrete velocity-pressure flow contract
-  geometry/          metrics, connections, curvature, domains, embeddings, normal geometry
-  tensors/           covariant calculus, musical maps, tensor operations, differential forms
-  operators/         viscosity, Stokes, and Navier--Stokes operators
-  function_spaces/   constraints, Sobolev diagnostics, and Hodge decompositions
-  shells/            Fermi geometry, wall profiles, transverse averaging, shell problems
-  symbolic/          exact SymPy backend: charts, covariant kernel, energy integrals, thin-shell limits
-  discretization/    backend capabilities, spherical spectra, and FEniCSx
-  solvers/           mixed, nonlinear, transient, and generalized spectral solvers
-  validation/        residuals, provenance, evidence classes, and refinement diagnostics
-
-experiments/          parameter studies and report-producing entry points
-reproductions/        source claim metadata and executable evidence adapters
-tests/                mathematical and software verification
-```
+| Module | Contents |
+| --- | --- |
+| `riemannian_fluids/discrete.py` | typed semidiscrete velocity-pressure flow contract |
+| `riemannian_fluids/geometry/` | metrics, connections, curvature, domains, embeddings, normal geometry |
+| `riemannian_fluids/tensors/` | covariant calculus, musical maps, tensor operations, differential forms |
+| `riemannian_fluids/operators/` | viscosity, Stokes, and Navier--Stokes operators |
+| `riemannian_fluids/function_spaces/` | constraints, Sobolev diagnostics, and Hodge decompositions |
+| `riemannian_fluids/shells/` | Fermi geometry, wall profiles, transverse averaging, shell problems |
+| `riemannian_fluids/symbolic/` | exact SymPy backend: charts, covariant kernel, energy integrals, thin-shell limits |
+| `riemannian_fluids/discretization/` | backend capabilities, spherical spectra, and FEniCSx |
+| `riemannian_fluids/solvers/` | mixed, nonlinear, transient, and generalized spectral solvers |
+| `riemannian_fluids/validation/` | residuals, provenance, evidence classes, and refinement diagnostics |
+| `experiments/` | parameter studies and report-producing entry points |
+| `reproductions/` | source claim metadata and executable evidence adapters |
+| `tests/` | mathematical and software verification |
 
 The top-level `calculus`, `viscosity`, `thin_shell`, and `fenics` modules provide compatibility imports for the domain packages.
 
@@ -48,24 +47,14 @@ The implementation supports:
 
 ## The symbolic backend
 
-`riemannian_fluids.symbolic` is the exact companion to the numeric layer.  It implements the same charts, conventions, and operators in SymPy and cross-checks every operator against the JAX implementation at sampled points in float64.
-
-The backend provides:
-
-- symbolic charts with declared positive parameters and validated volume densities (sphere, hyperbolic geodesic-polar, torus of revolution, spheroid);
-- the covariant kernel: Christoffel symbols, curvature, musical maps, deformation strain, and the rough, Hodge, and deformation viscosity operators;
-- structured fields whose properties hold by construction (coexact stream fields, gradient fields, rotation Killing fields) in a closed, type-checked hierarchy;
-- the energy-integral solver: symmetry reduction to radial integrals with tiered certificates (exact closed form, proven finiteness or divergence by endpoint comparison, or an honest unresolved verdict), a derivation ledger, and mpmath quadrature verification;
-- the identity engine: the divergence form of the deformation energy with its explicit boundary flux, and chart-level verification of `L_Def = L_Hodge - 2 Ric` for a generic stream function; and
-- the thin-shell solver: truncation-tracked epsilon-series, sphere tube charts in the numeric `det(I - sigma S)` convention, two-wall rotational profiles, and transverse-averaged pairing eigenvalues that recover the interpolating family `L_Def + 2 alpha Ric + 4 alpha (1 - alpha) S^2` with the rotational eigenvalue `6 alpha - 4 alpha^2`.
-
-[`examples/`](examples/) contains worked, narrated computations for both solvers; `pixi run --locked symbolic-examples` runs them.
+`riemannian_fluids.symbolic` is the exact companion to the numeric layer: certified energy integrals, chart-level operator identities, thin-shell limits, a closed-integral canonical-torus Navier regression, and an arbitrary smooth-core recovery at both endpoint wall laws. Every quantity that has a numeric twin is cross-checked against the JAX implementation. [`../docs/symbolic-backend.md`](../docs/symbolic-backend.md) documents its design, solvers, and guarantees; [`examples/`](examples/) contains worked computations, run with `pixi run --locked symbolic-examples`.
 
 ## Evidence produced by Python
 
 Every result belongs to a declared evidence class:
 
 - **pointwise identity**: evaluates a geometric or operator residual on sampled points;
+- **constructive witness**: proves every stated property of one explicitly scoped exact family;
 - **manufactured solution**: verifies a prescribed field against a differential equation and boundary data;
 - **discrete solve**: solves a stated finite-dimensional variational or algebraic problem;
 - **spectral comparison**: compares eigenvalues, multiplicities, kernels, or mode decompositions;
@@ -89,6 +78,8 @@ The spherical Stokes implementation uses vector spherical harmonics.  It represe
 `resolved-shell` constructs a genuine tetrahedral three-dimensional spherical shell with independently tagged inner and outer walls.  A mixed P2/P1 manufactured Stokes solve tracks velocity, pressure, divergence, no-slip wall-trace geometry error, transverse-average error, thickness, tangential mesh size, normal layers, and \(h/\varepsilon\).  The current no-slip study establishes the volume-mesh and diagnostics path; it does not establish the paper's Navier/Hodge wall-selected thin-shell convergence theorem.
 
 `wall-selection` solves the Navier deformation form, Hodge div--curl form, and signed-curvature intermediate wall forms on the resolved shell.  It compares transverse averages with exact spherical rotational resolvents, first at fixed thickness under mesh refinement and then along a coupled sequence with constant \(h/\varepsilon\).  This is proof-oriented numerical evidence for one mode; [`../docs/thin-shell-convergence.md`](../docs/thin-shell-convergence.md) records the remaining continuous Mosco proof obligations.
+
+The symbolic recovery layer is continuous rather than discrete. `WBS26-smooth-recovery-mode` retains exact integrated mass and energy for one nonconstant Navier field. The broader `WBS26-smooth-recovery-canonical-torus` witness parameterizes every smooth periodic solenoidal field by a stream function and two flux modes, constructs exact Navier and Hodge shell recoveries, and certifies solenoidality, impermeability, native endpoint traces, exact weighted identification, strong convergence, and the smooth-core quadratic energy rate. Extension to the completed form domain, Mosco M1, and operator convergence remain analytic targets.
 
 All FEniCSx studies run natively from the single default Pixi environment with DOLFINx 0.11 and MUMPS-backed PETSc factorization.  The image defined by `Dockerfile.fenicsx` realizes that same locked Pixi environment on Linux; it remains an explicit reference path, not the macOS development default.
 

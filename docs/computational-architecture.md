@@ -2,24 +2,16 @@
 
 The executable implementation separates mathematical models, discretizations, solvers, and evidence.  A result is not promoted from one layer to another merely because the same equation name appears in both.
 
-```text
-geometry + tensor calculus + viscosity choice
-                    |
-                    v
-       continuous residual/problem contracts
-                    |
-       +------------+-------------+
-       |            |             |
-       v            v             v
- sphere spectra  JAX dense   FEniCSx variational forms
-       |            |             |
-       +------------+-------------+
-                    |
-                    v
-       solve result + typed diagnostics
-                    |
-                    v
-       experiment acceptance criteria
+```mermaid
+flowchart TD
+  A[geometry + tensor calculus + viscosity choice] --> B[continuous residual and problem contracts]
+  B --> C[sphere spectra]
+  B --> D[JAX dense]
+  B --> E[FEniCSx variational forms]
+  C --> F[solve result + typed diagnostics]
+  D --> F
+  E --> F
+  F --> G[experiment acceptance criteria]
 ```
 
 ## Common semidiscrete contract

@@ -1,4 +1,4 @@
-import RiemannianFluids.Tensors.VectorCalculus
+import RiemannianFluids.Tensors.LieDerivative
 
 /-!
 # Intrinsic strain as the kinematic starting point
@@ -13,14 +13,17 @@ derivative:
 This module turns that sentence into the beginning of the thematic development.  The hard
 bundle-theoretic work lives in `Tensors.VectorCalculus`: lowering the moving tangent fiber,
 showing that tensor transposition is coordinate-natural, and proving that symmetrization
-preserves smooth sections.  Here we name the resulting metric-rate tensor and expose the
-factor-of-two identity that motivates deformation viscosity.
+preserves smooth sections.  Here we name the resulting metric-rate tensor, expose the
+factor-of-two identity that motivates deformation viscosity, and identify the tensor with the
+Lie derivative of the metric.
 
-There is a deliberate boundary.  `infinitesimalMetricRate` is the intrinsic infinitesimal
-rate, not yet a Lie derivative constructed from a local flow.  Proving that a flow pullback
-has this derivative is a future theorem.  The definition below therefore captures the
-kinematic quantity used by the literature without pretending that flow theory is already in
-the library.
+The identification is a theorem, not a definition.  `Tensors.LieDerivative` proves
+`metricLieDerivativeAt_leviCivita`: the flow-free Lie derivative of the metric, built from the
+manifold Lie bracket alone, equals the symmetrized covariant derivative for any metric-compatible
+torsion-free connection.  `infinitesimalMetricRate_eq_metricLieDerivativeAt` below transports
+that identity to the bundled metric-rate tensor.  One boundary remains: interpreting
+`metricLieDerivativeAt` as the derivative of an actual flow pullback awaits an integral-curve
+theory for manifold vector fields.
 -/
 
 namespace RiemannianFluids
@@ -64,5 +67,26 @@ theorem infinitesimalMetricRate_apply
       inner ℝ (connection.connection field x first) second +
         inner ℝ (connection.connection field x second) first := by
   simp [infinitesimalMetricRate, deformationTensor_apply]
+
+omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
+/-- The metric rate is the Lie derivative of the metric along the velocity field:
+`L_u g = 2 Def u` on differentiable test fields.
+
+The right-hand side is built from the manifold Lie bracket alone and the left-hand side from
+the connection alone, so the equality carries the mathematical content of metric compatibility
+and torsion-freeness rather than holding by definition. -/
+theorem infinitesimalMetricRate_eq_metricLieDerivativeAt
+    (regularity : ℕ∞ω)
+    [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
+    (connection : LeviCivitaConnection (M := M) I)
+    (smooth : LeviCivitaConnection.IsContMDiff I connection regularity)
+    (field : SmoothVectorField (M := M) I (regularity + 1))
+    {X Y : (y : M) → TangentSpace I y} {x : M}
+    (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) :
+    infinitesimalMetricRate I regularity connection smooth field x (X x) (Y x) =
+      metricLieDerivativeAt I field X Y x := by
+  -- Evaluate the metric rate and the Lie derivative through their covariant-derivative forms.
+  rw [infinitesimalMetricRate_apply, metricLieDerivativeAt_leviCivita I connection
+    (field.mdifferentiable' (by simp) x) hX hY]
 
 end RiemannianFluids

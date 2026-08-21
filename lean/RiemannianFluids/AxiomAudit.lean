@@ -16,17 +16,25 @@ Each command below asks Lean for the logical axioms used by one representative m
       → musical inverse laws
       → scalar gradient and divergence
       → tensor lowering, transpose, and symmetrization
-      → intrinsic strain and codifferential
+      → intrinsic strain, metric Lie derivative, and codifferential
       → divergence-free curvature comparison
-      → candidate inequivalence and boundary-selection algebra
-      → abstract pressure and energy cancellations.
+      → second covariant derivative, Ricci commutation, and divergence commutation
+      → constructed rough/deformation Laplacian comparison
+      → constructed exterior derivative, constructed Hodge Laplacian, and Weitzenböck
+      → fully constructed CCD17 divergence-free comparison
+      → constructed candidate inequivalence and its concrete hyperbolic witness
+      → bundled candidate inequivalence and boundary-selection algebra
+      → abstract pressure, energy cancellations, and Grönwall energy decay.
 
-`make lean/check` executes this file and rejects `sorryAx`. The accepted output consists only of standard Lean/mathlib foundations such as `propext`,
-`Classical.choice`, and `Quot.sound`.
+`make lean/check` executes this file and rejects every dependency outside the explicit allowlist
+`propext`, `Classical.choice`, and `Quot.sound`.
 
 This audit does **not** turn explicit hypotheses into proved geometry. For example, `ccd17_divfree_def_hodge` receives the Weitzenböck and
-symmetric-gradient identities as arguments. The audit establishes the more precise claim that the conclusion follows from those visible hypotheses
-with no hidden project postulate or unfinished proof. That distinction is exactly the formal boundary described in `docs/formal-analysis.md`.
+symmetric-gradient identities as arguments, whereas `ccd17_divfree_def_rough_constructed` proves the deformation/rough/Ricci comparison outright
+from the packaged Levi-Civita connection, and `ccd17_divfree_def_hodge_constructed` proves the full Hodge-form comparison with every operator —
+including both de Rham halves of the Hodge Laplacian and the Weitzenböck identity `weitzenbock_constructedAt` — constructed from that connection.
+The audit establishes the more precise claim that each conclusion follows from its visible hypotheses with no hidden project postulate or
+unfinished proof. That distinction is exactly the formal boundary described in `docs/formal-analysis.md`.
 -/
 
 #print axioms RiemannianFluids.LeviCivitaConnection.covariantDerivative_apply
@@ -34,6 +42,7 @@ with no hidden project postulate or unfinished proof. That distinction is exactl
 #print axioms RiemannianFluids.connectionCurvatureAction_swap
 #print axioms RiemannianFluids.connectionCurvatureDirectionsAt_apply
 #print axioms RiemannianFluids.connectionCurvatureDirectionsAt_swap
+#print axioms RiemannianFluids.hasConnectionCurvatureRegularityAt_of_contMDiff
 #print axioms RiemannianFluids.connectionCurvatureAction_tensorial_field_smul
 #print axioms RiemannianFluids.connectionCurvatureAction_field_pointwise
 #print axioms RiemannianFluids.connectionCurvatureTensorAt_apply
@@ -54,16 +63,120 @@ with no hidden project postulate or unfinished proof. That distinction is exactl
 #print axioms RiemannianFluids.covariantDerivativeTensor_apply
 #print axioms RiemannianFluids.transposeCovariantTwoTensor_apply
 #print axioms RiemannianFluids.symmetrizeCovariantTwoTensor_apply
+#print axioms RiemannianFluids.antisymmetrizeCovariantTwoTensor_apply
+#print axioms RiemannianFluids.symmetrize_add_antisymmetrize_eq_self
 #print axioms RiemannianFluids.deformationTensor_apply
 #print axioms RiemannianFluids.deformationTensor_symmetric
 #print axioms RiemannianFluids.infinitesimalMetricRate_apply
+#print axioms RiemannianFluids.metricLieDerivativeAt_leviCivita
+#print axioms RiemannianFluids.metricLieDerivativeAt_eq_two_deformationTensor
+#print axioms RiemannianFluids.infinitesimalMetricRate_eq_metricLieDerivativeAt
 #print axioms RiemannianFluids.codifferentialOne_flat
 #print axioms RiemannianFluids.exactCodifferentialCorrection_eq_zero_of_divergenceFree
 #print axioms RiemannianFluids.ccd17_positive_full
 #print axioms RiemannianFluids.ccd17_divfree_def_hodge
+#print axioms RiemannianFluids.secondCovariantDerivativeAt_apply
+#print axioms RiemannianFluids.secondCovariantDerivativeAlong_sub_swap
+#print axioms RiemannianFluids.secondCovariantDerivativeAt_sub_swap
+#print axioms RiemannianFluids.deformationCovariantDerivativeAt_eq_secondDerivative
+#print axioms RiemannianFluids.sum_deformationCovariantDerivativeAt_extend
+#print axioms RiemannianFluids.bilinearMixedTraceAgainst_secondCovariantDerivativeAt
+#print axioms RiemannianFluids.divergenceCommutationAt_of_leviCivita
+#print axioms RiemannianFluids.deformationLaplacian_rough_ricci_comparisonAt
+#print axioms RiemannianFluids.deformationLaplacian_rough_ricci_comparisonAt_of_divergenceFree
+#print axioms RiemannianFluids.deformationLaplacian_rough_ricci_comparisonVectorAt_of_divergenceFree
+#print axioms RiemannianFluids.ccd17_divfree_def_rough_constructed
+#print axioms RiemannianFluids.exteriorDerivativeValueAt_eq_mlieBracket
+#print axioms RiemannianFluids.exteriorDerivativeTensor_eq_exteriorDerivativeValueAt
+#print axioms RiemannianFluids.exteriorDerivativeTensor_eq_two_antisymmetrize
+#print axioms RiemannianFluids.covariantDerivativeTensorCovariantDerivativeAt_eq_secondDerivative
+#print axioms RiemannianFluids.exteriorDerivativeCovariantDerivativeAt_eq_secondDerivative
+#print axioms RiemannianFluids.sum_exteriorDerivativeCovariantDerivativeAt_extend
+#print axioms RiemannianFluids.hodgeExactHalfTestedAt_eq_exactCodifferentialCorrectionOne
+#print axioms RiemannianFluids.weitzenbock_constructedAt
+#print axioms RiemannianFluids.weitzenbock_constructedVectorAt
+#print axioms RiemannianFluids.ccd17_full_constructedAt
+#print axioms RiemannianFluids.ccd17_divfree_def_hodge_constructed
 #print axioms RiemannianFluids.candidateOperators_pairwiseDistinct_of_curvatureWitness
+#print axioms RiemannianFluids.constructedCandidateTests_pairwiseDistinct_of_ricciWitness
+#print axioms RiemannianFluids.constructedCandidateOutputs_pairwiseDistinct_of_ricciWitness
 #print axioms RiemannianFluids.wbs26_analysisPositive_crosswalk
 #print axioms RiemannianFluids.boundarySelectedOperator_zero
 #print axioms RiemannianFluids.boundarySelectedOperator_one
 #print axioms RiemannianFluids.pressure_work_eq_zero
 #print axioms RiemannianFluids.navierStokes_energy_identity
+#print axioms RiemannianFluids.energy_exponential_decay
+#print axioms RiemannianFluids.energy_exponential_decay_of_coercive_dissipation
+#print axioms RiemannianFluids.resolventGeneratedOperator_isSelfAdjoint
+#print axioms RiemannianFluids.Literature.CZ24.operator_census_hyperbolic_witness
+#print axioms RiemannianFluids.Literature.CCD17.divergenceFree_deformation_eq_hodge_sub_two_ricci
+#print axioms RiemannianFluids.Literature.WBK26.metric_rate_eq_twice_deformation
+#print axioms RiemannianFluids.Literature.WBK26.exponential_decay_of_energy_identity_and_coercivity
+#print axioms RiemannianFluids.Literature.WBS26.local_interpolating_family_analysisPositive
+#print axioms RiemannianFluids.Literature.CCP25.h2_oneForm_h1_decomposition
+#print axioms RiemannianFluids.DistributionalLeibniz.tempered_lineDeriv_smulLeft_of_compactSupport
+#print axioms RiemannianFluids.DistributionalLeibniz.tempered_laplacian_smulLeft_of_compactSupport
+#print axioms RiemannianFluids.EuclideanEllipticRegularity.besselPotential_two_eq_sub_laplacian
+#print axioms RiemannianFluids.EuclideanEllipticRegularity.memSobolev_add_two_of_laplacian
+#print axioms RiemannianFluids.EuclideanEllipticRegularity.memSobolev_one_of_laplacian_memSobolev_neg_one
+#print axioms RiemannianFluids.EuclideanEllipticRegularity.localized_memSobolev_one_of_laplacian
+#print axioms RiemannianFluids.EuclideanSobolev.exists_sobolevOneCoordinate
+#print axioms RiemannianFluids.EuclideanSobolev.sobolevOneLineDeriv_toTemperedDistribution
+#print axioms RiemannianFluids.EuclideanSobolev.localized_weak_energy_identity
+#print axioms RiemannianFluids.HyperbolicPlane.poincareMetric
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicLeviCivitaConnection
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolic_metricCompatible
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicCovariantDerivative_torsion
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicCovariantDerivative_contMDiff
+#print axioms RiemannianFluids.HyperbolicPlane.horizontalField_isDivergenceFree
+#print axioms RiemannianFluids.HyperbolicPlane.curvatureAction_coordinate
+#print axioms RiemannianFluids.HyperbolicPlane.ricciAction_horizontal_ne_zero
+#print axioms RiemannianFluids.HyperbolicPlane.scalarCurvature_neg_two
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolic_hasSurfaceRicciIdentity
+#print axioms RiemannianFluids.HyperbolicPlane.cz24_census_hyperbolic
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolic_dist_eq
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicVolume_def
+#print axioms RiemannianFluids.HyperbolicPlane.completeRiemannianManifold
+#print axioms RiemannianFluids.HyperbolicPlane.norm_oneFormComponentsAt
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicScalarL2_complete
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicOneFormL2_complete
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicSmoothCompactToL2
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicSmoothCompactScalar_dense
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicSmoothCompactOneForm_dense
+#print axioms RiemannianFluids.HyperbolicPlane.memLp_ambient_compact_mul_scalar_complex
+#print axioms RiemannianFluids.HyperbolicPlane.ambientLocalizedScalarL2_ae
+#print axioms RiemannianFluids.HyperbolicPlane.oneFormCodifferential_scalarExterior_eq_neg_height_sq_laplacian
+#print axioms RiemannianFluids.HyperbolicPlane.inner_hyperbolicScalarShiftedHodgeCoreL2_eq_euclideanIntegral
+#print axioms RiemannianFluids.HyperbolicPlane.localized_laplacian_eq_potential
+#print axioms RiemannianFluids.HyperbolicPlane.exists_localized_memSobolev_one
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolic_localized_square_energy_bound
+#print axioms RiemannianFluids.HyperbolicPlane.weakScalarShiftedHarmonic_eq_zero
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicScalarShiftedHodgeCoreL2_denseRange
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicSmoothCompactOneFormToH1_denseRange
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicH1_exact_add_coexact_add_harmonic
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHarmonicH1_toL2_mem_harmonic
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHarmonicH1ToHarmonicL2_surjective
+#print axioms RiemannianFluids.HyperbolicPlane.norm_sq_hyperbolicHarmonicL2ToH1
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicH1_exact_add_coexact_add_actualHarmonic
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicL2_exact_add_coexact_add_harmonic
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicLerayProjector_eq_self_iff
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesEmbedding_denseRange
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesSolution_variational
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesOperator_isClosed
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesOperator_isSelfAdjoint
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesOperator_weak_identity
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesOperator_isFormalAdjoint
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesOperator_nonnegative
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesOperator_eq_zero_iff_harmonic
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesToDivergenceFreeH1_toL2
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesToDivergenceFreeH1_hodge
+#print axioms RiemannianFluids.HyperbolicPlane.hyperbolicHodgeStokesFormDomainEquivDivergenceFreeH1
+#print axioms RiemannianFluids.CanonicalTorus.surfaceL2_complete
+#print axioms RiemannianFluids.CanonicalTorus.shellL2_complete
+#print axioms RiemannianFluids.CanonicalTorus.shellMeasure_le_reference
+#print axioms RiemannianFluids.CanonicalTorus.reference_le_two_shellMeasure
+#print axioms RiemannianFluids.CanonicalTorus.constantCoordinateLiftL2_ae
+#print axioms RiemannianFluids.CanonicalTorus.inner_fluxIdentifyL2_integral
+#print axioms RiemannianFluids.CanonicalTorus.norm_constantCoordinateLiftL2_le_eight
+#print axioms RiemannianFluids.CanonicalTorus.norm_fluxIdentifyL2_le_eight
+#print axioms RiemannianFluids.CanonicalTorus.thicknessAt_tendsto_zero

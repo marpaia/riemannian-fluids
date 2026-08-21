@@ -238,4 +238,72 @@ theorem symmetrizeCovariantTwoTensor_idempotent (regularity : ℕ∞ω)
   -- Averaging an already averaged pair changes nothing.
   ring
 
+set_option synthInstance.maxHeartbeats 100000 in
+/--
+Fiberwise antisymmetrization `T ↦ (T - Tᵀ) / 2`, the projection complementary to
+`symmetrizeCovariantTwoTensor`. Twice this projection applied to the lowered covariant
+derivative is the constructed exterior derivative `d(u♭)`, just as `symmetrize` of the same
+tensor is the deformation tensor `Def u`.
+-/
+noncomputable def antisymmetrizeCovariantTwoTensor (regularity : ℕ∞ω) :
+    SmoothCovariantTwoTensor (M := M) I regularity →ₗ[ℝ]
+      SmoothCovariantTwoTensor (M := M) I regularity :=
+  (2 : ℝ)⁻¹ • (LinearMap.id - transposeCovariantTwoTensor I regularity)
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [Nontrivial E] in
+set_option synthInstance.maxHeartbeats 100000 in
+/-- Pointwise evaluation recovers the difference average `1/2 (T(X,Y) - T(Y,X))`. -/
+@[simp]
+theorem antisymmetrizeCovariantTwoTensor_apply (regularity : ℕ∞ω)
+    (field : SmoothCovariantTwoTensor (M := M) I regularity)
+    (x : M) (u v : TangentSpace I x) :
+    antisymmetrizeCovariantTwoTensor I regularity field x u v =
+      (2 : ℝ)⁻¹ * (field x u v - field x v u) := by
+  -- Expand linear-map subtraction, scalar multiplication, and transpose at the chosen point.
+  simp [antisymmetrizeCovariantTwoTensor, transposeCovariantTwoTensor_apply]
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [Nontrivial E] in
+/-- The antisymmetrized tensor is antisymmetric: swapping its arguments flips the sign. -/
+theorem antisymmetrizeCovariantTwoTensor_swap (regularity : ℕ∞ω)
+    (field : SmoothCovariantTwoTensor (M := M) I regularity)
+    (x : M) (u v : TangentSpace I x) :
+    antisymmetrizeCovariantTwoTensor I regularity field x u v =
+      -antisymmetrizeCovariantTwoTensor I regularity field x v u := by
+  -- Expand both evaluations of antisymmetrization.
+  rw [antisymmetrizeCovariantTwoTensor_apply, antisymmetrizeCovariantTwoTensor_apply]
+  -- The two differences are negatives of each other.
+  ring
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [Nontrivial E] in
+/-- Antisymmetrization is a projection: applying it twice changes nothing. -/
+@[simp]
+theorem antisymmetrizeCovariantTwoTensor_idempotent (regularity : ℕ∞ω)
+    (field : SmoothCovariantTwoTensor (M := M) I regularity) :
+    antisymmetrizeCovariantTwoTensor I regularity
+        (antisymmetrizeCovariantTwoTensor I regularity field) =
+      antisymmetrizeCovariantTwoTensor I regularity field := by
+  -- Reduce tensor equality to scalar equality on arbitrary arguments.
+  ext x u v
+  -- Expand the outer antisymmetrization and its two inner evaluations.
+  rw [antisymmetrizeCovariantTwoTensor_apply, antisymmetrizeCovariantTwoTensor_apply,
+    antisymmetrizeCovariantTwoTensor_apply]
+  -- Taking the antisymmetric part of an already antisymmetric tensor changes nothing.
+  ring
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [Nontrivial E] in
+set_option synthInstance.maxHeartbeats 400000 in
+/-- The two projections decompose every covariant two-tensor:
+`Sym(T) + Antisym(T) = T`. -/
+theorem symmetrize_add_antisymmetrize_eq_self (regularity : ℕ∞ω)
+    (field : SmoothCovariantTwoTensor (M := M) I regularity) :
+    symmetrizeCovariantTwoTensor I regularity field +
+        antisymmetrizeCovariantTwoTensor I regularity field = field := by
+  -- Reduce to the pointwise scalar identity.
+  ext x u v
+  show symmetrizeCovariantTwoTensor I regularity field x u v +
+      antisymmetrizeCovariantTwoTensor I regularity field x u v = field x u v
+  rw [symmetrizeCovariantTwoTensor_apply, antisymmetrizeCovariantTwoTensor_apply]
+  -- The average and difference average recombine to the original value.
+  ring
+
 end RiemannianFluids

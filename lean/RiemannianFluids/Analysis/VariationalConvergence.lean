@@ -20,33 +20,39 @@ open scoped LinearPMap
 /-- A varying family of quadratic energies on actual Hilbert spaces.  Identification and lifting
 maps make the varying-space comparison explicit rather than reducing it to error scalars. -/
 structure HilbertQuadraticFormData
-    (Bulk Limit : Type*)
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    (Bulk : ℕ → Type*) (Limit : Type*)
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit] where
   thinScale : ℕ → ℝ
-  bulkEnergy : ℕ → QuadraticMap ℝ Bulk ℝ
+  bulkEnergy : (n : ℕ) → QuadraticMap ℝ (Bulk n) ℝ
   limitEnergy : QuadraticMap ℝ Limit ℝ
-  identify : ℕ → Bulk →L[ℝ] Limit
-  lift : ℕ → Limit →L[ℝ] Bulk
-  weaklyConvergesAfterIdentification : (ℕ → Bulk) → Limit → Prop
+  identify : (n : ℕ) → Bulk n →L[ℝ] Limit
+  lift : (n : ℕ) → Limit →L[ℝ] Bulk n
+  weaklyConvergesAfterIdentification : ((n : ℕ) → Bulk n) → Limit → Prop
   isSmoothLimit : Limit → Prop
-  hasQuadraticRecoveryRate : (ℕ → Bulk) → Limit → Prop
+  hasQuadraticRecoveryRate : ((n : ℕ) → Bulk n) → Limit → Prop
 
 /-- Strong convergence after applying the varying-space identification maps. -/
 def StronglyConvergesAfterIdentification
-    {Bulk Limit : Type*}
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
     (data : HilbertQuadraticFormData Bulk Limit)
-    (sequence : ℕ → Bulk) (limitVector : Limit) : Prop :=
+    (sequence : (n : ℕ) → Bulk n) (limitVector : Limit) : Prop :=
   Filter.Tendsto (fun n => data.identify n (sequence n))
     Filter.atTop (nhds limitVector)
 
 /-- Mosco lower bound, written by its eventual-lower-bound characterization so no artificial
 stored `liminf` observable is needed. -/
 def HilbertMoscoLiminf
-    {Bulk Limit : Type*}
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
     (data : HilbertQuadraticFormData Bulk Limit) : Prop :=
   ∀ sequence limitVector,
@@ -57,8 +63,10 @@ def HilbertMoscoLiminf
 /-- Mosco recovery on the concrete Hilbert carriers, including the source's sharp smooth-data
 rate as a separate conjunct. -/
 def HilbertMoscoRecovery
-    {Bulk Limit : Type*}
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
     (data : HilbertQuadraticFormData Bulk Limit) : Prop :=
   ∀ limitVector,
@@ -71,22 +79,26 @@ def HilbertMoscoRecovery
 
 /-- Mosco convergence for the Mathlib-backed Hilbert-space formulation. -/
 def HilbertMoscoConverges
-    {Bulk Limit : Type*}
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
     (data : HilbertQuadraticFormData Bulk Limit) : Prop :=
   HilbertMoscoLiminf data ∧ HilbertMoscoRecovery data
 
 /-- Resolvents and semigroups acting on the actual bulk and limit Hilbert spaces. -/
 structure HilbertOperatorConvergenceData
-    (Bulk Limit : Type*)
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    (Bulk : ℕ → Type*) (Limit : Type*)
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit] where
-  identify : ℕ → Bulk →L[ℝ] Limit
-  lift : ℕ → Limit →L[ℝ] Bulk
-  bulkResolvent : ℝ → ℕ → Bulk →L[ℝ] Bulk
+  identify : (n : ℕ) → Bulk n →L[ℝ] Limit
+  lift : (n : ℕ) → Limit →L[ℝ] Bulk n
+  bulkResolvent : ℝ → (n : ℕ) → Bulk n →L[ℝ] Bulk n
   limitResolvent : ℝ → Limit →L[ℝ] Limit
-  bulkSemigroup : ℝ → ℕ → Bulk →L[ℝ] Bulk
+  bulkSemigroup : ℝ → (n : ℕ) → Bulk n →L[ℝ] Bulk n
   limitSemigroup : ℝ → Limit →L[ℝ] Limit
   bulkEigenvalue : ℤ → ℕ → ℕ → ℝ
   limitEigenvalue : ℤ → ℕ → ℝ
@@ -99,18 +111,20 @@ resolvents, semigroups, and eigenvalues that it induces.  Generators are Mathlib
 linear operators (`LinearPMap`), while resolvents and semigroups remain bounded continuous
 linear maps. -/
 structure HilbertFormOperatorAssociationData
-    (Bulk Limit : Type*)
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    (Bulk : ℕ → Type*) (Limit : Type*)
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit] where
   forms : HilbertQuadraticFormData Bulk Limit
   operators : HilbertOperatorConvergenceData Bulk Limit
-  bulkFormDomain : ℕ → Submodule ℝ Bulk
+  bulkFormDomain : (n : ℕ) → Submodule ℝ (Bulk n)
   limitFormDomain : Submodule ℝ Limit
-  bulkGenerator : ℕ → (Bulk →ₗ.[ℝ] Bulk)
+  bulkGenerator : (n : ℕ) → (Bulk n →ₗ.[ℝ] Bulk n)
   limitGenerator : Limit →ₗ.[ℝ] Limit
-  bulkModeEigenvector : ℤ → ℕ → ℕ → Bulk
+  bulkModeEigenvector : ℤ → ℕ → (n : ℕ) → Bulk n
   limitModeEigenvector : ℤ → ℕ → Limit
-  bulkFullEigenvector : ℕ → ℕ → Bulk
+  bulkFullEigenvector : ℕ → (n : ℕ) → Bulk n
   limitFullEigenvector : ℕ → Limit
 
 /-- Closedness of the extended quadratic form, expressed by closed sublevel sets on its
@@ -127,8 +141,10 @@ maps agree, generators represent the polar forms, resolvents solve the generator
 semigroups solve their Cauchy problems, and the recorded spectral values have nonzero
 eigenvectors of those same generators. -/
 def IsHilbertFormOperatorAssociation
-    {Bulk Limit : Type*}
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
     (data : HilbertFormOperatorAssociationData Bulk Limit) : Prop :=
   (∀ n, data.forms.identify n = data.operators.identify n) ∧
@@ -139,8 +155,8 @@ def IsHilbertFormOperatorAssociation
   (∀ n, IsSelfAdjoint (data.bulkGenerator n)) ∧
   IsSelfAdjoint data.limitGenerator ∧
   (∀ n (vector : (data.bulkGenerator n).domain) test,
-    (vector : Bulk) ∈ data.bulkFormDomain n → test ∈ data.bulkFormDomain n →
-      QuadraticMap.associated (data.forms.bulkEnergy n) (vector : Bulk) test =
+    (vector : Bulk n) ∈ data.bulkFormDomain n → test ∈ data.bulkFormDomain n →
+      QuadraticMap.associated (data.forms.bulkEnergy n) (vector : Bulk n) test =
         inner ℝ (data.bulkGenerator n vector) test) ∧
   (∀ (vector : data.limitGenerator.domain) test,
     (vector : Limit) ∈ data.limitFormDomain → test ∈ data.limitFormDomain →
@@ -200,8 +216,10 @@ def IsHilbertFormOperatorAssociation
 
 /-- Strong resolvent convergence after lifting limit data and identifying bulk solutions. -/
 def HilbertStrongResolventConvergence
-    {Bulk Limit : Type*}
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
     (data : HilbertOperatorConvergenceData Bulk Limit) : Prop :=
   ∀ spectralParameter, 0 < spectralParameter → ∀ forcing : Limit,
@@ -214,8 +232,10 @@ def HilbertStrongResolventConvergence
 /-- Pointwise strong semigroup convergence for every nonnegative time.  The paper's stronger
 compact-time uniformity is kept as a separate source node. -/
 def HilbertStrongSemigroupConvergence
-    {Bulk Limit : Type*}
-    [NormedAddCommGroup Bulk] [InnerProductSpace ℝ Bulk] [CompleteSpace Bulk]
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
     [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
     (data : HilbertOperatorConvergenceData Bulk Limit) : Prop :=
   ∀ time, 0 ≤ time → ∀ initial : Limit,

@@ -94,6 +94,32 @@ def sphere(radius: float = 1.0) -> EmbeddedSubmanifold:
     )
 
 
+def torus_of_revolution(major_radius: float = 1.8, minor_radius: float = 0.55) -> EmbeddedSubmanifold:
+    """Return the torus swept by a circle of radius ``minor_radius`` about the axis."""
+
+    if minor_radius <= 0.0 or major_radius <= minor_radius:
+        raise ValueError("torus radii must satisfy 0 < minor_radius < major_radius")
+
+    def embedding(q: Array) -> Array:
+        theta, phi = q
+        radial = major_radius + minor_radius * jnp.cos(theta)
+        return jnp.asarray(
+            (
+                radial * jnp.cos(phi),
+                radial * jnp.sin(phi),
+                minor_radius * jnp.sin(theta),
+            )
+        )
+
+    return euclidean_submanifold(
+        "torus of revolution",
+        2,
+        3,
+        embedding,
+        coordinate_bounds=((0.0, 2.0 * float(jnp.pi)), (0.0, 2.0 * float(jnp.pi))),
+    )
+
+
 def spheroid(equatorial_radius: float = 1.5, polar_radius: float = 1.0) -> EmbeddedSubmanifold:
     if equatorial_radius <= 0.0 or polar_radius <= 0.0:
         raise ValueError("spheroid radii must be positive")

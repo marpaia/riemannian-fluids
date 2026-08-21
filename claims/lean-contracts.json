@@ -4,34 +4,50 @@
     {
       "id": "CZ24-operator-census",
       "intellectual_thread": "curvature separates intrinsic viscosity candidates",
-      "lean_module": "RiemannianFluids.Viscosity.CurvatureComparison",
-      "declaration": "RiemannianFluids.candidateOperators_pairwiseDistinct_of_curvatureWitness",
-      "relationship": "conditional-theorem",
-      "limitation": "Lean proves the comparison from an explicit curved divergence-free witness; construction of such a witness is not claimed here."
+      "lean_module": "RiemannianFluids.Literature.CZ24",
+      "declaration": "RiemannianFluids.Literature.CZ24.operator_census_hyperbolic_witness",
+      "relationship": "proved-core",
+      "limitation": "Lean constructs the analysis-positive rough, Hodge, and deformation outputs from the explicit Poincare metric and Levi-Civita connection on the hyperbolic half-plane. The deformation and Hodge covectors are raised by finite-dimensional Riesz duality, with theorems proving that their metric pairings recover the independently constructed tested definitions. The no-hypothesis theorem proves the three actual tangent-vector outputs pairwise distinct at every point on the divergence-free horizontal field, which supplies the curved counterexample required for the survey's general inequivalence claim. It does not classify all curved manifolds or populate the separate bundled section-operator predicate CandidateOperatorsPairwiseDistinct, whose arbitrary-two-form OneFormHodgeData realization remains interface data."
     },
     {
       "id": "CCD17-divfree-def-hodge",
       "intellectual_thread": "curvature comparison of intrinsic viscosity operators",
-      "lean_module": "RiemannianFluids.Operators.GeometricIdentities",
-      "declaration": "RiemannianFluids.ccd17_divfree_def_hodge",
-      "relationship": "interface-theorem",
-      "limitation": "The Weitzenbock and symmetric-gradient identities are explicit hypotheses; the divergence-free cancellation is constructed."
+      "lean_module": "RiemannianFluids.Literature.CCD17",
+      "declaration": "RiemannianFluids.Literature.CCD17.divergenceFree_deformation_eq_hodge_sub_two_ricci",
+      "relationship": "proved-core",
+      "limitation": "The paper's central identity L_Def u = L_Hodge u - 2 Ric on divergence-free fields is proved with every operator constructed from the packaged Levi-Civita connection: the rough and deformation Laplacians as traces of the proved second covariant derivative, the Hodge Laplacian from its two de Rham halves (d0 d1* via the codifferential d1*(u-flat) = -div u, d2* d1 via the constructed exterior derivative d(u-flat), whose connection-independence is the proved bracket formula exteriorDerivativeValueAt_eq_mlieBracket), and the Weitzenbock identity weitzenbock_constructedAt proved rather than assumed. Remaining hypotheses: the packaged Levi-Civita properties (existence and uniqueness of the connection from the metric are not derived), the pointwise curvature-regularity bridge (dischargeable on smooth Hausdorff manifolds via hasConnectionCurvatureRegularityAt_of_contMDiff), and a C^3 atlas; the Ricci term is Ric(w, u) in the trace-of-first-slot convention connectionRicciFormAt, whose identification with Ric(u, w) would additionally need the first Bianchi identity. The constructed operators are pointwise tested scalars; the bundled OneFormHodgeData realization (a standalone degree-two codifferential on arbitrary two-forms and the SmoothDifferentialForm packaging) is not populated, and the interface statement ccd17_divfree_def_hodge retains that role."
     },
     {
       "id": "WBK26-lie-strain",
       "intellectual_thread": "intrinsic strain as the kinematic origin of deformation viscosity",
-      "lean_module": "RiemannianFluids.Viscosity.IntrinsicStrain",
-      "declaration": "RiemannianFluids.infinitesimalMetricRate_apply",
+      "lean_module": "RiemannianFluids.Literature.WBK26",
+      "declaration": "RiemannianFluids.Literature.WBK26.metric_rate_eq_twice_deformation",
       "relationship": "proved-core",
-      "limitation": "The intrinsic infinitesimal metric rate is constructed; identification with the derivative of a flow pullback awaits a formal flow theory."
+      "limitation": "The algebraic Lie-derivative identity L_u g = 2 Def u is proved from metric compatibility and torsion-freeness via the flow-free bracket characterization of L_u g; interpreting L_u g as the derivative of a flow pullback awaits integral-curve theory."
+    },
+    {
+      "id": "WBK26-negative-curvature-exponential-decay",
+      "intellectual_thread": "hyperbolic coercivity forces exponential energy decay",
+      "lean_module": "RiemannianFluids.Literature.WBK26",
+      "declaration": "RiemannianFluids.Literature.WBK26.exponential_decay_of_energy_identity_and_coercivity",
+      "relationship": "conditional-theorem",
+      "limitation": "Only the Gronwall decay fragment is proved: an energy identity E' = -2 mu D and the coercivity bound D >= kappa^2 E force E(t) <= E(0) exp(-2 mu kappa^2 t); existence, uniqueness, pressure recovery, the energy equality for weak solutions, and the coercivity estimate remain open."
     },
     {
       "id": "WBS26-local-interpolating-family",
       "intellectual_thread": "boundary laws select effective surface viscosity",
-      "lean_module": "RiemannianFluids.Viscosity.BoundarySelection",
-      "declaration": "RiemannianFluids.wbs26_analysisPositive_crosswalk",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.local_interpolating_family_analysisPositive",
       "relationship": "signed-to-analysis-positive-crosswalk",
       "limitation": "Lean checks the algebraic conversion from the source paper's signed Delta convention to the repository's analysis-positive L = -Delta convention, together with the endpoint algebra; derivation from a resolved thin shell and Mosco convergence remain open."
+    },
+    {
+      "id": "CCP25-h2-oneform-h1-decomposition",
+      "intellectual_thread": "complete-manifold Sobolev Hodge decomposition and harmonic regularity",
+      "lean_module": "RiemannianFluids.Literature.CCP25",
+      "declaration": "RiemannianFluids.Literature.CCP25.h2_oneForm_h1_decomposition",
+      "relationship": "proved-core",
+      "limitation": "Lean proves the no-hypothesis N = 2, k = 1, a = 1 specialization on the canonical complete measured Poincare half-plane. The compact shifted scalar core has dense L2 range by a proved local-regularity, cutoff-energy, and exhaustion argument; the source harmonic remainder is linearly equivalent to the full distributional harmonic L2 sector; every harmonic L2 form has a canonical H1 representative with squared H1 norm exactly twice its squared L2 norm; and the three-sector decomposition uses that actual harmonic form. The separate general source theorem for arbitrary N, k, and a remains catalogued rather than formally reproduced."
     }
   ]
 }

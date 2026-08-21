@@ -21,7 +21,9 @@
             "formal witness": "a curved Riemannian setting on which the three operator maps are pairwise distinct",
             "convention": "rough, Hodge, and deformation operators translated to analysis-positive-v1"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -42,7 +44,9 @@
           "evidence": "pointwise-identity",
           "status": "validated",
           "assumptions": {"field": "divergence-free", "manifold": "oriented surface"},
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "sphere+spheroid+torus_of_revolution",
+          "sample_coverage": "3 generic points per surface, divergence-free stream fields"
         },
         {
           "id": "CCD17-hyperbolic-energy-obstruction",
@@ -56,7 +60,9 @@
             "viscosity": "Hodge Laplacian",
             "quantifier": "no C0 > 0 works for every T > 0"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         },
         {
           "id": "CCD17-relativistic-limit",
@@ -69,7 +75,9 @@
             "models": "Lichnerowicz; Choquet-Bruhat; Freistuehler-Temple",
             "limit": "nonrelativistic spatial momentum equation"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -90,7 +98,9 @@
           "evidence": "pointwise-identity",
           "status": "catalogued",
           "assumptions": {"surface": "axisymmetric ellipsoid"},
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         },
         {
           "id": "CCY23-eccentricity-expansion",
@@ -100,7 +110,9 @@
           "evidence": "symbolic-identity",
           "status": "catalogued",
           "assumptions": {},
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -120,8 +132,10 @@
           "locator": "arXiv:2212.11928v2, Theorem 1.9, equations (1.11)--(1.12)",
           "evidence": "pointwise-identity",
           "status": "validated",
-          "assumptions": {"ambient": "Euclidean", "codimension": "2"},
-          "convention": "analysis-positive-v1"
+          "assumptions": {"codimension": "2", "ambient": "Euclidean"},
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "Clifford torus+curved graph surface in R^4",
+          "sample_coverage": "3 generic points per surface"
         },
         {
           "id": "CCG25-laplacian-gauss-family",
@@ -131,7 +145,9 @@
           "evidence": "pointwise-identity",
           "status": "catalogued",
           "assumptions": {},
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -151,18 +167,28 @@
           "locator": "arXiv:2511.10579v1, Theorems 1.1 and 1.3, formulas (1.4)--(1.7), specialized by Remark 1.5",
           "evidence": "pointwise-identity",
           "status": "validated",
-          "assumptions": {"surface": "round sphere"},
-          "convention": "analysis-positive-v1"
+          "assumptions": {
+            "surface": "round sphere",
+            "collapse mechanism": "the scaling generator -1/4 grad(log K) vanishes on constant curvature, so the check also gates that vanishing"
+          },
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "sphere",
+          "sample_coverage": "3 generic points x 4 candidates"
         },
         {
           "id": "CCF25-averaging-dependence",
           "paper_id": "CCF25",
           "statement": "The scaling-direction thin-shell result depends on the averaging prescription.",
           "locator": "arXiv:2511.10579v1, Theorems 1.1, 1.3, and 1.6 with Remark 1.8; the paper labels these limits heuristic",
-          "evidence": "thin-shell-convergence",
-          "status": "catalogued",
-          "assumptions": {"surface": "axisymmetric ellipsoid"},
-          "convention": "analysis-positive-v1"
+          "evidence": "constructive-witness",
+          "status": "validated",
+          "assumptions": {
+            "surface": "axisymmetric spheroid",
+            "witness": "every candidate differs from its Navier/Hodge endpoint by a relative gap above 1e-3 at each sample point"
+          },
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "spheroid",
+          "sample_coverage": "3 generic points x 4 candidates"
         }
       ]
     },
@@ -183,7 +209,9 @@
           "evidence": "pointwise-identity",
           "status": "validated",
           "assumptions": {},
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "spheroid+torus_of_revolution",
+          "sample_coverage": "3 generic points per surface, non-symmetric coordinate velocity field"
         },
         {
           "id": "WBK26-negative-curvature-decay",
@@ -199,7 +227,9 @@
             "viscosity": "mu > 0",
             "initial data": "u0 in H"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -219,8 +249,12 @@
           "locator": "arXiv:2605.20589v3, Lemma 3.1, Proposition 3.2, and Theorem 3.3, equations (12)--(18)",
           "evidence": "pointwise-identity",
           "status": "validated",
-          "assumptions": {},
-          "convention": "analysis-positive-v1"
+          "assumptions": {
+            "non-umbilic evidence": "on the spheroid and torus Ric != S^2 pointwise, so the sweep pins both curvature coefficients"
+          },
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "sphere+spheroid+torus_of_revolution",
+          "sample_coverage": "2 points x 4 wall parameters per surface"
         },
         {
           "id": "WBS26-two-wall-profile",
@@ -229,8 +263,43 @@
           "locator": "arXiv:2605.20589v3, Proposition 3.2 and Section 3.4, equations (13)--(19)",
           "evidence": "manufactured-solution",
           "status": "validated",
-          "assumptions": {},
-          "convention": "analysis-positive-v1"
+          "assumptions": {"shape operators": "anisotropic spheroid and torus spectra plus non-diagonal perturbed-sphere matrices"},
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "spheroid+torus_of_revolution+perturbed_sphere",
+          "sample_coverage": "2 points x 4 wall parameters x 2 thicknesses per surface"
+        },
+        {
+          "id": "WBS26-smooth-recovery-mode",
+          "paper_id": "WBS26",
+          "statement": "On the canonical torus T(2,1), the z-independent Navier lift of the nonconstant field u = sin(theta) partial_phi is exactly solenoidal, impermeable, and stress-free; its normalized mass and deformation energy converge to those of u with quadratic error.",
+          "locator": "Project specialization of arXiv:2605.20589v3, Theorem 4.5 (M2) and Appendix A.4, to alpha=0 and one azimuthal mode",
+          "evidence": "constructive-witness",
+          "status": "validated",
+          "assumptions": {
+            "thickness": "half-thickness 0 < varepsilon < 1 with bulk normalization 1/(2 varepsilon)",
+            "recovery scope": "one smooth azimuthal field whose source normal corrector vanishes identically",
+            "exclusion": "does not establish arbitrary-data recovery, form-domain density, liminf, or Mosco convergence"
+          },
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "torus_of_revolution(R=2,a=1)",
+          "sample_coverage": "exact symbolic identities on the full chart and epsilon family + 8 deterministic JAX shell points"
+        },
+        {
+          "id": "WBS26-smooth-recovery-canonical-torus",
+          "paper_id": "WBS26",
+          "statement": "On the canonical torus T(2,1), every smooth tangential solenoidal field has an exactly solenoidal and impermeable three-dimensional recovery satisfying either endpoint wall law, with exact transverse-flux identification, strong L2 recovery, and the source-scoped quadratic energy rate on the smooth core.",
+          "locator": "Project specialization of arXiv:2605.20589v3, Theorem 4.5 (M2), Proposition 3.2, Section 3.4, and Appendix A.4, to the canonical torus and both endpoints",
+          "evidence": "constructive-witness",
+          "status": "validated",
+          "assumptions": {
+            "surface field": "arbitrary smooth periodic stream function plus both constant torus flux modes",
+            "thickness": "physical half-thickness 0 < varepsilon < 1/4 with normalization 1/(2 varepsilon)",
+            "rate": "the exact recovery and its universal two-jet agree through order two; the integrated linear energy term vanishes by symmetric-shell averaging",
+            "exclusion": "smooth-core M2 only; no form-domain density extension, M1, Mosco theorem, or operator convergence"
+          },
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "torus_of_revolution(R=2,a=1)",
+          "sample_coverage": "exact identities for an arbitrary smooth stream jet and both flux parameters at the Navier and Hodge endpoints + native tensor traces for one nontrivial stream-and-flux field"
         },
         {
           "id": "WBS26-mosco-resolvent-spectrum",
@@ -245,7 +314,9 @@
             "spectral scope": "fixed-mode and full-spectrum convergence with multiplicity; no high-mode pollution",
             "framework": "Kuwae-Shioya varying Hilbert spaces"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         },
         {
           "id": "WBS26-resolved-volume-shell",
@@ -258,7 +329,9 @@
             "required limits": "mesh size h -> 0 at fixed epsilon, then thickness epsilon -> 0",
             "geometry": "resolved curved volume shell rather than a normal-fibre surrogate"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -279,7 +352,9 @@
           "evidence": "pointwise-identity",
           "status": "validated",
           "assumptions": {},
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "hyperbolic upper half-plane H^2(-2.25)",
+          "sample_coverage": "1 interior point"
         },
         {
           "id": "CC13-leray-hopf-nonuniqueness",
@@ -293,7 +368,9 @@
             "viscosity": "2 Def* Def, equivalently the paper's N-S_H2(-a^2)",
             "solution class": "Leray-Hopf"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -319,7 +396,9 @@
             "base regularity": "smooth velocity and pressure; finite Dirichlet integral",
             "extra bound": "u in L-infinity for N=2 and N>=5 only"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -345,7 +424,9 @@
             "energy": "finite Dirichlet integral",
             "pressure": "L2_loc"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         },
         {
           "id": "CC21-nontrivial-navier-stokes-exterior",
@@ -360,7 +441,9 @@
             "energy": "finite Dirichlet integral",
             "pressure": "L2_loc"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     },
@@ -381,7 +464,9 @@
           "evidence": "manufactured-solution",
           "status": "validated",
           "assumptions": {},
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "three-vertex discrete de Rham complex",
+          "sample_coverage": "1 one-cochain sample"
         },
         {
           "id": "CCP25-h1-noncompact-decomposition",
@@ -396,7 +481,26 @@
             "closures": "H1 closures of d Lambda_c^(k-1) and d* Lambda_c^(k+1)",
             "harmonic summand": "L2 harmonic k-forms, which the paper proves lie in H1"
           },
-          "convention": "analysis-positive-v1"
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
+        },
+        {
+          "id": "CCP25-h2-oneform-h1-decomposition",
+          "paper_id": "CCP25",
+          "statement": "On the canonical hyperbolic plane H2(-1), source-normalized H1 one-forms split uniquely and H1-orthogonally into the H1 closures of compactly supported exact and coexact forms plus an actual distributional L2 harmonic one-form.",
+          "locator": "arXiv:1812.11764v1, Theorem 1.3, specialized to N = 2, k = 1, a = 1; Theorem 3.2 and Proposition 4.3 supply the harmonic identification",
+          "evidence": "analytic-theorem",
+          "status": "analytic-only",
+          "assumptions": {
+            "geometry": "canonical complete Poincare half-plane H2(-1)",
+            "degree": "one-forms",
+            "closures": "source H1 closures of compactly supported exact and coexact forms",
+            "harmonic summand": "distributionally closed and coclosed L2 one-forms with canonical H1 representative"
+          },
+          "convention": "analysis-positive-v1",
+          "geometry_coverage": "",
+          "sample_coverage": ""
         }
       ]
     }

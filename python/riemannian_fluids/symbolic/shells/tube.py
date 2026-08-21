@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 import sympy
 
-from riemannian_fluids.symbolic.charts import ChartConstructionError, SymbolicManifold, sphere_chart
+from riemannian_fluids.symbolic.charts import ChartConstructionError, SymbolicManifold, sphere_chart, torus_chart
 from riemannian_fluids.symbolic.simplify import is_zero
 
 
@@ -64,4 +64,47 @@ def sphere_shell_chart(radius: sympy.Expr | float = 1) -> ShellChart:
     )
     shape = sympy.ImmutableMatrix([[-1 / scale, 0], [0, -1 / scale]])
     jacobian = (scale / r_expr) ** 2
+    return ShellChart(surface=surface, shell=shell, sigma=sigma, shape_operator=shape, jacobian=jacobian)
+
+
+def torus_shell_chart(major_radius: sympy.Expr | float = 2, minor_radius: sympy.Expr | float = 1) -> ShellChart:
+    """Return the normal shell of a torus of revolution.
+
+    The signed normal coordinate increases the minor radius.  The chart is
+    regular on the component where both ``minor_radius + sigma`` and
+    ``major_radius + (minor_radius + sigma) cos(theta)`` are positive.  In the
+    canonical ``(R, a) = (2, 1)`` case used by the recovery certificate,
+    ``abs(sigma) < 1`` suffices.
+    """
+
+    surface = torus_chart(major_radius, minor_radius)
+    major = sympy.sympify(major_radius)
+    minor = sympy.sympify(minor_radius)
+    theta, phi = surface.coords
+    sigma = sympy.Symbol("sigma", real=True)
+    offset = minor + sigma
+    radial = major + offset * sympy.cos(theta)
+    shell = SymbolicManifold(
+        name=f"shell(T^2({major_radius},{minor_radius}))",
+        coords=(theta, phi, sigma),
+        metric=sympy.ImmutableMatrix(
+            [
+                [offset**2, 0, 0],
+                [0, radial**2, 0],
+                [0, 0, 1],
+            ]
+        ),
+        volume_density=offset * radial,
+        bounds=(*surface.bounds, (None, None)),
+        sample_window=(*surface.sample_window, (-0.2, 0.2)),
+        params=surface.params,
+        notes=("sigma is signed distance along the outward minor-radial normal",),
+    )
+    shape = sympy.ImmutableMatrix(
+        [
+            [-1 / offset, 0],
+            [0, -sympy.cos(theta) / radial],
+        ]
+    )
+    jacobian = offset * radial / (minor * (major + minor * sympy.cos(theta)))
     return ShellChart(surface=surface, shell=shell, sigma=sigma, shape_operator=shape, jacobian=jacobian)
