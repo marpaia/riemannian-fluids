@@ -21,6 +21,11 @@ DECL_RE = re.compile(
     r"(?:theorem|lemma|def|abbrev|structure|class|inductive|instance)\s+"
     r"([A-Za-z_][A-Za-z0-9_']*)"
 )
+DECL_KIND_RE = re.compile(
+    r"(?m)^[ \t]*(?:(?:noncomputable|private|protected)\s+)*"
+    r"(theorem|lemma|def|abbrev|structure|class|inductive|instance)\s+"
+    r"([A-Za-z_][A-Za-z0-9_']*)"
+)
 FORBIDDEN_RE = re.compile(
     r"(?m)^[ \t]*(?:(?:private|protected)\s+)*(?:axiom|constant)\s+"
     r"[A-Za-z_][A-Za-z0-9_']*|\bsorry\b|\badmit\b"
@@ -130,13 +135,49 @@ def crosswalk_declarations() -> list[tuple[str, str, str]]:
         if path is None:
             raise SystemExit(f"{entry['id']} names missing Lean module {module}")
         local_name = declaration.rsplit(".", 1)[-1]
-        declared_names = set(DECL_RE.findall(strip_comments_and_strings(path.read_text())))
+        source = strip_comments_and_strings(path.read_text())
+        declared_names = set(DECL_RE.findall(source))
         if local_name not in declared_names:
             raise SystemExit(
                 f"{entry['id']} maps {declaration} to {module}, "
                 "but that module does not own the declaration"
             )
+        declaration_matches = {
+            match.group(2): match for match in DECL_KIND_RE.finditer(source)
+        }
+        if entry["relationship"] == "source-signature":
+            match = declaration_matches.get(local_name)
+            if match is None or match.group(1) not in {"def", "abbrev"}:
+                raise SystemExit(
+                    f"{entry['id']} is a source-signature but {declaration} is not "
+                    "a definition"
+                )
+            assignment = source.find(":=", match.end())
+            if assignment == -1 or re.search(
+                r":\s*Prop\s*$", source[match.end() : assignment]
+            ) is None:
+                raise SystemExit(
+                    f"{entry['id']} source-signature {declaration} does not "
+                    "explicitly return Prop"
+                )
         declarations.append((entry["id"], module, declaration))
+    return declarations
+
+
+def dependency_declarations() -> list[tuple[str, str, str]]:
+    """Return the unique declarations named by explicit claim dependency routes."""
+
+    registry = json.loads(LEAN_CROSSWALK.read_text())
+    declarations: list[tuple[str, str, str]] = []
+    seen: set[str] = set()
+    for entry in registry["claims"]:
+        for declaration in entry["dependencies"]:
+            if declaration in seen:
+                continue
+            seen.add(declaration)
+            declarations.append(
+                (f"dependency::{len(declarations)}", "dependency route", declaration)
+            )
     return declarations
 
 
@@ -238,6 +279,7 @@ def main() -> None:
     library = import_closure(LIBRARY_ROOT)
     audit_sources(library)
     crosswalks = crosswalk_declarations()
+    dependencies = dependency_declarations()
     obligations = obligation_declarations()
     crosswalk_ids = {claim_id for claim_id, _, _ in crosswalks}
     uncovered_obligations = [
@@ -245,11 +287,12 @@ def main() -> None:
         for declaration in obligations
         if declaration[0] not in crosswalk_ids
     ]
-    audit_crosswalk_axioms(crosswalks + uncovered_obligations)
+    audit_crosswalk_axioms(crosswalks + uncovered_obligations + dependencies)
     print(
         f"validated thematic Lean closure: {len(library)} files, "
         f"0 placeholders, {len(crosswalks)} selective literature crosswalks, and "
-        f"{len(obligations)} atomic obligation contracts"
+        f"{len(obligations)} atomic obligation contracts; "
+        f"{len(dependencies)} unique dependency-route declarations checked"
     )
 
 

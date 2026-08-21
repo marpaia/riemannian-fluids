@@ -1,18 +1,92 @@
 import RiemannianFluids.PDE.EnergyDecay
+import RiemannianFluids.PDE.WeakNavierStokes
+import RiemannianFluids.Geometry.BoundedGeometry
+import RiemannianFluids.Operators.Viscosity
 import RiemannianFluids.Viscosity.IntrinsicStrain
 
 /-!
 # WBK26: intrinsic strain and negatively curved fluids
 
-This module separates the proved kinematic identity from the conditional Gronwall fragment of the
-paper's global weak-solution theorem.  The latter is deliberately named for its hypotheses rather
-than for the full source claim.
+This module separates the proved kinematic identity and conditional Gronwall fragment from the
+four proposition-valued source signatures of the paper's global weak-solution theorem.  The
+signatures fix the target without postulating any of the open PDE conclusions.
 -/
 
 namespace RiemannianFluids.Literature.WBK26
 
 open Bundle Set
 open scoped ContDiff Manifold
+
+/-- Shared source data for the four conclusions of WBK26 Theorem 6.1.  `H` and `V` are forced
+to be closures of the same smooth compactly supported solenoidal core, while the weak framework
+keeps the equation, trace, incompressibility, and Bochner memberships separately visible. -/
+structure NegativeCurvatureWeakData
+    (Point SmoothField H V Pressure Trajectory : Type*)
+    [NormedAddCommGroup H] [NormedSpace ℝ H]
+    [NormedAddCommGroup V] [NormedSpace ℝ V] where
+  geometry : CompleteBoundedSurfaceProfile Point
+  solenoidalClosures : SolenoidalClosureData SmoothField H V
+  framework : WeakNavierStokesFramework H V Pressure Trajectory
+  viscosityModel : ViscosityModel
+  isSpaceTimePressureDistribution : ℝ → Pressure → Prop
+
+/-- Source signature for the global weak-existence conclusion of WBK26 Theorem 6.1. -/
+def negative_curvature_global_weak_existence_statement
+    {Point SmoothField H V Pressure Trajectory : Type*}
+    [NormedAddCommGroup H] [NormedSpace ℝ H]
+    [NormedAddCommGroup V] [NormedSpace ℝ V]
+    (data : NegativeCurvatureWeakData Point SmoothField H V Pressure Trajectory)
+    (μ κ : ℝ) : Prop :=
+  SatisfiesWBK26Geometry data.geometry κ →
+    data.viscosityModel = ViscosityModel.deformation →
+      0 < μ → ∀ initial terminalTime, 0 < terminalTime →
+        ∃ velocity,
+          IsWeakNavierStokesSolutionOn data.framework μ terminalTime initial velocity
+
+/-- Source signature for velocity uniqueness in the weak class of Theorem 6.1. -/
+def negative_curvature_weak_uniqueness_statement
+    {Point SmoothField H V Pressure Trajectory : Type*}
+    [NormedAddCommGroup H] [NormedSpace ℝ H]
+    [NormedAddCommGroup V] [NormedSpace ℝ V]
+    (data : NegativeCurvatureWeakData Point SmoothField H V Pressure Trajectory)
+    (μ κ : ℝ) : Prop :=
+  SatisfiesWBK26Geometry data.geometry κ →
+    data.viscosityModel = ViscosityModel.deformation →
+      0 < μ → ∀ initial terminalTime velocity, 0 < terminalTime →
+        IsWeakNavierStokesSolutionOn data.framework μ terminalTime initial velocity →
+          IsUniqueWeakNavierStokesSolutionOn
+            data.framework μ terminalTime initial velocity
+
+/-- Source signature for recovery of a spacetime pressure distribution in Theorem 6.1. -/
+def negative_curvature_pressure_recovery_statement
+    {Point SmoothField H V Pressure Trajectory : Type*}
+    [NormedAddCommGroup H] [NormedSpace ℝ H]
+    [NormedAddCommGroup V] [NormedSpace ℝ V]
+    (data : NegativeCurvatureWeakData Point SmoothField H V Pressure Trajectory)
+    (μ κ : ℝ) : Prop :=
+  SatisfiesWBK26Geometry data.geometry κ →
+    data.viscosityModel = ViscosityModel.deformation →
+      0 < μ → ∀ initial terminalTime velocity, 0 < terminalTime →
+        IsWeakNavierStokesSolutionOn data.framework μ terminalTime initial velocity →
+          ∃ pressure,
+            data.isSpaceTimePressureDistribution terminalTime pressure ∧
+              data.framework.pressureRecoversMomentumOn
+                μ terminalTime velocity pressure
+
+/-- Full source signature for equation (40), attached to every weak solution from the theorem. -/
+def negative_curvature_exponential_decay_statement
+    {Point SmoothField H V Pressure Trajectory : Type*}
+    [NormedAddCommGroup H] [NormedSpace ℝ H]
+    [NormedAddCommGroup V] [NormedSpace ℝ V]
+    (data : NegativeCurvatureWeakData Point SmoothField H V Pressure Trajectory)
+    (μ κ : ℝ) : Prop :=
+  SatisfiesWBK26Geometry data.geometry κ →
+    data.viscosityModel = ViscosityModel.deformation →
+      0 < μ → ∀ initial terminalTime velocity, 0 < terminalTime →
+        IsWeakNavierStokesSolutionOn data.framework μ terminalTime initial velocity →
+          ∀ time ∈ Set.Icc (0 : ℝ) terminalTime,
+            ‖data.framework.velocityAt velocity time‖ ^ 2 ≤
+              Real.exp (-2 * μ * κ ^ 2 * time) * ‖initial‖ ^ 2
 
 variable
   {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]

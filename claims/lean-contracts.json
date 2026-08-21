@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "claims": [
     {
       "id": "CZ24-operator-census",
@@ -7,7 +7,8 @@
       "lean_module": "RiemannianFluids.Literature.CZ24",
       "declaration": "RiemannianFluids.Literature.CZ24.operator_census_hyperbolic_witness",
       "relationship": "proved-core",
-      "limitation": "Lean constructs the analysis-positive rough, Hodge, and deformation outputs from the explicit Poincare metric and Levi-Civita connection on the hyperbolic half-plane. The deformation and Hodge covectors are raised by finite-dimensional Riesz duality, with theorems proving that their metric pairings recover the independently constructed tested definitions. The no-hypothesis theorem proves the three actual tangent-vector outputs pairwise distinct at every point on the divergence-free horizontal field, which supplies the curved counterexample required for the survey's general inequivalence claim. It does not classify all curved manifolds or populate the separate bundled section-operator predicate CandidateOperatorsPairwiseDistinct, whose arbitrary-two-form OneFormHodgeData realization remains interface data."
+      "dependencies": ["RiemannianFluids.HyperbolicPlane.cz24_census_hyperbolic"],
+      "limitation": "Lean constructs the analysis-positive rough, Hodge, and deformation outputs from the explicit Poincare metric and proves them pairwise distinct on a divergence-free hyperbolic witness. It does not classify all curved manifolds."
     },
     {
       "id": "CCD17-divfree-def-hodge",
@@ -15,7 +16,94 @@
       "lean_module": "RiemannianFluids.Literature.CCD17",
       "declaration": "RiemannianFluids.Literature.CCD17.divergenceFree_deformation_eq_hodge_sub_two_ricci",
       "relationship": "proved-core",
-      "limitation": "The paper's central identity L_Def u = L_Hodge u - 2 Ric on divergence-free fields is proved with every operator constructed from the packaged Levi-Civita connection: the rough and deformation Laplacians as traces of the proved second covariant derivative, the Hodge Laplacian from its two de Rham halves (d0 d1* via the codifferential d1*(u-flat) = -div u, d2* d1 via the constructed exterior derivative d(u-flat), whose connection-independence is the proved bracket formula exteriorDerivativeValueAt_eq_mlieBracket), and the Weitzenbock identity weitzenbock_constructedAt proved rather than assumed. Remaining hypotheses: the packaged Levi-Civita properties (existence and uniqueness of the connection from the metric are not derived), the pointwise curvature-regularity bridge (dischargeable on smooth Hausdorff manifolds via hasConnectionCurvatureRegularityAt_of_contMDiff), and a C^3 atlas; the Ricci term is Ric(w, u) in the trace-of-first-slot convention connectionRicciFormAt, whose identification with Ric(u, w) would additionally need the first Bianchi identity. The constructed operators are pointwise tested scalars; the bundled OneFormHodgeData realization (a standalone degree-two codifferential on arbitrary two-forms and the SmoothDifferentialForm packaging) is not populated, and the interface statement ccd17_divfree_def_hodge retains that role."
+      "dependencies": ["RiemannianFluids.ccd17_divfree_def_hodge_constructed"],
+      "limitation": "The divergence-free identity is proved for the repository's constructed Levi-Civita, de Rham, Hodge, deformation, and Ricci terms. The theorem retains the documented connection regularity hypotheses."
+    },
+    {
+      "id": "CCD17-hyperbolic-energy-obstruction",
+      "intellectual_thread": "harmonic modes obstruct a terminal-time-uniform Hodge energy estimate",
+      "lean_module": "RiemannianFluids.Literature.CCD17",
+      "declaration": "RiemannianFluids.Literature.CCD17.hyperbolic_energy_obstruction_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsHyperbolicSpaceForm",
+        "RiemannianFluids.Literature.CCD17.HasUniformHodgeEnergyEstimate"
+      ],
+      "limitation": "The axiom-free proposition fixes both weak and classical no-uniform-constant conclusions of Theorems 3.2--3.3. No obstruction proof is claimed yet."
+    },
+    {
+      "id": "CCD17-relativistic-limit",
+      "intellectual_thread": "first-order relativistic stresses select deformation viscosity",
+      "lean_module": "RiemannianFluids.Literature.CCD17",
+      "declaration": "RiemannianFluids.Literature.CCD17.relativistic_first_order_limit_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.Literature.CCD17.RelativisticStressLimitData"],
+      "limitation": "The axiom-free proposition enumerates exactly the three source stress models and their common spatial div(2 Def v) limit. The asymptotic relativistic derivations remain to be formalized."
+    },
+    {
+      "id": "CCY23-invariant-restriction",
+      "intellectual_thread": "projected ambient Hodge viscosity restricts invariantly to the ellipsoid",
+      "lean_module": "RiemannianFluids.Literature.CCY23",
+      "declaration": "RiemannianFluids.Literature.CCY23.invariant_restriction_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.HasOperatorRestrictionFormula",
+        "RiemannianFluids.IsExtensionIndependent"
+      ],
+      "limitation": "The axiom-free proposition exposes tangency, ambient and surface divergence constraints and every signed term of equation (1.4). The restriction formula and extension independence are not proved."
+    },
+    {
+      "id": "CCY23-eccentricity-expansion",
+      "intellectual_thread": "the ellipsoid restriction formula expands about the unit sphere",
+      "lean_module": "RiemannianFluids.Literature.CCY23",
+      "declaration": "RiemannianFluids.Literature.CCY23.eccentricity_expansion_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.Literature.CCY23.eccentricityQuadraticCorrection"],
+      "limitation": "The axiom-free proposition writes the full differential-form coefficient from equation (5.8) and an explicit local O(mu^4) norm bound. The expansion estimate is not proved."
+    },
+    {
+      "id": "CCG25-gauss-ricci-codimension-two",
+      "intellectual_thread": "the Euclidean Gauss equation determines intrinsic Ricci curvature",
+      "lean_module": "RiemannianFluids.Literature.CCG25",
+      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.HasGaussFormula"],
+      "limitation": "The axiom-free proposition fixes the two-dimensional Euclidean codimension-two specialization Ric = 2 W_H - sum W_N squared. The Gauss contraction is not proved."
+    },
+    {
+      "id": "CCG25-bochner-laplacian-gauss-general-codimension",
+      "intellectual_thread": "Gauss--Weingarten decomposition of the ambient Bochner Laplacian",
+      "lean_module": "RiemannianFluids.Literature.CCG25",
+      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.HasGaussFormula",
+        "RiemannianFluids.HasWeingartenFormula",
+        "RiemannianFluids.HasAbstractContractedCodazziIdentity"
+      ],
+      "limitation": "The axiom-free proposition records every coefficient and sign in equations (1.5)--(1.6) for arbitrary n at least two and codimension k at least one. No Laplacian formula is proved."
+    },
+    {
+      "id": "CCG25-hodge-laplacian-gauss-general-codimension",
+      "intellectual_thread": "Gauss formula for ambient versus intrinsic Hodge Laplacians",
+      "lean_module": "RiemannianFluids.Literature.CCG25",
+      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.HasGaussFormula",
+        "RiemannianFluids.HasWeingartenFormula",
+        "RiemannianFluids.HasAbstractContractedCodazziIdentity"
+      ],
+      "limitation": "The axiom-free proposition records both equivalent arbitrary-codimension formulas of Corollary 1.20 with all curvature and normal terms. No Hodge Gauss formula is proved."
+    },
+    {
+      "id": "CCF25-four-candidates-sphere",
+      "intellectual_thread": "constant curvature collapses four ellipsoid candidates to two endpoints",
+      "lean_module": "RiemannianFluids.Literature.CCF25",
+      "declaration": "RiemannianFluids.Literature.CCF25.four_candidates_sphere_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.ViscosityCandidates"],
+      "limitation": "The axiom-free proposition isolates the rigorous algebraic content of Remark 1.5: unit Gaussian curvature forces the scaling generator to vanish and the four formulas to equal their Navier or Hodge endpoints. The heuristic shell derivations are outside this proof target."
     },
     {
       "id": "WBK26-lie-strain",
@@ -23,15 +111,60 @@
       "lean_module": "RiemannianFluids.Literature.WBK26",
       "declaration": "RiemannianFluids.Literature.WBK26.metric_rate_eq_twice_deformation",
       "relationship": "proved-core",
-      "limitation": "The algebraic Lie-derivative identity L_u g = 2 Def u is proved from metric compatibility and torsion-freeness via the flow-free bracket characterization of L_u g; interpreting L_u g as the derivative of a flow pullback awaits integral-curve theory."
+      "dependencies": ["RiemannianFluids.infinitesimalMetricRate_eq_metricLieDerivativeAt"],
+      "limitation": "The algebraic Lie-derivative identity is proved from metric compatibility and torsion-freeness. Interpreting it as the derivative of a flow pullback still awaits integral-curve theory."
+    },
+    {
+      "id": "WBK26-negative-curvature-global-weak-existence",
+      "intellectual_thread": "negative-curvature deformation coercivity yields global weak solutions",
+      "lean_module": "RiemannianFluids.Literature.WBK26",
+      "declaration": "RiemannianFluids.Literature.WBK26.negative_curvature_global_weak_existence_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.SatisfiesWBK26Geometry",
+        "RiemannianFluids.SolenoidalClosureData",
+        "RiemannianFluids.IsWeakNavierStokesSolutionOn"
+      ],
+      "limitation": "The axiom-free proposition fixes the complete bounded-geometry surface, negative curvature, common solenoidal closures, deformation model, all positive horizons, and the stated weak class. Existence is not proved."
+    },
+    {
+      "id": "WBK26-negative-curvature-weak-uniqueness",
+      "intellectual_thread": "deformation viscosity restores velocity uniqueness",
+      "lean_module": "RiemannianFluids.Literature.WBK26",
+      "declaration": "RiemannianFluids.Literature.WBK26.negative_curvature_weak_uniqueness_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.SatisfiesWBK26Geometry",
+        "RiemannianFluids.IsWeakNavierStokesSolutionOn",
+        "RiemannianFluids.IsUniqueWeakNavierStokesSolutionOn"
+      ],
+      "limitation": "The axiom-free proposition states uniqueness of the velocity in exactly the source weak class and deliberately makes no pressure-uniqueness claim. The uniqueness proof is open."
+    },
+    {
+      "id": "WBK26-negative-curvature-pressure-recovery",
+      "intellectual_thread": "solenoidal weak balance recovers a spacetime pressure distribution",
+      "lean_module": "RiemannianFluids.Literature.WBK26",
+      "declaration": "RiemannianFluids.Literature.WBK26.negative_curvature_pressure_recovery_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.SatisfiesWBK26Geometry",
+        "RiemannianFluids.IsWeakNavierStokesSolutionOn",
+        "RiemannianFluids.DeRhamPressureRecovery"
+      ],
+      "limitation": "The axiom-free proposition requires a spacetime distribution and the full recovered momentum equation for every source weak solution. The de Rham pressure theorem is not instantiated or proved on this manifold."
     },
     {
       "id": "WBK26-negative-curvature-exponential-decay",
-      "intellectual_thread": "hyperbolic coercivity forces exponential energy decay",
+      "intellectual_thread": "negative curvature forces precise exponential energy decay",
       "lean_module": "RiemannianFluids.Literature.WBK26",
-      "declaration": "RiemannianFluids.Literature.WBK26.exponential_decay_of_energy_identity_and_coercivity",
-      "relationship": "conditional-theorem",
-      "limitation": "Only the Gronwall decay fragment is proved: an energy identity E' = -2 mu D and the coercivity bound D >= kappa^2 E force E(t) <= E(0) exp(-2 mu kappa^2 t); existence, uniqueness, pressure recovery, the energy equality for weak solutions, and the coercivity estimate remain open."
+      "declaration": "RiemannianFluids.Literature.WBK26.negative_curvature_exponential_decay_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.SatisfiesWBK26Geometry",
+        "RiemannianFluids.IsWeakNavierStokesSolutionOn",
+        "RiemannianFluids.energy_exponential_decay_of_coercive_dissipation"
+      ],
+      "limitation": "The full source proposition is unproved. Its dependency route includes the proved conditional Gronwall theorem showing that the energy identity and kappa-squared coercivity imply the exact exp(-2 mu kappa squared t) bound."
     },
     {
       "id": "WBS26-local-interpolating-family",
@@ -39,7 +172,138 @@
       "lean_module": "RiemannianFluids.Literature.WBS26",
       "declaration": "RiemannianFluids.Literature.WBS26.local_interpolating_family_analysisPositive",
       "relationship": "signed-to-analysis-positive-crosswalk",
-      "limitation": "Lean checks the algebraic conversion from the source paper's signed Delta convention to the repository's analysis-positive L = -Delta convention, together with the endpoint algebra; derivation from a resolved thin shell and Mosco convergence remain open."
+      "dependencies": ["RiemannianFluids.wbs26_analysisPositive_crosswalk"],
+      "limitation": "Lean proves the algebraic conversion from the source signed Delta convention to the analysis-positive convention and checks both endpoints. Derivation from a resolved shell and Mosco convergence remain open."
+    },
+    {
+      "id": "WBS26-two-wall-profile",
+      "intellectual_thread": "two symmetric walls determine the first two normal-profile jets",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.two_wall_profile_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.Literature.WBS26.MatchesTwoWallLawToSecondOrder",
+        "RiemannianFluids.wbs26_analysisPositive_crosswalk"
+      ],
+      "limitation": "The axiom-free proposition exposes the matched even and odd wall equations and both coefficients in Proposition 3.2. The geometric wall reduction and coefficient deduction are not yet proved together."
+    },
+    {
+      "id": "WBS26-mosco-liminf",
+      "intellectual_thread": "weak varying-space convergence gives the Mosco lower bound",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.mosco_liminf_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsSmoothClosedUnitSpeedRevolutionProfile",
+        "RiemannianFluids.HilbertMoscoFormDomainLiminf"
+      ],
+      "limitation": "The axiom-free proposition states M1 on actual varying Hilbert carriers for both endpoint form pairs. Compactness and lower semicontinuity are not proved."
+    },
+    {
+      "id": "WBS26-mosco-recovery",
+      "intellectual_thread": "every solenoidal limit-form vector has a strong shell recovery",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.mosco_recovery_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.HilbertMoscoFormDomainRecovery"],
+      "limitation": "The axiom-free proposition quantifies over the limit form domain, requires every recovery to lie in the bulk form domain, and states strong and energy convergence for both endpoints. The recovery theorem is open."
+    },
+    {
+      "id": "WBS26-mosco-smooth-recovery-rate",
+      "intellectual_thread": "smooth recovery has the sharp quadratic energy rate",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.mosco_smooth_recovery_rate_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.HilbertMoscoSmoothRecoveryRate",
+        "RiemannianFluids.HasQuadraticEnergyRecoveryRate"
+      ],
+      "limitation": "The axiom-free proposition exposes an eventual absolute energy error bounded by C epsilon squared, in addition to domain membership and convergence. The source-scope estimate is not proved."
+    },
+    {
+      "id": "WBS26-form-operator-association",
+      "intellectual_thread": "closed nonnegative forms generate the named self-adjoint operators",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.form_operator_association_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.IsHilbertFormOperatorAssociation"],
+      "limitation": "The axiom-free proposition requires closedness, nonnegativity, self-adjoint generators, resolvent equations, semigroup equations, and spectral eigenpairs for both endpoints. No shell operator association is proved."
+    },
+    {
+      "id": "WBS26-strong-resolvent-convergence",
+      "intellectual_thread": "Mosco convergence yields strong resolvent convergence",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.strong_resolvent_convergence_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.HilbertStrongResolventConvergence"],
+      "limitation": "The axiom-free proposition states identified strong resolvent convergence for every positive spectral parameter and both endpoints. The implication from Mosco convergence is not proved."
+    },
+    {
+      "id": "WBS26-compact-time-semigroup-convergence",
+      "intellectual_thread": "associated semigroups converge uniformly on compact time intervals",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.compact_time_semigroup_convergence_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.HilbertCompactTimeSemigroupConvergence"],
+      "limitation": "The axiom-free proposition uses an explicit epsilon-eventually-uniform quantifier over every compact nonnegative time interval. Semigroup convergence is not proved."
+    },
+    {
+      "id": "WBS26-fixed-mode-spectral-convergence",
+      "intellectual_thread": "fixed azimuthal modes are compact and spectrally convergent",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.fixed_mode_spectral_convergence_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.HilbertFixedModePrecompact",
+        "RiemannianFluids.HilbertModewiseSpectralConvergence"
+      ],
+      "limitation": "The axiom-free proposition separately states precompactness of norm-and-form-bounded mode sequences and eigenvalue convergence with multiplicity. Neither conclusion is proved."
+    },
+    {
+      "id": "WBS26-uniform-high-mode-gap",
+      "intellectual_thread": "azimuthal derivatives force an epsilon-uniform quadratic mode gap",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.uniform_high_mode_gap_statement",
+      "relationship": "source-signature",
+      "dependencies": ["RiemannianFluids.HilbertUniformHighModeGap"],
+      "limitation": "The axiom-free proposition records the exact c m squared over rho-max squared minus C lower bound on the actual bulk form for sufficiently thin shells. The estimate is not proved."
+    },
+    {
+      "id": "WBS26-full-spectrum-convergence-no-pollution",
+      "intellectual_thread": "the high-mode gap upgrades modewise limits to the full spectrum",
+      "lean_module": "RiemannianFluids.Literature.WBS26",
+      "declaration": "RiemannianFluids.Literature.WBS26.full_spectrum_convergence_no_pollution_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.HilbertFullSpectralConvergence",
+        "RiemannianFluids.HilbertNoHighModeSpectralPollution"
+      ],
+      "limitation": "The axiom-free proposition states full ordered eigenvalue convergence with multiplicity and an epsilon-independent finite mode range below every positive threshold. The spectral theorem is open."
+    },
+    {
+      "id": "CC13-leray-hopf-nonuniqueness",
+      "intellectual_thread": "harmonic gradients create distinct Leray--Hopf solutions",
+      "lean_module": "RiemannianFluids.Literature.CC13",
+      "declaration": "RiemannianFluids.Literature.CC13.leray_hopf_nonuniqueness_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsHyperbolicSpaceForm",
+        "RiemannianFluids.IsLerayHopfSolution",
+        "RiemannianFluids.ViscosityModel"
+      ],
+      "limitation": "The axiom-free proposition fixes H2(-a squared), deformation viscosity, a common initial datum, and two distinct Leray--Hopf solutions. The nonuniqueness construction is not proved."
+    },
+    {
+      "id": "CCP25-h1-noncompact-decomposition",
+      "intellectual_thread": "complete-space Sobolev Hodge decomposition in all degrees",
+      "lean_module": "RiemannianFluids.Literature.CCP25",
+      "declaration": "RiemannianFluids.Literature.CCP25.h1_noncompact_decomposition_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.RiemannianNonpositiveSpaceFormData.hasExpectedGeometry",
+        "RiemannianFluids.HasH1HodgeDecomposition"
+      ],
+      "limitation": "The axiom-free proposition quantifies over arbitrary dimension, form degree, and nonnegative curvature scale and names the source H1 closures and actual L2 harmonic summand. Only the separate H2 one-form specialization is proved."
     },
     {
       "id": "CCP25-h2-oneform-h1-decomposition",
@@ -47,7 +311,94 @@
       "lean_module": "RiemannianFluids.Literature.CCP25",
       "declaration": "RiemannianFluids.Literature.CCP25.h2_oneForm_h1_decomposition",
       "relationship": "proved-core",
-      "limitation": "Lean proves the no-hypothesis N = 2, k = 1, a = 1 specialization on the canonical complete measured Poincare half-plane. The compact shifted scalar core has dense L2 range by a proved local-regularity, cutoff-energy, and exhaustion argument; the source harmonic remainder is linearly equivalent to the full distributional harmonic L2 sector; every harmonic L2 form has a canonical H1 representative with squared H1 norm exactly twice its squared L2 norm; and the three-sector decomposition uses that actual harmonic form. The separate general source theorem for arbitrary N, k, and a remains catalogued rather than formally reproduced."
+      "dependencies": ["RiemannianFluids.HyperbolicPlane.hyperbolicH1_exact_add_coexact_add_actualHarmonic"],
+      "limitation": "Lean proves the no-hypothesis N = 2, k = 1, a = 1 specialization on the canonical complete measured Poincare half-plane, including the actual distributional harmonic L2 sector and its canonical H1 representative."
+    },
+    {
+      "id": "CC15-stationary-liouville-dimensions-three-four",
+      "intellectual_thread": "finite Dirichlet energy forces stationary hyperbolic flow to vanish",
+      "lean_module": "RiemannianFluids.Literature.CC15",
+      "declaration": "RiemannianFluids.Literature.CC15.stationary_liouville_dimensions_three_four_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsHyperbolicSpaceForm",
+        "RiemannianFluids.Literature.CC15.IsStationaryLiouvilleSolution"
+      ],
+      "limitation": "The axiom-free proposition exposes smoothness, divergence, deformation momentum, finite Dirichlet energy, and the N=3 or N=4 conclusion. The Liouville proof is open."
+    },
+    {
+      "id": "CC15-stationary-liouville-dimension-two",
+      "intellectual_thread": "bounded stationary flow in H2 is an L2 harmonic gradient",
+      "lean_module": "RiemannianFluids.Literature.CC15",
+      "declaration": "RiemannianFluids.Literature.CC15.stationary_liouville_dimension_two_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsHyperbolicSpaceForm",
+        "RiemannianFluids.Literature.CC15.IsStationaryLiouvilleSolution",
+        "RiemannianFluids.Literature.CC15.IsEssentiallyBounded"
+      ],
+      "limitation": "The axiom-free proposition adds the source L-infinity hypothesis and concludes equality with the differential of a harmonic potential plus finite L2 norm. The classification proof is open."
+    },
+    {
+      "id": "CC15-stationary-liouville-dimensions-at-least-five",
+      "intellectual_thread": "bounded high-dimensional stationary hyperbolic flow vanishes",
+      "lean_module": "RiemannianFluids.Literature.CC15",
+      "declaration": "RiemannianFluids.Literature.CC15.stationary_liouville_dimensions_at_least_five_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsHyperbolicSpaceForm",
+        "RiemannianFluids.Literature.CC15.IsStationaryLiouvilleSolution",
+        "RiemannianFluids.Literature.CC15.IsEssentiallyBounded"
+      ],
+      "limitation": "The axiom-free proposition fixes N at least five, the common stationary solution class, and the additional L-infinity hypothesis before concluding zero. The proof is open."
+    },
+    {
+      "id": "CC21-nontrivial-stokes-exterior-existence",
+      "intellectual_thread": "negative curvature reverses the planar exterior Stokes obstruction",
+      "lean_module": "RiemannianFluids.Literature.CC21",
+      "declaration": "RiemannianFluids.Literature.CC21.nontrivial_stokes_exterior_existence_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsHyperbolicSpaceForm",
+        "RiemannianFluids.IsStationaryStokesSolution"
+      ],
+      "limitation": "The axiom-free proposition states the nontrivial zero-trace finite-energy Stokes witness with locally L2 pressure on every positive-radius hyperbolic exterior domain. Existence is not proved."
+    },
+    {
+      "id": "CC21-nontrivial-stokes-exterior-nonpotential",
+      "intellectual_thread": "the constructed exterior Stokes flow is not a harmonic gradient",
+      "lean_module": "RiemannianFluids.Literature.CC21",
+      "declaration": "RiemannianFluids.Literature.CC21.nontrivial_stokes_exterior_nonpotential_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsStationaryStokesSolution",
+        "RiemannianFluids.Literature.CC21.IsHarmonicPotentialFlow"
+      ],
+      "limitation": "The axiom-free proposition refers to the same recorded Stokes witness as the existence node and excludes every harmonic potential representation. Nonpotentiality is not proved."
+    },
+    {
+      "id": "CC21-nontrivial-navier-stokes-exterior-existence",
+      "intellectual_thread": "negative curvature permits nontrivial stationary exterior Navier--Stokes flow",
+      "lean_module": "RiemannianFluids.Literature.CC21",
+      "declaration": "RiemannianFluids.Literature.CC21.nontrivial_navier_stokes_exterior_existence_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsHyperbolicSpaceForm",
+        "RiemannianFluids.IsStationaryNavierStokesSolution"
+      ],
+      "limitation": "The axiom-free proposition states the nontrivial zero-trace finite-energy Navier--Stokes witness with locally L2 pressure on every positive-radius hyperbolic exterior domain. Existence is not proved."
+    },
+    {
+      "id": "CC21-nontrivial-navier-stokes-exterior-nonpotential",
+      "intellectual_thread": "the constructed exterior Navier--Stokes flow is not a harmonic gradient",
+      "lean_module": "RiemannianFluids.Literature.CC21",
+      "declaration": "RiemannianFluids.Literature.CC21.nontrivial_navier_stokes_exterior_nonpotential_statement",
+      "relationship": "source-signature",
+      "dependencies": [
+        "RiemannianFluids.IsStationaryNavierStokesSolution",
+        "RiemannianFluids.Literature.CC21.IsHarmonicPotentialFlow"
+      ],
+      "limitation": "The axiom-free proposition refers to the same recorded Navier--Stokes witness as the existence node and excludes every harmonic potential representation. Nonpotentiality is not proved."
     }
   ]
 }

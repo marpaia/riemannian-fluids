@@ -24,7 +24,7 @@ The current `geometric-fluids-v1` boundary consists of the eleven pinned papers 
 | Capability | Exit condition | State |
 | --- | --- | --- |
 | M0: corpus control plane | every current node is classified by origin, assertion kind, verification target, and atomicity; paper-namespaced Lean entry points and validators enforce the schema | complete |
-| M1: atomic source specifications | all seven compound nodes in `geometric-fluids-v1` are split; every source-proof node has a source-faithful Lean theorem signature and dependency route | active; compound splits complete |
+| M1: atomic source specifications | all seven compound nodes in `geometric-fluids-v1` are split; every source-proof node has a source-faithful Lean theorem signature and dependency route | complete |
 | M2: geometric operator kernel | the CZ24, CCD17, CCY23, CCG25, CCF25, and WBK26 operator identities and constructions are proved at their exact source scope | partial |
 | M3: noncompact Hodge foundation | CCP25 is proved first on `H²(-1)` and then at the source's full dimension, degree, and curvature-scale scope, with reusable closed-form and self-adjoint-operator machinery | partial; `H²(-1)` complete |
 | M4: hyperbolic PDE corpus | CC13 nonuniqueness, CC15 Liouville, CC21 exterior Stokes/Navier--Stokes, and the full WBK26 weak-solution theorem are formally reproduced | open |
@@ -33,6 +33,20 @@ The current `geometric-fluids-v1` boundary consists of the eleven pinned papers 
 | M7: audited corpus release | every in-scope source-proof target is reproduced, all heuristic and computational nodes have their proper evidence, documentation is generated from the ledgers, and the full repository validation passes | open |
 
 Work is scheduled by the earliest incomplete corpus capability it closes. Shared infrastructure is prioritized when it discharges multiple paper routes; isolated lemmas are not reported as program milestones.
+
+## Completed capability: M1 atomic source specifications
+
+M1 closes a precise specification boundary over the current release. The seven compound registry nodes are split into 26 atomic obligations, and the resulting proof-status ledger contains 42 atomic formal targets. Exactly 35 of those targets are source proofs. Every one now owns a stable declaration under `RiemannianFluids.Literature.<paper>`, and every crosswalk records a nonempty route into reusable geometry, function-space, operator, convergence, or PDE infrastructure.
+
+The previously absent paper namespaces `CC13`, `CC15`, `CC21`, `CCY23`, `CCG25`, and `CCF25` now expose source-scoped propositions. `CCD17`, `CCP25`, `WBK26`, and `WBS26` expose the remaining unproved conclusions alongside their already proved fragments. In particular, the WBS26 surface is no longer one generic convergence placeholder: form-domain recovery, the smooth `O(epsilon^2)` rate, form/operator association, strong resolvents, compact-time-uniform semigroups, fixed-mode compactness and spectral convergence, the uniform high-mode gap, and full-spectrum no-pollution are distinct definitions on actual varying Hilbert carriers.
+
+M1 does not count definitions as proofs. A `source-signature` is an axiom-free `Prop` definition whose hypotheses and conclusion have been audited against the pinned source; it remains `contract-checked` until a theorem inhabits it. The validators now fail closed if any atomic source-proof unit loses its declaration, dependency route, paper ownership, or axiom audit. This makes M2 the next incomplete capability: proving the geometric operator kernel at exact source scope.
+
+## Next end-to-end campaign: M2 geometric operator kernel
+
+M2 is one coherent source-to-proof campaign, not a queue of unrelated identities. Its target is a reusable embedded-submanifold differential engine that proves the arbitrary-codimension Gauss--Weingarten trace formulas once and then specializes them through the literature graph. The engine must first prove the CCG25 Bochner formulas (1.5)--(1.6), the Ricci contraction (1.11)--(1.12), and the Hodge formula of Corollary 1.20 on actual Mathlib-backed immersion and tangent/normal bundle data. CCY23 must then instantiate the restriction machinery on the axisymmetric ellipsoid, including extension independence and the eccentricity expansion. CCF25's sphere collapse becomes the constant-curvature algebraic corollary, while the already completed CZ24 census, CCD17 curvature identity, and WBK26 strain identity supply regression endpoints.
+
+M2 closes only when those paper-level source signatures are inhabited at their stated dimensions and codimensions, the generic submanifold theorems are reusable below the literature layer, and the claim ledger upgrades the exact nodes from `contract-checked` to `formally-reproduced`. This shared kernel is also the geometric input required by the WBS26 shell forms, so completing M2 advances the thin-shell campaign rather than competing with it.
 
 ## Active end-to-end campaign: WBS26 wall selection
 
@@ -130,6 +144,7 @@ actual harmonic L²       coexact H¹ form sector   H¹ orthogonal remainder
 | Capability | State | Repository evidence |
 | --- | --- | --- |
 | Evidence integrity | complete | pinned-source validation, strict Lean axiom audit, placeholder checks |
+| M1 atomic source specifications | complete | 35/35 atomic source-proof units have paper-owned Lean signatures and checked dependency routes |
 | CZ24 curved-operator census | complete | constructed rough, Hodge, and deformation outputs are pairwise distinct on the hyperbolic witness |
 | First thin-shell recovery | complete | exact nonconstant canonical-torus Navier recovery with closed integrals and independent numerical checks |
 | Canonical-torus smooth recovery | complete | every smooth solenoidal stream-plus-flux field, both endpoint wall laws, exact divergence/impermeability/identification, and quadratic strong/energy estimates |

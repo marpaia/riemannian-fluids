@@ -14,14 +14,18 @@
           "statement": "For an embedded n-dimensional submanifold of codimension k at least one, the ambient Bochner Laplacian of an extension of a tangent vector field satisfies the arbitrary-codimension Gauss formulas (1.5) and (1.6) at the chosen point.",
           "locator": "arXiv:2212.11928v2, Theorem 1.1, equations (1.5)-(1.6)",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CCG25",
+          "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_statement"
         },
         {
           "id": "CCG25-hodge-laplacian-gauss-general-codimension",
           "statement": "For an embedded n-dimensional submanifold of codimension k at least one, the ambient and intrinsic Hodge Laplacians of an extension of a tangent vector field satisfy the arbitrary-codimension Gauss formula of Corollary 1.20.",
           "locator": "arXiv:2212.11928v2, Corollary 1.20 and equation (1.26) for the hypersurface specialization",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CCG25",
+          "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_statement"
         }
       ]
     },
@@ -33,21 +37,27 @@
           "statement": "On every complete noncompact bounded-geometry surface with Gaussian curvature K at most -kappa squared, deformation-viscosity Navier-Stokes with mu positive and initial datum u0 in H admits a global weak solution in L-infinity(0,T;H) intersect L2(0,T;V) for every T positive.",
           "locator": "arXiv:2605.17502v2, Theorem 6.1, first conclusion after equation (39)",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBK26",
+          "declaration": "RiemannianFluids.Literature.WBK26.negative_curvature_global_weak_existence_statement"
         },
         {
           "id": "WBK26-negative-curvature-weak-uniqueness",
           "statement": "The global weak solution supplied by Theorem 6.1 is unique in the stated L-infinity(0,T;H) intersect L2(0,T;V) solution class.",
           "locator": "arXiv:2605.17502v2, Theorem 6.1 and its uniqueness argument",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBK26",
+          "declaration": "RiemannianFluids.Literature.WBK26.negative_curvature_weak_uniqueness_statement"
         },
         {
           "id": "WBK26-negative-curvature-pressure-recovery",
           "statement": "The weak solution supplied by Theorem 6.1 admits a pressure distribution in D'((0,T) times M) that recovers the momentum equation.",
           "locator": "arXiv:2605.17502v2, Theorem 6.1, pressure conclusion",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBK26",
+          "declaration": "RiemannianFluids.Literature.WBK26.negative_curvature_pressure_recovery_statement"
         },
         {
           "id": "WBK26-negative-curvature-exponential-decay",
@@ -56,7 +66,7 @@
           "verification_target": "source-proof",
           "state": "contract-checked",
           "lean_module": "RiemannianFluids.Literature.WBK26",
-          "declaration": "RiemannianFluids.Literature.WBK26.exponential_decay_of_energy_identity_and_coercivity"
+          "declaration": "RiemannianFluids.Literature.WBK26.negative_curvature_exponential_decay_statement"
         }
       ]
     },
@@ -101,63 +111,81 @@
           "statement": "For each of the deformation and Hodge form pairs on the source's torus-type surfaces of revolution, weak varying-space convergence U_epsilon to u implies liminf Q_epsilon(U_epsilon) at least Q0(u).",
           "locator": "arXiv:2605.20589v3, Theorem 4.5, condition (M1)",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.mosco_liminf_statement"
         },
         {
           "id": "WBS26-mosco-recovery",
           "statement": "For each of the deformation and Hodge form pairs and every solenoidal surface form-domain field v, there is a solenoidal shell recovery converging strongly to v whose form energy converges to Q0(v).",
           "locator": "arXiv:2605.20589v3, Theorem 4.5, condition (M2)",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.mosco_recovery_statement"
         },
         {
           "id": "WBS26-mosco-smooth-recovery-rate",
           "statement": "For smooth surface fields, the recovery sequence in Theorem 4.5 has shell energy Q_epsilon equal to Q0 plus O(epsilon squared), for both endpoint form pairs.",
           "locator": "arXiv:2605.20589v3, Theorem 4.5, final smooth-data clause",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.mosco_smooth_recovery_rate_statement"
         },
         {
           "id": "WBS26-form-operator-association",
           "statement": "The deformation and Hodge shell and surface forms on their solenoidal subspaces have associated nonnegative self-adjoint operators L_epsilon and L0.",
           "locator": "arXiv:2605.20589v3, Corollary 4.6, opening operator association",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.form_operator_association_statement"
         },
         {
           "id": "WBS26-strong-resolvent-convergence",
           "statement": "For every lambda positive, the resolvents (L_epsilon + lambda)^(-1) converge strongly to (L0 + lambda)^(-1) for both endpoint form pairs.",
           "locator": "arXiv:2605.20589v3, Corollary 4.6, resolvent conclusion",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.strong_resolvent_convergence_statement"
         },
         {
           "id": "WBS26-compact-time-semigroup-convergence",
           "statement": "The semigroups exp(-t L_epsilon) converge strongly to exp(-t L0), uniformly for t in compact time intervals, for both endpoint form pairs.",
           "locator": "arXiv:2605.20589v3, Corollary 4.6, semigroup conclusion",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.compact_time_semigroup_convergence_statement"
         },
         {
           "id": "WBS26-fixed-mode-spectral-convergence",
           "statement": "On each fixed azimuthal mode, bounded sequences are precompact and the eigenvalues of L_epsilon converge with multiplicity to the corresponding surface eigenvalues.",
           "locator": "arXiv:2605.20589v3, Corollary 4.6, fixed-mode spectral conclusion",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.fixed_mode_spectral_convergence_statement"
         },
         {
           "id": "WBS26-uniform-high-mode-gap",
           "statement": "The shell forms satisfy the epsilon-uniform quadratic lower bound in the azimuthal mode number stated in Corollary 4.6.",
           "locator": "arXiv:2605.20589v3, Corollary 4.6, uniform mode-gap inequality",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.uniform_high_mode_gap_statement"
         },
         {
           "id": "WBS26-full-spectrum-convergence-no-pollution",
           "statement": "Below every fixed spectral threshold only an epsilon-independent finite set of azimuthal modes contributes, so the full spectrum converges with multiplicity and no high-mode spectral pollution occurs.",
           "locator": "arXiv:2605.20589v3, Corollary 4.6, counting-function and no-pollution conclusion",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.WBS26",
+          "declaration": "RiemannianFluids.Literature.WBS26.full_spectrum_convergence_no_pollution_statement"
         }
       ]
     },
@@ -169,21 +197,27 @@
           "statement": "A smooth divergence-free stationary deformation-viscosity solution on HN(-a squared) with finite Dirichlet integral vanishes when N is three or four.",
           "locator": "arXiv:1501.04928v1, Theorem 1.1, N = 3,4 conclusion",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CC15",
+          "declaration": "RiemannianFluids.Literature.CC15.stationary_liouville_dimensions_three_four_statement"
         },
         {
           "id": "CC15-stationary-liouville-dimension-two",
           "statement": "When N is two, the same stationary solution with the additional L-infinity assumption is an L2 harmonic gradient dF.",
           "locator": "arXiv:1501.04928v1, Theorem 1.1, N = 2 conclusion",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CC15",
+          "declaration": "RiemannianFluids.Literature.CC15.stationary_liouville_dimension_two_statement"
         },
         {
           "id": "CC15-stationary-liouville-dimensions-at-least-five",
           "statement": "When N is at least five, the same stationary solution with the additional L-infinity assumption vanishes.",
           "locator": "arXiv:1501.04928v1, Theorem 1.1, N at least 5 conclusion",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CC15",
+          "declaration": "RiemannianFluids.Literature.CC15.stationary_liouville_dimensions_at_least_five_statement"
         }
       ]
     },
@@ -195,14 +229,18 @@
           "statement": "For every R0 and a positive, the hyperbolic exterior domain admits a nontrivial steady Stokes solution with zero boundary trace, finite Dirichlet integral, distributional coclosedness, and pressure in L2_loc.",
           "locator": "arXiv:1708.05134v1, Theorem 1.2, equation (1.6)",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CC21",
+          "declaration": "RiemannianFluids.Literature.CC21.nontrivial_stokes_exterior_existence_statement"
         },
         {
           "id": "CC21-nontrivial-stokes-exterior-nonpotential",
           "statement": "The steady Stokes solution constructed in Theorem 1.2 is not dF for any harmonic function F.",
           "locator": "arXiv:1708.05134v1, Theorem 1.4 applied to Theorem 1.2",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CC21",
+          "declaration": "RiemannianFluids.Literature.CC21.nontrivial_stokes_exterior_nonpotential_statement"
         }
       ]
     },
@@ -214,14 +252,18 @@
           "statement": "For every R0 and a positive, the hyperbolic exterior domain admits a nontrivial steady Navier-Stokes solution with zero boundary trace, finite Dirichlet integral, distributional coclosedness, and pressure in L2_loc.",
           "locator": "arXiv:1708.05134v1, Theorem 1.3, equation (1.7)",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CC21",
+          "declaration": "RiemannianFluids.Literature.CC21.nontrivial_navier_stokes_exterior_existence_statement"
         },
         {
           "id": "CC21-nontrivial-navier-stokes-exterior-nonpotential",
           "statement": "The steady Navier-Stokes solution constructed in Theorem 1.3 is not dF for any harmonic function F.",
           "locator": "arXiv:1708.05134v1, Theorem 1.4 applied to Theorem 1.3",
           "verification_target": "source-proof",
-          "state": "specified"
+          "state": "contract-checked",
+          "lean_module": "RiemannianFluids.Literature.CC21",
+          "declaration": "RiemannianFluids.Literature.CC21.nontrivial_navier_stokes_exterior_nonpotential_statement"
         }
       ]
     }

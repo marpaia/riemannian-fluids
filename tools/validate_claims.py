@@ -31,6 +31,7 @@ LEAN_CONTRACT_RELATIONSHIPS = frozenset(
         "proved-core",
         "conditional-theorem",
         "interface-theorem",
+        "source-signature",
         "signed-to-analysis-positive-crosswalk",
     }
 )
@@ -232,6 +233,7 @@ def main() -> None:
             f"atomic obligation coverage mismatch: missing={missing}, extra={extra}"
         )
     obligation_ids: set[str] = set()
+    obligations_by_id: dict[str, dict[str, object]] = {}
     obligation_count = 0
     for parent_id, split in splits_by_parent.items():
         children = split.get("obligations", [])
@@ -248,6 +250,7 @@ def main() -> None:
                     f"{parent_id} has a missing, duplicate, or registry-colliding obligation ID"
                 )
             obligation_ids.add(child_id)
+            obligations_by_id[child_id] = child
             for field in ("statement", "locator"):
                 if not child.get(field):
                     raise SystemExit(f"{child_id} is missing {field}")
@@ -296,6 +299,8 @@ def main() -> None:
             verification_target_by_id[child["id"]] = child["verification_target"]
 
     contract_entries = lean_contracts.get("claims", [])
+    if lean_contracts.get("schema_version") != 3:
+        raise SystemExit("claims/lean-contracts.json has an unsupported schema version")
     contracts_by_id = {entry["id"]: entry for entry in contract_entries}
     if len(contracts_by_id) != len(contract_entries):
         raise SystemExit("claims/lean-contracts.json contains duplicate claim IDs")
@@ -318,6 +323,16 @@ def main() -> None:
             raise SystemExit(
                 f"{claim_id} has unknown Lean crosswalk relationship "
                 f"{relationship!r}; allowed values: {allowed}"
+            )
+        dependencies = contract.get("dependencies")
+        if (
+            not isinstance(dependencies, list)
+            or not dependencies
+            or not all(isinstance(item, str) and item for item in dependencies)
+            or len(dependencies) != len(set(dependencies))
+        ):
+            raise SystemExit(
+                f"{claim_id} must name a nonempty, duplicate-free dependency route"
             )
 
     for claim_id, entry in entries_by_id.items():
@@ -367,6 +382,26 @@ def main() -> None:
                 f"{claim_id} is project-proved but is not a project proof target"
             )
 
+    source_proof_unit_ids = {
+        claim_id
+        for claim_id in proof_unit_ids
+        if verification_target_by_id[claim_id] == "source-proof"
+    }
+    for claim_id in sorted(source_proof_unit_ids):
+        if entries_by_id[claim_id]["state"] == "specified":
+            raise SystemExit(
+                f"M1 source-signature coverage is incomplete at {claim_id}"
+            )
+        if claim_id not in contracts_by_id:
+            raise SystemExit(
+                f"M1 dependency routing is incomplete at {claim_id}"
+            )
+        obligation = obligations_by_id.get(claim_id)
+        if obligation is not None and obligation["state"] == "specified":
+            raise SystemExit(
+                f"M1 atomic obligation remains merely specified at {claim_id}"
+            )
+
     claim_count = len(claim_ids)
     print(
         f"validated {len(registry['papers'])} papers ({archive_count} pinned PDFs), "
@@ -374,7 +409,8 @@ def main() -> None:
         f"{len(corpus_by_id)} corpus classifications, "
         f"{obligation_count} atomic obligations from {len(compound_ids)} splits, "
         f"{len(contracts_by_id)} selective Lean crosswalk entries, and "
-        f"{len(proof_unit_ids)} atomic proof-status records"
+        f"{len(proof_unit_ids)} atomic proof-status records; "
+        f"M1 covers all {len(source_proof_unit_ids)} atomic source-proof units"
     )
 
 

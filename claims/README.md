@@ -44,14 +44,15 @@ Each obligation has its own stable ID, source locator, verification target, and 
 - the logical relationship between the declaration and source claim; and
 - the mathematical scope of the formal result.
 
-The relationship field takes one of four validated values:
+The relationship field takes one of five validated values:
 
 - `proved-core`: Lean proves the mathematical core of the source claim outright; the limitation records any remaining interpretive gap between the proved statement and the source phrasing.
 - `conditional-theorem`: Lean proves the source conclusion from hypotheses displayed in the theorem type whose own formalization remains open.
 - `interface-theorem`: Lean proves the source deduction over interface data, receiving the named geometric or analytic identities as explicit arguments.
+- `source-signature`: Lean owns an axiom-free proposition-valued definition that fixes the exact source hypotheses and conclusion, but no proof of that proposition is claimed.
 - `signed-to-analysis-positive-crosswalk`: Lean checks the algebraic conversion between the source paper's signed operator convention and the repository's analysis-positive convention.
 
-`make claims/check` rejects any other value.  `make lean/check` verifies declaration ownership and audits each mapped declaration against the explicit standard axiom allowlist `propext`, `Classical.choice`, and `Quot.sound`.
+Every mapping also carries a nonempty `dependencies` route naming the reusable geometric, analytic, operator, or PDE declarations on which the formal target is intended to build. `make claims/check` rejects missing or duplicate routes and rejects any other relationship value. `make lean/check` verifies paper-module ownership, requires `source-signature` entries to be definitions rather than proof declarations, resolves every dependency name, and audits mapped and dependency declarations against the explicit standard axiom allowlist `propext`, `Classical.choice`, and `Quot.sound`.
 
 ## `formalization.json`
 
@@ -73,3 +74,5 @@ make lean/check
 ```
 
 Together these commands verify the pinned PDF bytes and metadata, source provenance, corpus classification, atomic proof-status coverage, Python agreement, Lean declaration ownership, and the formal trust boundary.
+
+For M1, validation additionally computes the atomic `source-proof` surface from `corpus.json` and `obligations.json`. The current release contains 35 such units. The check fails if any one remains merely `specified`, lacks a paper-owned Lean declaration, or lacks an explicit dependency route. This is specification completeness, not proof completeness: `contract-checked` source signatures remain obligations for M2--M5.

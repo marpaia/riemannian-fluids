@@ -77,6 +77,22 @@ def HilbertMoscoRecovery
         (data.isSmoothLimit limitVector →
           data.hasQuadraticRecoveryRate sequence limitVector)
 
+/-- The explicit `O(epsilon^2)` energy estimate used for smooth WBS26 recovery sequences.
+Unlike the legacy observable on `HilbertQuadraticFormData`, this definition exposes the
+constant, the thin scale, and the eventual inequality. -/
+def HasQuadraticEnergyRecoveryRate
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertQuadraticFormData Bulk Limit)
+    (sequence : (n : ℕ) → Bulk n) (limitVector : Limit) : Prop :=
+  ∃ constant : ℝ, 0 ≤ constant ∧
+    ∀ᶠ n in Filter.atTop,
+      |data.bulkEnergy n (sequence n) - data.limitEnergy limitVector| ≤
+        constant * data.thinScale n ^ 2
+
 /-- Mosco convergence for the Mathlib-backed Hilbert-space formulation. -/
 def HilbertMoscoConverges
     {Bulk : ℕ → Type*} {Limit : Type*}
@@ -214,6 +230,58 @@ def IsHilbertFormOperatorAssociation
           data.operators.limitFullEigenvalue eigenIndex •
             data.limitFullEigenvector eigenIndex
 
+/-- Mosco recovery for every vector in the limit form domain, with each recovery vector in
+the corresponding bulk form domain.  This exposes the domain restriction in WBS26 (M2), which
+the earlier carrier-wide compatibility predicate does not record. -/
+def HilbertMoscoFormDomainRecovery
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertFormOperatorAssociationData Bulk Limit) : Prop :=
+  ∀ limitVector, limitVector ∈ data.limitFormDomain →
+    ∃ sequence,
+      (∀ n, sequence n ∈ data.bulkFormDomain n) ∧
+        StronglyConvergesAfterIdentification data.forms sequence limitVector ∧
+        Filter.Tendsto (fun n => data.forms.bulkEnergy n (sequence n))
+          Filter.atTop (nhds (data.forms.limitEnergy limitVector))
+
+/-- The nontrivial finite-energy part of the Mosco lower bound for densely defined forms.  A
+sequence outside a bulk form domain has infinite extended energy; this definition states the
+remaining lower bound on sequences whose terms lie in every bulk form domain. -/
+def HilbertMoscoFormDomainLiminf
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertFormOperatorAssociationData Bulk Limit) : Prop :=
+  ∀ sequence limitVector,
+    (∀ n, sequence n ∈ data.bulkFormDomain n) →
+    data.forms.weaklyConvergesAfterIdentification sequence limitVector →
+      ∀ lowerBound, lowerBound < data.forms.limitEnergy limitVector →
+        ∀ᶠ n in Filter.atTop,
+          lowerBound ≤ data.forms.bulkEnergy n (sequence n)
+
+/-- The sharp smooth-data clause of WBS26 (M2), including domain membership, strong recovery,
+energy convergence, and the explicit eventual `O(epsilon^2)` estimate. -/
+def HilbertMoscoSmoothRecoveryRate
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertFormOperatorAssociationData Bulk Limit) : Prop :=
+  ∀ limitVector,
+    limitVector ∈ data.limitFormDomain → data.forms.isSmoothLimit limitVector →
+      ∃ sequence,
+        (∀ n, sequence n ∈ data.bulkFormDomain n) ∧
+          StronglyConvergesAfterIdentification data.forms sequence limitVector ∧
+          Filter.Tendsto (fun n => data.forms.bulkEnergy n (sequence n))
+            Filter.atTop (nhds (data.forms.limitEnergy limitVector)) ∧
+          HasQuadraticEnergyRecoveryRate data.forms sequence limitVector
+
 /-- Strong resolvent convergence after lifting limit data and identifying bulk solutions. -/
 def HilbertStrongResolventConvergence
     {Bulk : ℕ → Type*} {Limit : Type*}
@@ -243,6 +311,108 @@ def HilbertStrongSemigroupConvergence
       (fun n => data.identify n (data.bulkSemigroup time n (data.lift n initial)))
       Filter.atTop
       (nhds (data.limitSemigroup time initial))
+
+/-- Strong semigroup convergence uniformly on every compact nonnegative time interval.
+This is the precise uniformity asserted by WBS26 Corollary 4.6. -/
+def HilbertCompactTimeSemigroupConvergence
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertOperatorConvergenceData Bulk Limit) : Prop :=
+  ∀ terminalTime, 0 ≤ terminalTime → ∀ initial : Limit, ∀ tolerance, 0 < tolerance →
+    ∀ᶠ n in Filter.atTop, ∀ time ∈ Set.Icc (0 : ℝ) terminalTime,
+      ‖data.identify n (data.bulkSemigroup time n (data.lift n initial)) -
+          data.limitSemigroup time initial‖ < tolerance
+
+/-- Mode subspaces used to state compactness and high-mode exclusion without storing either
+conclusion as framework data.  The quadratic forms and spectral observables are the associated
+objects from `HilbertFormOperatorAssociationData`. -/
+structure HilbertModeConvergenceData
+    (Bulk : ℕ → Type*) (Limit : Type*)
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit] where
+  association : HilbertFormOperatorAssociationData Bulk Limit
+  bulkMode : ℤ → (n : ℕ) → Submodule ℝ (Bulk n)
+  limitMode : ℤ → Submodule ℝ Limit
+
+/-- Precompactness of every norm-and-form-bounded sequence in one fixed azimuthal mode,
+expressed by a strongly convergent subsequence after varying-space identification. -/
+def HilbertFixedModePrecompact
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertModeConvergenceData Bulk Limit) : Prop :=
+  ∀ (mode : ℤ) (sequence : (n : ℕ) → Bulk n),
+    (∀ n, sequence n ∈ data.bulkMode mode n ∧
+      sequence n ∈ data.association.bulkFormDomain n) →
+    (∃ bound : ℝ, 0 ≤ bound ∧ ∀ n,
+      ‖sequence n‖ ^ 2 +
+          data.association.forms.bulkEnergy n (sequence n) ≤ bound) →
+    ∃ subsequence : ℕ → ℕ, ∃ limitVector : Limit,
+      StrictMono subsequence ∧ limitVector ∈ data.limitMode mode ∧
+        Filter.Tendsto
+          (fun n => data.association.forms.identify (subsequence n)
+            (sequence (subsequence n))) Filter.atTop (nhds limitVector)
+
+/-- Eigenvalues in every fixed azimuthal mode converge with their enumerated multiplicities. -/
+def HilbertModewiseSpectralConvergence
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertOperatorConvergenceData Bulk Limit) : Prop :=
+  ∀ mode eigenIndex,
+    Filter.Tendsto (fun n => data.bulkEigenvalue mode eigenIndex n)
+      Filter.atTop (nhds (data.limitEigenvalue mode eigenIndex))
+
+/-- The WBS26 high-mode lower bound on the actual shell quadratic form. -/
+def HilbertUniformHighModeGap
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertModeConvergenceData Bulk Limit) (maximumRadius : ℝ) : Prop :=
+  0 < maximumRadius ∧
+    ∃ c C epsilonZero : ℝ,
+      0 < c ∧ 0 ≤ C ∧ 0 < epsilonZero ∧
+        ∀ n, data.association.forms.thinScale n ≤ epsilonZero →
+          ∀ mode vector, vector ∈ data.bulkMode mode n →
+            (c * (mode : ℝ) ^ 2 / maximumRadius ^ 2 - C) * ‖vector‖ ^ 2 ≤
+              data.association.forms.bulkEnergy n vector
+
+/-- Below each positive threshold, all sufficiently thin shell spectra are confined to a
+threshold-dependent finite range of azimuthal modes. -/
+def HilbertNoHighModeSpectralPollution
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertOperatorConvergenceData Bulk Limit) : Prop :=
+  ∀ threshold, 0 < threshold →
+    ∃ maximumMode : ℕ, ∀ᶠ n in Filter.atTop, ∀ mode eigenIndex,
+      maximumMode < Int.natAbs mode →
+        threshold < data.bulkEigenvalue mode eigenIndex n
+
+/-- Convergence with multiplicity of the full ordered spectra on the actual Hilbert carriers. -/
+def HilbertFullSpectralConvergence
+    {Bulk : ℕ → Type*} {Limit : Type*}
+    [∀ n, NormedAddCommGroup (Bulk n)]
+    [∀ n, InnerProductSpace ℝ (Bulk n)]
+    [∀ n, CompleteSpace (Bulk n)]
+    [NormedAddCommGroup Limit] [InnerProductSpace ℝ Limit] [CompleteSpace Limit]
+    (data : HilbertOperatorConvergenceData Bulk Limit) : Prop :=
+  ∀ eigenIndex,
+    Filter.Tendsto (fun n => data.bulkFullEigenvalue eigenIndex n)
+      Filter.atTop (nhds (data.limitFullEigenvalue eigenIndex))
 
 /-- Source-observable compatibility layer retained for paper statements not yet migrated to the
 Hilbert carriers above. -/
