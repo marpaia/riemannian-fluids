@@ -90,6 +90,23 @@ def normalDerivativeAt
 omit [I.Boundaryless] [CompleteSpace E'] [FiniteDimensional ℝ E']
   [I'.Boundaryless] [RiemannianBundle (TangentSpace I' : N → Type _)]
   [IsContMDiffRiemannianBundle I' 1 E' (TangentSpace I' : N → Type _)] in
+/-- Every locally constructed normal derivative lies in the kernel-normal summand. -/
+theorem tangentProjection_normalDerivativeAt_eq_zero
+    (extensions : LocalSubmanifoldExtensionDataAt immersion x)
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (decomposition : HasTangentNormalDecomposition immersion splitting)
+    (leftInverse : HasTangentProjectionLeftInverse immersion splitting)
+    (direction : (q : M) → TangentSpace I q)
+    (field : AmbientVectorFieldAlong immersion) :
+    splitting.tangentProjection x
+        (extensions.normalDerivativeAt splitting ambientConnection direction field) = 0 :=
+  tangentProjection_normalProjection_eq_zero immersion splitting
+    decomposition leftInverse x _
+
+omit [I.Boundaryless] [CompleteSpace E'] [FiniteDimensional ℝ E']
+  [I'.Boundaryless] [RiemannianBundle (TangentSpace I' : N → Type _)]
+  [IsContMDiffRiemannianBundle I' 1 E' (TangentSpace I' : N → Type _)] in
 /-- Gauss' tangent/normal decomposition is already valid for the local ambient derivative. -/
 theorem ambientDerivativeTangentAt_eq_gauss
     (extensions : LocalSubmanifoldExtensionDataAt immersion x)
@@ -209,6 +226,105 @@ theorem normalDerivativeAt_independent
   exact congrArg (splitting.normalProjection x)
     (ambientDerivativeAlongAt_independent ambientLeviCivita
       firstExtensions secondExtensions fieldRegular)
+
+omit [I.Boundaryless] [I'.Boundaryless] in
+/-- The local normal derivative only depends on the germ of the field along the immersion. -/
+theorem normalDerivativeAt_eq_of_eventuallyEq
+    (extensions : LocalSubmanifoldExtensionDataAt immersion x)
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    {direction : (q : M) → TangentSpace I q}
+    {first second : AmbientVectorFieldAlong immersion}
+    (hfirst : MDiffAt
+      (fun q ↦ (⟨immersion.toFun q, first q⟩ : TangentBundle I' N)) x)
+    (hsecond : MDiffAt
+      (fun q ↦ (⟨immersion.toFun q, second q⟩ : TangentBundle I' N)) x)
+    (agreement : first =ᶠ[nhds x] second) :
+    extensions.normalDerivativeAt splitting ambientLeviCivita.connection direction first =
+      extensions.normalDerivativeAt
+        splitting ambientLeviCivita.connection direction second := by
+  have hfirstExtension : MDiffAt (T% (extensions.alongExtension first))
+      (immersion.toFun x) :=
+    extensions.alongExtension_mdifferentiableAt hfirst
+  have hsecondExtension : MDiffAt (T% (extensions.alongExtension second))
+      (immersion.toFun x) :=
+    extensions.alongExtension_mdifferentiableAt hsecond
+  have extensionAgreement :
+      (fun q ↦ extensions.alongExtension first (immersion.toFun q)) =ᶠ[nhds x]
+        fun q ↦ extensions.alongExtension second (immersion.toFun q) := by
+    filter_upwards [extensions.alongExtension_agrees first, agreement,
+      extensions.alongExtension_agrees second] with q hfirst' hagree hsecond'
+    change extensions.alongExtension first (immersion.toFun q) = first q at hfirst'
+    change extensions.alongExtension second (immersion.toFun q) = second q at hsecond'
+    change extensions.alongExtension first (immersion.toFun q) =
+      extensions.alongExtension second (immersion.toFun q)
+    rw [hfirst', hagree, hsecond']
+  exact congrArg (splitting.normalProjection x)
+    (ambientLeviCivita.eq_on_mfderiv_of_comp_eventuallyEq I'
+      (immersion.contMDiff.mdifferentiableAt (by simp))
+      hfirstExtension hsecondExtension extensionAgreement (direction x))
+
+omit [I.Boundaryless] [I'.Boundaryless] in
+/-- The local normal derivative is additive in a differentiable field-along germ. -/
+theorem normalDerivativeAt_add
+    (extensions : LocalSubmanifoldExtensionDataAt immersion x)
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    {direction : (q : M) → TangentSpace I q}
+    {first second : AmbientVectorFieldAlong immersion}
+    (hfirst : MDiffAt
+      (fun q ↦ (⟨immersion.toFun q, first q⟩ : TangentBundle I' N)) x)
+    (hsecond : MDiffAt
+      (fun q ↦ (⟨immersion.toFun q, second q⟩ : TangentBundle I' N)) x) :
+    extensions.normalDerivativeAt splitting ambientConnection direction (first + second) =
+      extensions.normalDerivativeAt splitting ambientConnection direction first +
+        extensions.normalDerivativeAt splitting ambientConnection direction second := by
+  have hfirstExtension : MDiffAt (T% (extensions.alongExtension first))
+      (immersion.toFun x) :=
+    extensions.alongExtension_mdifferentiableAt hfirst
+  have hsecondExtension : MDiffAt (T% (extensions.alongExtension second))
+      (immersion.toFun x) :=
+    extensions.alongExtension_mdifferentiableAt hsecond
+  have connectionAdd := DFunLike.congr_fun
+    (ambientConnection.isCovariantDerivativeOn.add hfirstExtension hsecondExtension)
+    (mfderiv I I' immersion.toFun x (direction x))
+  change splitting.normalProjection x
+      (ambientConnection (extensions.alongExtension (first + second))
+        (immersion.toFun x) (mfderiv I I' immersion.toFun x (direction x))) = _
+  rw [map_add, connectionAdd]
+  simp only [add_apply]
+  change splitting.normalProjection x (_ + _) =
+    splitting.normalProjection x _ + splitting.normalProjection x _
+  exact map_add (splitting.normalProjection x) _ _
+
+omit [I.Boundaryless] [I'.Boundaryless] in
+/-- Constant scalars pull through the local normal derivative. -/
+theorem normalDerivativeAt_smul_const
+    (extensions : LocalSubmanifoldExtensionDataAt immersion x)
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    {direction : (q : M) → TangentSpace I q}
+    {field : AmbientVectorFieldAlong immersion}
+    (scalar : ℝ)
+    (hfield : MDiffAt
+      (fun q ↦ (⟨immersion.toFun q, field q⟩ : TangentBundle I' N)) x) :
+    extensions.normalDerivativeAt splitting ambientConnection direction (scalar • field) =
+      scalar • extensions.normalDerivativeAt
+        splitting ambientConnection direction field := by
+  have hfieldExtension : MDiffAt (T% (extensions.alongExtension field))
+      (immersion.toFun x) :=
+    extensions.alongExtension_mdifferentiableAt hfield
+  have connectionSmul := DFunLike.congr_fun
+    (ambientConnection.isCovariantDerivativeOn.smul_const scalar hfieldExtension)
+    (mfderiv I I' immersion.toFun x (direction x))
+  change splitting.normalProjection x
+      (ambientConnection (extensions.alongExtension (scalar • field))
+        (immersion.toFun x) (mfderiv I I' immersion.toFun x (direction x))) = _
+  rw [map_smul, connectionSmul]
+  simp only [smul_apply]
+  change splitting.normalProjection x (scalar • _) =
+    scalar • splitting.normalProjection x _
+  exact map_smul (splitting.normalProjection x) scalar _
 
 end LocalSubmanifoldExtensionDataAt
 

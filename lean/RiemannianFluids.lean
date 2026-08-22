@@ -55,6 +55,7 @@ import RiemannianFluids.Geometry.LocalSubmanifoldExtensions
 import RiemannianFluids.Geometry.LocalSubmanifoldConnection
 import RiemannianFluids.Geometry.LocalSubmanifoldSecondFundamental
 import RiemannianFluids.Geometry.LocalSubmanifoldInducedConnection
+import RiemannianFluids.Geometry.LocalSubmanifoldDifferentiatedGauss
 import RiemannianFluids.Geometry.Manifolds
 import RiemannianFluids.Geometry.Musical
 import RiemannianFluids.Geometry.RelatedVectorFields
