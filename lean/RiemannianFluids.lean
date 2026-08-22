@@ -50,6 +50,7 @@ import RiemannianFluids.Geometry.Instances.HyperbolicPlaneCensus
 import RiemannianFluids.Geometry.Instances.HyperbolicPlaneMeasure
 import RiemannianFluids.Geometry.Manifolds
 import RiemannianFluids.Geometry.Musical
+import RiemannianFluids.Geometry.RelatedVectorFields
 import RiemannianFluids.Geometry.SpaceForms
 import RiemannianFluids.Geometry.Submanifolds
 import RiemannianFluids.Geometry.SubmanifoldConnection

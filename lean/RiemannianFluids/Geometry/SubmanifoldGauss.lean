@@ -634,7 +634,7 @@ from the same isometric immersion, ambient Levi--Civita connection, and covarian
 operator.  The source connection is the induced Levi--Civita connection proved in
 `SubmanifoldInducedConnection`; neither the intrinsic connection nor `II` is independently
 supplied. -/
-def inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
+def inducedLeviCivitaSubmanifoldPointwiseGaussDataOfBracketCompatibilityAt
     [IsManifold I 3 M] [IsManifold I' 2 N]
     [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
     [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
@@ -649,22 +649,48 @@ def inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
       extensions.HasBracketCompatibility immersion.toSmoothImmersionData)
     (x : M)
     (intrinsicRegular : HasConnectionCurvatureRegularityAt I
-      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita
+      (extensions.inducedLeviCivitaConnectionOfBracketCompatibility
+        immersion ambientLeviCivita
         bracketCompatibility).connection x) :
     SubmanifoldPointwiseGaussDataAt immersion.toSmoothImmersionData
       immersion.orthogonalSplitting x :=
   connectionSubmanifoldPointwiseGaussDataAt immersion.toSmoothImmersionData
     immersion.orthogonalSplitting
-    (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita
+    (extensions.inducedLeviCivitaConnectionOfBracketCompatibility
+      immersion ambientLeviCivita
       bracketCompatibility).connection x intrinsicRegular
     (CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
       immersion.toSmoothImmersionData immersion.orthogonalSplitting
       ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
       immersion.hasTangentProjectionLeftInverse x)
 
+/-- Actual-fiber Gauss data for a boundaryless isometric immersion, constructed without a
+caller-supplied bracket hypothesis. -/
+def inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x) :
+    SubmanifoldPointwiseGaussDataAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting x :=
+  inducedLeviCivitaSubmanifoldPointwiseGaussDataOfBracketCompatibilityAt
+    immersion ambientLeviCivita extensions
+    (extensions.hasBracketCompatibility immersion.toSmoothImmersionData)
+    x intrinsicRegular
+
 /-- The single-source Gauss package has a symmetric second fundamental form.  Canonical extension
 regularity and normal-bracket tangency are both discharged by the covariant extension layer. -/
-theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric
+theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataOfBracketCompatibilityAt_isSymmetric
     [IsManifold I 3 M] [IsManifold I' 2 N]
     [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
     [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
@@ -679,9 +705,11 @@ theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric
       extensions.HasBracketCompatibility immersion.toSmoothImmersionData)
     (x : M)
     (intrinsicRegular : HasConnectionCurvatureRegularityAt I
-      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita
+      (extensions.inducedLeviCivitaConnectionOfBracketCompatibility
+        immersion ambientLeviCivita
         bracketCompatibility).connection x) :
-    (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt immersion ambientLeviCivita
+    (inducedLeviCivitaSubmanifoldPointwiseGaussDataOfBracketCompatibilityAt
+      immersion ambientLeviCivita
       extensions bracketCompatibility x intrinsicRegular).IsSymmetric := by
   intro first second
   exact CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt_comm
@@ -689,6 +717,30 @@ theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric
     ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
     immersion.hasTangentProjectionLeftInverse ambientLeviCivita.torsionFree
     bracketCompatibility x first second
+
+/-- The canonical boundaryless Gauss package has symmetric second fundamental form; all bracket
+compatibility obligations are discharged internally. -/
+theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x) :
+    (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
+      immersion ambientLeviCivita extensions x intrinsicRegular).IsSymmetric := by
+  exact inducedLeviCivitaSubmanifoldPointwiseGaussDataOfBracketCompatibilityAt_isSymmetric
+    immersion ambientLeviCivita extensions
+    (extensions.hasBracketCompatibility immersion.toSmoothImmersionData)
+    x intrinsicRegular
 
 end ManifoldFibers
 

@@ -166,6 +166,73 @@ theorem eq_on_mdifferentiable
   have : difference = 0 := inner_self_eq_zero.mp hzero
   exact sub_eq_zero.mp this
 
+/-- If two differentiable ambient vector fields agree along a differentiable map, then their
+Levi--Civita derivatives agree in every direction tangent to that map.
+
+This is the restriction-locality statement needed by submanifold curvature.  It avoids the
+currently missing general Mathlib theorem that a covariant derivative depends only on a
+section's one-jet: metric compatibility reduces the claim to differentiating the scalar pairing
+with an arbitrary test field along the source map. -/
+theorem eq_on_mfderiv_of_comp_eq
+    {E₀ : Type*} [NormedAddCommGroup E₀] [NormedSpace ℝ E₀]
+    {H₀ : Type*} [TopologicalSpace H₀]
+    {I₀ : ModelWithCorners ℝ E₀ H₀}
+    {M₀ : Type*} [TopologicalSpace M₀] [ChartedSpace H₀ M₀]
+    [IsManifold I₀ 1 M₀]
+    (connection : LeviCivitaConnection (M := M) I)
+    {f : M₀ → M} {x : M₀} (hf : MDiffAt f x)
+    {first second : (y : M) → TangentSpace I y}
+    (hfirst : MDiffAt (T% first) (f x))
+    (hsecond : MDiffAt (T% second) (f x))
+    (agreement : ∀ y, first (f y) = second (f y))
+    (direction : TangentSpace I₀ x) :
+    connection.connection first (f x) (mfderiv I₀ I f x direction) =
+      connection.connection second (f x) (mfderiv I₀ I f x direction) := by
+  apply ext_inner_right ℝ
+  intro test
+  let directionField : (y : M) → TangentSpace I y :=
+    FiberBundle.extend E (mfderiv I₀ I f x direction)
+  let testField : (y : M) → TangentSpace I y := FiberBundle.extend E test
+  have hdirectionField : MDiffAt (T% directionField) (f x) :=
+    FiberBundle.mdifferentiableAt_extend ..
+  have htestField : MDiffAt (T% testField) (f x) :=
+    FiberBundle.mdifferentiableAt_extend ..
+  have hdirectionValue :
+      directionField (f x) = mfderiv I₀ I f x direction :=
+    by simp [directionField]
+  have htestValue : testField (f x) = test := by simp [testField]
+  let scalarFirst : M → ℝ := fun y ↦ inner ℝ (first y) (testField y)
+  let scalarSecond : M → ℝ := fun y ↦ inner ℝ (second y) (testField y)
+  have hscalarFirst : MDiffAt scalarFirst (f x) :=
+    MDifferentiableAt.inner_bundle
+      (E := (TangentSpace I : M → Type _)) hfirst htestField
+  have hscalarSecond : MDiffAt scalarSecond (f x) :=
+    MDifferentiableAt.inner_bundle
+      (E := (TangentSpace I : M → Type _)) hsecond htestField
+  have scalarAgreement : scalarFirst ∘ f = scalarSecond ∘ f := by
+    funext y
+    change inner ℝ (first (f y)) (testField (f y)) =
+      inner ℝ (second (f y)) (testField (f y))
+    rw [agreement y]
+  have chainFirst := mfderiv_comp_apply x hscalarFirst hf direction
+  have chainSecond := mfderiv_comp_apply x hscalarSecond hf direction
+  have scalarDerivativeAgreement :
+      d% scalarFirst (f x) (mfderiv I₀ I f x direction) =
+        d% scalarSecond (f x) (mfderiv I₀ I f x direction) := by
+    calc
+      d% scalarFirst (f x) (mfderiv I₀ I f x direction) =
+          d% (scalarFirst ∘ f) x direction := chainFirst.symm
+      _ = d% (scalarSecond ∘ f) x direction := by rw [scalarAgreement]
+      _ = d% scalarSecond (f x) (mfderiv I₀ I f x direction) := chainSecond
+  have metricFirst := connection.metricCompatible
+    hdirectionField hfirst htestField
+  have metricSecond := connection.metricCompatible
+    hdirectionField hsecond htestField
+  rw [hdirectionValue, htestValue] at metricFirst metricSecond
+  rw [scalarDerivativeAgreement, metricSecond] at metricFirst
+  rw [agreement x] at metricFirst
+  linarith
+
 /--
 The native mathlib regularity predicate for the packaged connection. It is kept separate from `LeviCivitaConnection` because different operators
 consume different numbers of derivatives.

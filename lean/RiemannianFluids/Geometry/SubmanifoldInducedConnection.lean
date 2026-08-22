@@ -1,3 +1,4 @@
+import RiemannianFluids.Geometry.RelatedVectorFields
 import RiemannianFluids.Geometry.SubmanifoldConnection
 
 /-!
@@ -182,6 +183,23 @@ def HasBracketCompatibility : Prop :=
           (immersion.toFun x) =
         mfderiv I I' immersion.toFun x
           (VectorField.mlieBracket I first second x)
+
+/-- On boundaryless manifolds, bracket compatibility is forced by the extension agreement law.
+This is the lower-dimensional `f`-related-fields theorem, not pullback invariance under a local
+diffeomorphism; no inverse to the immersion differential is used. -/
+theorem hasBracketCompatibility
+    [CompleteSpace E] [CompleteSpace E'] [I.Boundaryless] [I'.Boundaryless] :
+    extensions.HasBracketCompatibility immersion := by
+  intro first second x smoothFirst smoothSecond
+  exact VectorField.mlieBracket_eq_mfderiv_mlieBracket_of_related
+    (immersion.contMDiff.of_le (by
+      change ((2 : ℕ∞) : ℕ∞ω) ≤ ((⊤ : ℕ∞) : ℕ∞ω)
+      exact WithTop.coe_le_coe.mpr le_top))
+    smoothFirst smoothSecond
+    (extensions.tangentExtension_mdifferentiableAt smoothFirst)
+    (extensions.tangentExtension_mdifferentiableAt smoothSecond)
+    (extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees first)
+    (extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees second)
 
 /-- The tangential projection consequence of full bracket compatibility. -/
 def HasTangentBracketCompatibility : Prop :=
@@ -528,10 +546,10 @@ theorem inducedCovariantDerivative_metricCompatible
           immersion.orthogonalSplitting ambientLeviCivita.connection
           immersion.hasTangentProjectionLeftInverse second x (direction x))]
 
-/-- The induced connection of an isometric immersion is Levi-Civita once the chosen extension
-operator satisfies the standard `f`-related bracket identity.  Metric compatibility and
-torsion-freeness are theorems assembled here, not fields copied from the ambient package. -/
-def inducedLeviCivitaConnection
+/-- The induced connection of an isometric immersion is Levi-Civita once bracket compatibility
+has been established.  This general constructor remains available for manifolds with boundary;
+the boundaryless constructor below derives compatibility rather than requesting it. -/
+def inducedLeviCivitaConnectionOfBracketCompatibility
     (ambientLeviCivita : LeviCivitaConnection (M := N) I')
     (bracketCompatibility :
       extensions.HasBracketCompatibility immersion.toSmoothImmersionData) :
@@ -548,13 +566,23 @@ def inducedLeviCivitaConnection
       immersion.hasTangentProjectionLeftInverse ambientLeviCivita.torsionFree
       bracketCompatibility
 
+/-- The canonical induced Levi--Civita connection for a boundaryless isometric immersion.
+Metric compatibility descends from isometry, while torsion-freeness follows from the proved
+naturality of Lie brackets of related fields. -/
+def inducedLeviCivitaConnection
+    [I.Boundaryless] [I'.Boundaryless]
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I') :
+    LeviCivitaConnection (M := M) I :=
+  extensions.inducedLeviCivitaConnectionOfBracketCompatibility immersion ambientLeviCivita
+    (extensions.hasBracketCompatibility immersion.toSmoothImmersionData)
+
 omit [IsContMDiffRiemannianBundle I 1 E (fun x : M ↦ TangentSpace I x)] in
 /-- The induced covariant derivative is independent of the compatible extension operator on
 all differentiable direction and field germs.  Each extension operator constructs a
 Levi--Civita connection on the same source metric, so the pointwise uniqueness theorem applies.
 This is the precise equality relevant to curvature and differential operators; raw bundled
 connections may still differ on unconstrained nondifferentiable sections. -/
-theorem inducedCovariantDerivative_independent
+theorem inducedCovariantDerivative_independentOfBracketCompatibility
     (ambientLeviCivita : LeviCivitaConnection (M := N) I')
     (extensions' :
       CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
@@ -572,10 +600,33 @@ theorem inducedCovariantDerivative_independent
         immersion.orthogonalSplitting ambientLeviCivita.connection
         immersion.hasTangentProjectionLeftInverse field x (direction x) := by
   exact LeviCivitaConnection.eq_on_mdifferentiable I
-    (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita
+    (extensions.inducedLeviCivitaConnectionOfBracketCompatibility immersion ambientLeviCivita
       bracketCompatibility)
-    (extensions'.inducedLeviCivitaConnection immersion ambientLeviCivita
+    (extensions'.inducedLeviCivitaConnectionOfBracketCompatibility immersion ambientLeviCivita
       bracketCompatibility') smoothDirection smoothField
+
+omit [IsContMDiffRiemannianBundle I 1 E (fun x : M ↦ TangentSpace I x)] in
+/-- On boundaryless manifolds the induced covariant derivative is independent of the extension
+operator without any caller-supplied bracket law. -/
+theorem inducedCovariantDerivative_independent
+    [I.Boundaryless] [I'.Boundaryless]
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions' :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    {direction field : (x : M) → TangentSpace I x} {x : M}
+    (smoothDirection : MDiffAt (T% direction) x)
+    (smoothField : MDiffAt (T% field) x) :
+    extensions.inducedCovariantDerivative immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection
+        immersion.hasTangentProjectionLeftInverse field x (direction x) =
+      extensions'.inducedCovariantDerivative immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection
+        immersion.hasTangentProjectionLeftInverse field x (direction x) := by
+  exact extensions.inducedCovariantDerivative_independentOfBracketCompatibility
+    immersion ambientLeviCivita extensions'
+    (extensions.hasBracketCompatibility immersion.toSmoothImmersionData)
+    (extensions'.hasBracketCompatibility immersion.toSmoothImmersionData)
+    smoothDirection smoothField
 
 end CovariantSubmanifoldFieldExtensionData
 

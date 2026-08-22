@@ -79,7 +79,7 @@
         "RiemannianFluids.tangentialAmbientConnectionCurvatureAt_apply",
         "RiemannianFluids.PointwiseGaussData.hasGaussEquationRelativeTo_of_vector"
       ],
-      "limitation": "Lean constructs the canonical orthogonal splitting, induced Levi--Civita connection, actual kernel-normal second fundamental form, and tangentially projected ambient connection curvature from one isometric-immersion package. Canonical-extension regularity and extension-choice independence of the induced derivative are proved; ambient torsion-freeness plus full f-related bracket compatibility gives symmetry; and vector Gauss implies the scalar contraction used in (1.12). The remaining source-setting gap is proving f-related bracket naturality and ambient connection restriction locality, then deriving the vector Gauss equation."
+      "limitation": "Lean constructs the canonical orthogonal splitting, induced Levi--Civita connection, actual kernel-normal second fundamental form, and tangentially projected ambient connection curvature from one isometric-immersion package. Naturality of brackets of f-related fields, canonical-extension regularity, extension-choice independence, Levi--Civita restriction locality along immersed tangent directions, and symmetry are proved; vector Gauss implies the scalar contraction used in (1.12). The remaining source-setting gap is the exact second-order regularity and differentiated Gauss--Weingarten argument deriving the vector Gauss equation."
     },
     {
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
