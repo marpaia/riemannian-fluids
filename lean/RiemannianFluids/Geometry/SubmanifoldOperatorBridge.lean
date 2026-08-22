@@ -1,4 +1,5 @@
 import RiemannianFluids.Geometry.SubmanifoldHodge
+import RiemannianFluids.Geometry.LeviCivitaCurvature
 import RiemannianFluids.Operators.ConstructedHodge
 
 /-!
@@ -396,6 +397,80 @@ theorem SmoothSubmanifoldLaplacianFieldJetDataAt.ambientHodge_eq_hodgeLaplacianC
     connectionRicciTransposeActionAt_eq_connectionRicciActionAt I'
       ambientLeviCivita.connection (immersion.toFun x) ambientRegular ricciSymmetric]
   rw [extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees]
+
+/-- For a `C²` source metric, Levi--Civita curvature symmetry discharges the Ricci-symmetry
+premise in the intrinsic Hodge operator bridge. -/
+theorem SmoothSubmanifoldLaplacianFieldJetDataAt.intrinsicHodge_eq_mfderiv_hodgeLaplacianConstructedAt_of_leviCivita
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 2 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    (data.toRicciGaussJet ambientRegular).intrinsicHodge =
+      mfderiv I I' immersion.toFun x
+        (hodgeLaplacianConstructedAt I
+          (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+          x intrinsicRegular data.field data.fieldRegular) :=
+  data.intrinsicHodge_eq_mfderiv_hodgeLaplacianConstructedAt ambientRegular
+    (LeviCivitaConnection.connectionRicciSymmetricAt (I := I)
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita)
+      x intrinsicRegular)
+
+/-- For a `C²` ambient metric, Levi--Civita curvature symmetry discharges the Ricci-symmetry
+premise in the ambient Hodge operator bridge. -/
+theorem SmoothSubmanifoldLaplacianFieldJetDataAt.ambientHodge_eq_hodgeLaplacianConstructedAt_of_leviCivita
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 2 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (tangentTraceGauss : data.HasAmbientTangentHessianTraceGaussAt ambientRegular) :
+    (data.toRicciGaussJet ambientRegular).ambientHodge =
+      hodgeLaplacianConstructedAt I' ambientLeviCivita.connection
+        (immersion.toFun x) ambientRegular
+        (extensions.toSubmanifoldFieldExtensionData.tangentExtension data.field)
+        data.ambientFieldRegular :=
+  data.ambientHodge_eq_hodgeLaplacianConstructedAt ambientRegular tangentTraceGauss
+    (LeviCivitaConnection.connectionRicciSymmetricAt
+      (I := I') ambientLeviCivita (immersion.toFun x) ambientRegular)
 
 end ManifoldFibers
 

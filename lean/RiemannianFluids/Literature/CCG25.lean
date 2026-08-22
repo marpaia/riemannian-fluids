@@ -408,13 +408,14 @@ theorem bochner_laplacian_gauss_general_codimension_with_constructed_operators
     data.ambientBochner_eq_roughLaplacianAt ambientRegular tangentTraceGauss⟩
 
 /-- CCG25 Corollary 1.20 for an actual smooth tangent field, with both Hodge values identified
-with the independently constructed Hodge Laplacians.  Besides the common tangent-Hessian trace,
-this uses the standard Ricci symmetry of the intrinsic and ambient Levi--Civita connections. -/
+with the independently constructed Hodge Laplacians.  The common tangent-Hessian trace is the
+only additional geometric premise: for the paper's smooth metrics, Levi--Civita curvature
+symmetry now proves both Ricci-symmetry facts internally. -/
 theorem hodge_laplacian_gauss_general_codimension_with_constructed_operators
     [IsManifold I 3 M] [IsManifold I' 3 N]
     [I.Boundaryless] [I'.Boundaryless]
-    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
-    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [IsContMDiffRiemannianBundle I 2 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 2 E' (fun y : N ↦ TangentSpace I' y)]
     [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
     [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
     [∀ y : M, CompleteSpace (TangentSpace I y)]
@@ -435,12 +436,7 @@ theorem hodge_laplacian_gauss_general_codimension_with_constructed_operators
         extensionRegular)
     (ambientRegular : HasConnectionCurvatureRegularityAt I'
       ambientLeviCivita.connection (immersion.toFun x))
-    (tangentTraceGauss : data.HasAmbientTangentHessianTraceGaussAt ambientRegular)
-    (intrinsicRicciSymmetric : ConnectionRicciSymmetricAt I
-      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
-      x intrinsicRegular)
-    (ambientRicciSymmetric : ConnectionRicciSymmetricAt I'
-      ambientLeviCivita.connection (immersion.toFun x) ambientRegular) :
+    (tangentTraceGauss : data.HasAmbientTangentHessianTraceGaussAt ambientRegular) :
     let jet := data.toRicciGaussJet ambientRegular
     jet.HasHodgeGaussFormulas ∧
       jet.intrinsicHodge =
@@ -454,10 +450,10 @@ theorem hodge_laplacian_gauss_general_codimension_with_constructed_operators
           (extensions.toSubmanifoldFieldExtensionData.tangentExtension data.field)
           data.ambientFieldRegular := by
   exact ⟨data.hasHodgeGaussFormulas ambientRegular,
-    data.intrinsicHodge_eq_mfderiv_hodgeLaplacianConstructedAt
-      ambientRegular intrinsicRicciSymmetric,
-    data.ambientHodge_eq_hodgeLaplacianConstructedAt
-      ambientRegular tangentTraceGauss ambientRicciSymmetric⟩
+    data.intrinsicHodge_eq_mfderiv_hodgeLaplacianConstructedAt_of_leviCivita
+      ambientRegular,
+    data.ambientHodge_eq_hodgeLaplacianConstructedAt_of_leviCivita
+      ambientRegular tangentTraceGauss⟩
 
 end ActualImmersionProof
 
