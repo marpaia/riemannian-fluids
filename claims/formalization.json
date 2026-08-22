@@ -16,7 +16,7 @@
     },
     {
       "id": "CCD17-divfree-def-hodge",
-      "state": "proved-fragment",
+      "state": "formally-reproduced",
       "lean_module": "RiemannianFluids.Literature.CCD17",
       "declaration": "RiemannianFluids.Literature.CCD17.divergenceFree_deformation_eq_hodge_sub_two_ricci"
     },
@@ -34,27 +34,27 @@
     },
     {
       "id": "CCY23-invariant-restriction",
-      "state": "contract-checked",
+      "state": "proved-fragment",
       "lean_module": "RiemannianFluids.Literature.CCY23",
-      "declaration": "RiemannianFluids.Literature.CCY23.invariant_restriction_statement"
+      "declaration": "RiemannianFluids.Literature.CCY23.invariant_restriction_axisymmetric_ellipsoid"
     },
     {
       "id": "CCY23-eccentricity-expansion",
-      "state": "contract-checked",
+      "state": "proved-fragment",
       "lean_module": "RiemannianFluids.Literature.CCY23",
-      "declaration": "RiemannianFluids.Literature.CCY23.eccentricity_expansion_statement"
+      "declaration": "RiemannianFluids.Literature.CCY23.eccentricity_expansion_axisymmetric_ellipsoid"
     },
     {
       "id": "CCG25-gauss-ricci-codimension-two",
-      "state": "contract-checked",
+      "state": "proved-fragment",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_statement"
+      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_of_euclidean_gauss"
     },
     {
       "id": "CCF25-four-candidates-sphere",
-      "state": "contract-checked",
+      "state": "formally-reproduced",
       "lean_module": "RiemannianFluids.Literature.CCF25",
-      "declaration": "RiemannianFluids.Literature.CCF25.four_candidates_sphere_statement"
+      "declaration": "RiemannianFluids.Literature.CCF25.EllipsoidCandidateConstruction.four_candidates_sphere"
     },
     {
       "id": "WBK26-lie-strain",
@@ -102,15 +102,15 @@
     },
     {
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
-      "state": "contract-checked",
+      "state": "proved-fragment",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_statement"
+      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_of_gaussWeingarten"
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
-      "state": "contract-checked",
+      "state": "proved-fragment",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_statement"
+      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_of_weizenbock"
     },
     {
       "id": "WBK26-negative-curvature-global-weak-existence",

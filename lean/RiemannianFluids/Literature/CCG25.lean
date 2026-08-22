@@ -1,4 +1,6 @@
-import RiemannianFluids.Geometry.Submanifolds
+import RiemannianFluids.Geometry.SubmanifoldGauss
+import RiemannianFluids.Geometry.SubmanifoldLaplacian
+import RiemannianFluids.Geometry.SubmanifoldHodge
 
 /-!
 # CCG25: Gauss formulas for Laplacians on submanifolds
@@ -50,6 +52,59 @@ def bochner_laplacian_gauss_general_codimension_statement
         data.codazziTrace argument -
         (2 : ℝ) • data.secondFundamentalDerivativeTrace argument
 
+/-! ## The proved Gauss--Weingarten trace -/
+
+section BochnerProof
+
+variable
+  {ι κ Argument Tangent Normal Ambient : Type*}
+  [Fintype ι] [Nonempty ι] [Fintype κ]
+  [NormedAddCommGroup Tangent] [InnerProductSpace ℝ Tangent]
+  [FiniteDimensional ℝ Tangent]
+  [NormedAddCommGroup Normal] [InnerProductSpace ℝ Normal]
+  [FiniteDimensional ℝ Normal]
+  [NormedAddCommGroup Ambient] [NormedSpace ℝ Ambient]
+
+/-- Assemble the CCG25 observables from the primitive differentiated Gauss--Weingarten jet. -/
+noncomputable def bochnerGaussFormulaDataOfJet
+    (jets : Argument → PointwiseBochnerGaussJet
+      (ι := ι) (κ := κ) (Tangent := Tangent) (Normal := Normal) (Ambient := Ambient)) :
+    BochnerGaussFormulaData Argument Ambient where
+  ambientBochner argument := (jets argument).ambientBochner
+  intrinsicBochner argument := (jets argument).intrinsicBochner
+  normalShapeSquare argument := (jets argument).normalShapeSquare
+  meanShape argument := (jets argument).meanShape
+  meanBracket argument := (jets argument).meanBracket
+  normalSecondDerivative argument := (jets argument).normalSecondDerivativeTrace
+  normalAccelerationDerivative argument := (jets argument).normalAccelerationDerivativeTrace
+  secondFundamentalDerivativeTrace argument :=
+    (jets argument).secondFundamentalDerivativeTraceValue
+  ambientCurvatureNormalTrace argument := (jets argument).ambientCurvatureNormalTraceValue
+  meanDerivative argument := (jets argument).meanDerivative
+  codazziTrace argument := (jets argument).codazziTraceValue
+
+/-- CCG25 Theorem 1.1, equations (1.5)--(1.6), proved for every member of a family of
+pointwise differentiated Gauss--Weingarten jets in arbitrary positive codimension. -/
+theorem bochner_laplacian_gauss_general_codimension_of_gaussWeingarten
+    (jets : Argument → PointwiseBochnerGaussJet
+      (ι := ι) (κ := κ) (Tangent := Tangent) (Normal := Normal) (Ambient := Ambient))
+    (symmetric : ∀ argument first second,
+      (jets argument).secondFundamental first second =
+        (jets argument).secondFundamental second first)
+    (codazzi : ∀ argument, (jets argument).HasContractedCodazzi)
+    (bracketWeingarten : ∀ argument, (jets argument).HasMeanBracketWeingarten) :
+    bochner_laplacian_gauss_general_codimension_statement
+      (Fintype.card ι) (Fintype.card κ) (bochnerGaussFormulaDataOfJet jets) := by
+  intro _ _ argument
+  constructor
+  · simpa [bochnerGaussFormulaDataOfJet] using
+      (jets argument).ambientBochner_eq_firstGaussFormula
+        (symmetric argument) (codazzi argument) (bracketWeingarten argument)
+  · simpa [bochnerGaussFormulaDataOfJet] using
+      (jets argument).ambientBochner_eq_secondGaussFormula (symmetric argument)
+
+end BochnerProof
+
 /-- Complete contracted terms in the two arbitrary-codimension Hodge Gauss formulas of
 CCG25 Corollary 1.20. -/
 structure HodgeGaussFormulaData (Argument Value : Type*) where
@@ -96,6 +151,68 @@ def hodge_laplacian_gauss_general_codimension_statement
         (2 : ℝ) • data.secondFundamentalDerivativeTrace argument +
         data.ambientRicciNormal argument
 
+/-! ## The proved Bochner--Weitzenbock derivation -/
+
+section HodgeProof
+
+variable
+  {ι κ Argument Tangent Normal Ambient : Type*}
+  [Fintype ι] [Nonempty ι] [Fintype κ]
+  [NormedAddCommGroup Tangent] [InnerProductSpace ℝ Tangent]
+  [FiniteDimensional ℝ Tangent]
+  [NormedAddCommGroup Normal] [InnerProductSpace ℝ Normal]
+  [FiniteDimensional ℝ Normal]
+  [NormedAddCommGroup Ambient] [NormedSpace ℝ Ambient]
+
+/-- Assemble every Corollary 1.20 observable from the common Bochner/Ricci jet. -/
+noncomputable def hodgeGaussFormulaDataOfJet
+    (jets : Argument → PointwiseRicciGaussJet
+      (ι := ι) (κ := κ) (Tangent := Tangent) (Normal := Normal) (Ambient := Ambient)) :
+    HodgeGaussFormulaData Argument Ambient where
+  ambientHodge argument := (jets argument).ambientHodge
+  intrinsicHodge argument := (jets argument).intrinsicHodge
+  normalShapeSquare argument := (jets argument).bochner.normalShapeSquare
+  meanShape argument := (jets argument).bochner.meanShape
+  ambientNormalRicciTrace argument := (jets argument).ambientNormalRicciTraceValue
+  meanBracket argument := (jets argument).bochner.meanBracket
+  normalSecondDerivative argument := (jets argument).bochner.normalSecondDerivativeTrace
+  normalAccelerationDerivative argument :=
+    (jets argument).bochner.normalAccelerationDerivativeTrace
+  secondFundamentalDerivativeTrace argument :=
+    (jets argument).bochner.secondFundamentalDerivativeTraceValue
+  ambientCurvatureNormalTrace argument :=
+    (jets argument).bochner.ambientCurvatureNormalTraceValue
+  ambientRicciNormal argument := (jets argument).ambientRicciNormal
+  meanDerivative argument := (jets argument).bochner.meanDerivative
+  codazziTrace argument := (jets argument).bochner.codazziTraceValue
+
+/-- CCG25 Corollary 1.20, both equivalent arbitrary-codimension Hodge formulas, derived by
+adding the proved Ricci Gauss trace to the two proved Bochner Gauss traces. -/
+theorem hodge_laplacian_gauss_general_codimension_of_weizenbock
+    (jets : Argument → PointwiseRicciGaussJet
+      (ι := ι) (κ := κ) (Tangent := Tangent) (Normal := Normal) (Ambient := Ambient))
+    (symmetric : ∀ argument, (jets argument).gaussData.IsSymmetric)
+    (scalarGauss : ∀ argument,
+      (jets argument).gaussData.HasGaussEquationRelativeTo
+        (jets argument).ambientTangentialCurvature)
+    (traceSplitting : ∀ argument, (jets argument).HasAmbientRicciTraceSplitting)
+    (codazzi : ∀ argument, (jets argument).bochner.HasContractedCodazzi)
+    (bracketWeingarten : ∀ argument,
+      (jets argument).bochner.HasMeanBracketWeingarten) :
+    hodge_laplacian_gauss_general_codimension_statement
+      (Fintype.card ι) (Fintype.card κ) (hodgeGaussFormulaDataOfJet jets) := by
+  intro _ _ argument
+  constructor
+  · simpa [hodgeGaussFormulaDataOfJet] using
+      (jets argument).ambientHodge_eq_firstGaussFormula
+        (symmetric argument) (scalarGauss argument) (traceSplitting argument)
+        (codazzi argument) (bracketWeingarten argument)
+  · simpa [hodgeGaussFormulaDataOfJet] using
+      (jets argument).ambientHodge_eq_secondGaussFormula
+        (symmetric argument) (scalarGauss argument) (traceSplitting argument)
+
+end HodgeProof
+
 /-- Euclidean Gauss-equation terms for the intrinsic Ricci action in codimension two. -/
 structure EuclideanCodimensionTwoRicciData (Argument Value : Type*) where
   intrinsicRicci : Argument → Value
@@ -110,5 +227,53 @@ def gauss_ricci_codimension_two_statement
   ∀ argument,
     data.intrinsicRicci argument =
       (2 : ℝ) • data.meanShape argument - data.normalShapeSquare argument
+
+/-! ## Proved Euclidean Gauss contraction
+
+The source signature above deliberately remains carrier-polymorphic.  The following constructor
+and theorem instantiate it with the concrete finite-dimensional Riemannian tensors from
+`Geometry.SubmanifoldGauss`: the Ricci action is the trace of an actual continuous curvature
+tensor, while the shape and mean-curvature terms are constructed from one symmetric
+normal-valued second fundamental form.
+-/
+
+section EuclideanRicciProof
+
+variable
+  {Tangent Normal : Type*}
+  [NormedAddCommGroup Tangent] [InnerProductSpace ℝ Tangent]
+  [FiniteDimensional ℝ Tangent]
+  [NormedAddCommGroup Normal] [InnerProductSpace ℝ Normal]
+  [FiniteDimensional ℝ Normal]
+
+/-- The exact CCG25 equation (1.12) observables constructed from a two-dimensional tangent
+frame, a two-dimensional normal frame, curvature, and `II`. -/
+noncomputable def euclideanCodimensionTwoRicciData
+    (tangentFrame : OrthonormalBasis (Fin 2) ℝ Tangent)
+    (normalFrame : OrthonormalBasis (Fin 2) ℝ Normal)
+    (data : PointwiseGaussData (Tangent := Tangent) (Normal := Normal)) :
+    EuclideanCodimensionTwoRicciData Tangent Tangent where
+  intrinsicRicci := ricciActionOfCurvatureTensor data.intrinsicCurvature
+  meanShape :=
+    shapeOperatorOfSecondFundamental data.secondFundamental
+      (meanCurvatureOfSecondFundamental tangentFrame data.secondFundamental)
+  normalShapeSquare := normalShapeSquare normalFrame data.secondFundamental
+
+/-- CCG25 Theorem 1.9, equation (1.12), for intrinsic dimension two and Euclidean codimension
+two, proved by contracting the scalar Gauss equation. -/
+theorem gauss_ricci_codimension_two_of_euclidean_gauss
+    (tangentFrame : OrthonormalBasis (Fin 2) ℝ Tangent)
+    (normalFrame : OrthonormalBasis (Fin 2) ℝ Normal)
+    (data : PointwiseGaussData (Tangent := Tangent) (Normal := Normal))
+    (symmetric : data.IsSymmetric)
+    (gauss : data.HasEuclideanGaussEquation) :
+    gauss_ricci_codimension_two_statement
+      (euclideanCodimensionTwoRicciData tangentFrame normalFrame data) := by
+  intro field
+  have h := congrArg (fun operator : Tangent →L[ℝ] Tangent ↦ operator field)
+    (euclidean_gauss_ricci tangentFrame normalFrame data symmetric gauss)
+  simpa [euclideanCodimensionTwoRicciData] using h
+
+end EuclideanRicciProof
 
 end RiemannianFluids.Literature.CCG25

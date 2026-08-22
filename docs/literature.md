@@ -24,19 +24,19 @@ Formal implementation: pairwise inequivalence of the three intrinsic candidates 
 
 Chan--Czubak--Yoneda study the relationship between ambient differential operators and intrinsic surface operators.  Extension, tangent projection, and geometric correction terms determine the restriction problem.
 
-Formal implementation: immersion data, tangent/normal splitting, ambient extension, tangential restriction, correction formulas, and extension independence.
+Formal implementation: the exact axisymmetric-ellipsoid parametrization and coefficients, both components of the projected ambient Hodge restriction formula, and the eccentricity expansion with an explicit fourth-order remainder bound. The remaining source-setting work is to extract the coordinate jet from a smooth neighborhood field and formalize the paper's construction of a simultaneous ambient/surface divergence-free extension; the paper does not claim extension independence.
 
 ### CCG25: Gauss formulas for Laplacians
 
 Chan--Czubak develop Laplacian restriction formulas for submanifolds, including ambient curvature, the second fundamental form, the normal connection, and higher-codimension Ricci terms.
 
-Formal implementation: submanifold geometry, shape and mean-curvature data, Gauss--Codazzi interfaces, and operator restriction constraints.
+Formal implementation: finite-dimensional tangent/normal Gauss geometry, shape operators and mean curvature constructed by Riesz duality and trace, arbitrary-codimension Bochner and Hodge trace theorems, and adapters to actual Mathlib tangent and kernel-normal fibers. The remaining gate is to derive the differentiated jets and Gauss--Codazzi identities from an isometric immersion and its connections.
 
 ### CCF25: ellipsoid candidates and thin-shell derivation
 
 Chan--Czubak--Fuster Aguilera compare surface operators produced by ambient restriction, scaling, normal-direction analysis, and averaging.  Their work makes the derivation procedure part of the operator specification.
 
-Computational implementation: the four candidate operators on the sphere and spheroid, with parameterized comparisons and source-linked validation gates.
+Formal implementation: all four candidate formulas and the exact sphere collapse of Remark 1.5. Computational implementation: the candidates on the sphere and spheroid, with parameterized comparisons and source-linked validation gates. The thin-shell derivations remain source-labeled heuristics.
 
 ## Kinematic and boundary selection
 

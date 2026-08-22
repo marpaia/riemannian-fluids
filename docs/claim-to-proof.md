@@ -96,11 +96,16 @@ This layer supplies bounded geometry, cutoffs, harmonic fields, real-analytic lo
 
 ## Corpus proof targets
 
-The atomic proof-status ledger covers 42 units: 16 atomic registry claims plus 26 obligations obtained by splitting seven compound parents. Two exact nodes are `formally-reproduced`; four reusable declarations are explicitly `proved-fragment`; every remaining formal target is `specified`. The table summarizes the larger analytic routes while the ledgers retain the atomic conclusions.
+The atomic proof-status ledger covers 42 units: 16 atomic registry claims plus 26 obligations obtained by splitting seven compound parents. Four exact nodes are `formally-reproduced`, eight reusable declarations are explicitly `proved-fragment`, 24 source signatures are `contract-checked`, and six project or specialization targets remain `specified`. The table summarizes the larger routes while the ledgers retain the atomic conclusions.
 
 | Claim | Status | Formal route | Completion milestone |
 | --- | --- | --- | --- |
 | `CZ24-operator-census` | formally reproduced | concrete outputs → comparison identities → hyperbolic witness | completed by `Literature.CZ24.operator_census_hyperbolic_witness` |
+| `CCG25-gauss-ricci-codimension-two` | proved fragment | scalar Gauss equation → constructed shape operators and mean curvature → tangent/normal trace contraction | derive the scalar Gauss equation from an actual isometric immersion |
+| `CCG25-laplacian-gauss-family` | split: two proved fragments | differentiated Gauss--Weingarten jet → Bochner trace → Ricci trace → Hodge formulas | construct the jet and discharge Gauss, Codazzi, bracket--Weingarten, and Ricci splitting from the immersion connection |
+| `CCY23-invariant-restriction` | proved fragment | exact ellipsoid coefficients → simultaneous divergence residual → both projected Hodge components | connect a smooth neighborhood field and the Section 4 extension construction to the coordinate jet |
+| `CCY23-eccentricity-expansion` | proved fragment | exact rational candidate → exact fourth-order remainder → uniform local bound | connect smooth coordinate fields to the jet-level expansion |
+| `CCF25-four-candidates-sphere` | formally reproduced | four constructed candidate formulas → constant `K = 1` → zero scaling generator → endpoint collapse | completed by `Literature.CCF25.EllipsoidCandidateConstruction.four_candidates_sphere` |
 | `WBK26-negative-curvature-decay` | split: decay fragment proved, three obligations specified | deformation viscosity → hyperbolic coercivity → weak evolution | construct existence, uniqueness, and pressure recovery; connect the proved conditional Grönwall fragment to the actual weak solution |
 | `WBS26-mosco-resolvent-spectrum` | split into nine specified obligations | tubular geometry → varying forms → Mosco convergence | prove liminf, recovery, form/operator association, resolvent, semigroup, fixed-mode, high-mode, and full-spectrum conclusions |
 | `CC13-leray-hopf-nonuniqueness` | specified | harmonic fields → solenoidal energy spaces → weak evolution | construct the hyperbolic solutions, verify the energy inequality, and prove distinctness |

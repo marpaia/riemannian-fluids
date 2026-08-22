@@ -25,7 +25,7 @@ The current `geometric-fluids-v1` boundary consists of the eleven pinned papers 
 | --- | --- | --- |
 | M0: corpus control plane | every current node is classified by origin, assertion kind, verification target, and atomicity; paper-namespaced Lean entry points and validators enforce the schema | complete |
 | M1: atomic source specifications | all seven compound nodes in `geometric-fluids-v1` are split; every source-proof node has a source-faithful Lean theorem signature and dependency route | complete |
-| M2: geometric operator kernel | the CZ24, CCD17, CCY23, CCG25, CCF25, and WBK26 operator identities and constructions are proved at their exact source scope | partial |
+| M2: geometric operator kernel | the CZ24, CCD17, CCY23, CCG25, CCF25, and WBK26 operator identities and constructions are proved at their exact source scope | active; 3 of 9 atomic targets exact, 6 proved fragments |
 | M3: noncompact Hodge foundation | CCP25 is proved first on `H²(-1)` and then at the source's full dimension, degree, and curvature-scale scope, with reusable closed-form and self-adjoint-operator machinery | partial; `H²(-1)` complete |
 | M4: hyperbolic PDE corpus | CC13 nonuniqueness, CC15 Liouville, CC21 exterior Stokes/Navier--Stokes, and the full WBK26 weak-solution theorem are formally reproduced | open |
 | M5: thin-shell selection | WBS26 Mosco, resolvent, semigroup, and spectral results are reproduced at source scope; heuristic CCF25 limits remain explicitly heuristic unless independently promoted and proved | active on the canonical torus |
@@ -42,11 +42,29 @@ The previously absent paper namespaces `CC13`, `CC15`, `CC21`, `CCY23`, `CCG25`,
 
 M1 does not count definitions as proofs. A `source-signature` is an axiom-free `Prop` definition whose hypotheses and conclusion have been audited against the pinned source; it remains `contract-checked` until a theorem inhabits it. The validators now fail closed if any atomic source-proof unit loses its declaration, dependency route, paper ownership, or axiom audit. This makes M2 the next incomplete capability: proving the geometric operator kernel at exact source scope.
 
-## Next end-to-end campaign: M2 geometric operator kernel
+## Active end-to-end campaign: M2 geometric operator kernel
 
-M2 is one coherent source-to-proof campaign, not a queue of unrelated identities. Its target is a reusable embedded-submanifold differential engine that proves the arbitrary-codimension Gauss--Weingarten trace formulas once and then specializes them through the literature graph. The engine must first prove the CCG25 Bochner formulas (1.5)--(1.6), the Ricci contraction (1.11)--(1.12), and the Hodge formula of Corollary 1.20 on actual Mathlib-backed immersion and tangent/normal bundle data. CCY23 must then instantiate the restriction machinery on the axisymmetric ellipsoid, including extension independence and the eccentricity expansion. CCF25's sphere collapse becomes the constant-curvature algebraic corollary, while the already completed CZ24 census, CCD17 curvature identity, and WBK26 strain identity supply regression endpoints.
+M2 is one coherent source-to-proof campaign, not a queue of unrelated identities. Its target is a reusable embedded-submanifold differential engine that proves the arbitrary-codimension Gauss--Weingarten trace formulas once and then specializes them through the literature graph. The engine must prove the CCG25 Bochner formulas (1.5)--(1.6), the Ricci contraction (1.11)--(1.12), and the Hodge formula of Corollary 1.20 on actual Mathlib-backed immersion and tangent/normal bundle data. CCY23 must instantiate the restriction machinery on the axisymmetric ellipsoid, including the paper's construction of an admissible simultaneous ambient/surface divergence-free extension and the eccentricity expansion. The source proves existence of such extensions; it does not assert that the restricted operator is independent of arbitrary ambient extension choices. CCF25's sphere collapse is the constant-curvature algebraic corollary, while CZ24, CCD17, and WBK26 are regression endpoints for the intrinsic operator conventions.
 
-M2 closes only when those paper-level source signatures are inhabited at their stated dimensions and codimensions, the generic submanifold theorems are reusable below the literature layer, and the claim ledger upgrades the exact nodes from `contract-checked` to `formally-reproduced`. This shared kernel is also the geometric input required by the WBS26 shell forms, so completing M2 advances the thin-shell campaign rather than competing with it.
+M2 closes only when those paper-level source signatures are inhabited at their stated dimensions and codimensions by constructions derived from the source geometric data—not by assuming intermediate jet identities—the generic submanifold theorems are reusable below the literature layer, and the claim ledger upgrades the exact nodes to `formally-reproduced`. This shared kernel is also the geometric input required by the WBS26 shell forms, so completing M2 advances the thin-shell campaign rather than competing with it.
+
+### M2 closure ledger
+
+The first kernel pass is complete. It is deliberately recorded as proof progress rather than as a closed milestone where the source geometry is not yet realized.
+
+| Atomic target | Checked result | Remaining exact-source gate |
+| --- | --- | --- |
+| `CZ24-operator-census` | formally reproduced on the concrete hyperbolic witness | closed |
+| `CCD17-divfree-def-hodge` | formally reproduced with constructed Levi-Civita, Hodge, deformation, and Ricci terms on a smooth Riemannian manifold | closed |
+| `CCG25-gauss-ricci-codimension-two` | the Euclidean Gauss equation is contracted using constructed shape operators, mean curvature, and normal-frame shape square | derive symmetry and the scalar Gauss equation from an actual isometric immersion |
+| `CCG25-bochner-laplacian-gauss-general-codimension` | both arbitrary-codimension trace formulas are proved from a differentiated Gauss--Weingarten jet on actual tangent and kernel-normal fiber types | construct the jet from smooth covariant derivatives and prove Codazzi and bracket--Weingarten from the immersion connection |
+| `CCG25-hodge-laplacian-gauss-general-codimension` | the Ricci trace and both Hodge formulas are proved from the Bochner kernel and Weitzenbock identity | derive scalar Gauss and ambient Ricci trace splitting from the same isometric immersion |
+| `CCY23-invariant-restriction` | both components of (1.4), including the `dtheta` comparison omitted in the paper, are proved for the exact ellipsoid coordinate two-jet | extract that jet from a smooth neighborhood field and formalize the Section 4 simultaneous divergence-free extension |
+| `CCY23-eccentricity-expansion` | the exact rational formula gives (5.8) with an explicit uniform `O(mu^4)` remainder on `0 < mu < 1/2` | connect smooth coordinate fields to the proved jet expansion |
+| `CCF25-four-candidates-sphere` | formally reproduced: all four formulas are constructed and constant unit curvature kills the common scaling generator | closed; the paper's thin-shell derivations remain separately classified as heuristic |
+| `WBK26-lie-strain` | the metric Lie-derivative identity equals twice deformation strain | realize the infinitesimal metric rate as the derivative of the pullback metric along the generated flow |
+
+The critical path is therefore no longer formula discovery. It is one source-setting bridge: build an isometric-immersion connection package that produces Gauss, Weingarten, Codazzi, curvature trace splitting, and differentiated field jets. CCG25 consumes the package directly; the same covariant-derivative and tubular-coordinate machinery then supplies the smooth-field adapter and extension construction for CCY23. The remaining intrinsic flow adapter for WBK26 is bounded cleanup once that geometric layer is stable. Only after all six fragments cross those gates does the ledger promote them to `formally-reproduced` and M2 close.
 
 ## Active end-to-end campaign: WBS26 wall selection
 

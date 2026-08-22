@@ -44,66 +44,73 @@
       "id": "CCY23-invariant-restriction",
       "intellectual_thread": "projected ambient Hodge viscosity restricts invariantly to the ellipsoid",
       "lean_module": "RiemannianFluids.Literature.CCY23",
-      "declaration": "RiemannianFluids.Literature.CCY23.invariant_restriction_statement",
-      "relationship": "source-signature",
+      "declaration": "RiemannianFluids.Literature.CCY23.invariant_restriction_axisymmetric_ellipsoid",
+      "relationship": "interface-theorem",
       "dependencies": [
-        "RiemannianFluids.HasOperatorRestrictionFormula",
-        "RiemannianFluids.IsExtensionIndependent"
+        "RiemannianFluids.axisymmetricEllipsoidParametrization_mem",
+        "RiemannianFluids.EllipsoidRestrictionJet.projectedAmbientHodge_eq_invariantRestriction"
       ],
-      "limitation": "The axiom-free proposition exposes tangency, ambient and surface divergence constraints and every signed term of equation (1.4). The restriction formula and extension independence are not proved."
+      "limitation": "Lean proves both coordinate components of equation (1.4), including the dtheta comparison omitted from the paper, for the exact ellipsoid coefficients and a two-jet satisfying the common ambient/surface divergence residual. The remaining source-setting gap is an adapter from a smooth neighborhood vector field and the paper's constructed simultaneous divergence-free extension to this coordinate jet; the source does not assert extension independence."
     },
     {
       "id": "CCY23-eccentricity-expansion",
       "intellectual_thread": "the ellipsoid restriction formula expands about the unit sphere",
       "lean_module": "RiemannianFluids.Literature.CCY23",
-      "declaration": "RiemannianFluids.Literature.CCY23.eccentricity_expansion_statement",
-      "relationship": "source-signature",
-      "dependencies": ["RiemannianFluids.Literature.CCY23.eccentricityQuadraticCorrection"],
-      "limitation": "The axiom-free proposition writes the full differential-form coefficient from equation (5.8) and an explicit local O(mu^4) norm bound. The expansion estimate is not proved."
+      "declaration": "RiemannianFluids.Literature.CCY23.eccentricity_expansion_axisymmetric_ellipsoid",
+      "relationship": "interface-theorem",
+      "dependencies": [
+        "RiemannianFluids.EllipsoidEccentricityJet.exactCandidate_sub_expansion",
+        "RiemannianFluids.EllipsoidEccentricityJet.exactCandidate_expansion_norm_le"
+      ],
+      "limitation": "Lean proves the differential-form expansion (5.8) from the exact rational formula, with an explicit uniform O(mu^4) constant for 0 < mu < 1/2 and the intrinsic Hodge term retained on the varying ellipsoid. The remaining source-setting gap is the smooth-field-to-coordinate-jet adapter."
     },
     {
       "id": "CCG25-gauss-ricci-codimension-two",
       "intellectual_thread": "the Euclidean Gauss equation determines intrinsic Ricci curvature",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_statement",
-      "relationship": "source-signature",
-      "dependencies": ["RiemannianFluids.HasGaussFormula"],
-      "limitation": "The axiom-free proposition fixes the two-dimensional Euclidean codimension-two specialization Ric = 2 W_H - sum W_N squared. The Gauss contraction is not proved."
+      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_of_euclidean_gauss",
+      "relationship": "interface-theorem",
+      "dependencies": ["RiemannianFluids.euclidean_gauss_ricci"],
+      "limitation": "Lean constructs shape operators, mean curvature, the normal-frame shape square, and Ricci contraction from a finite-dimensional normal-valued second fundamental form, then proves equation (1.12). The remaining source-setting gap is deriving symmetry and the scalar Euclidean Gauss equation from an actual embedded isometric immersion."
     },
     {
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
       "intellectual_thread": "Gauss--Weingarten decomposition of the ambient Bochner Laplacian",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_statement",
-      "relationship": "source-signature",
+      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_of_gaussWeingarten",
+      "relationship": "interface-theorem",
       "dependencies": [
-        "RiemannianFluids.HasGaussFormula",
-        "RiemannianFluids.HasWeingartenFormula",
-        "RiemannianFluids.HasAbstractContractedCodazziIdentity"
+        "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_firstGaussFormula",
+        "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_secondGaussFormula",
+        "RiemannianFluids.submanifoldBochnerGaussJetAt"
       ],
-      "limitation": "The axiom-free proposition records every coefficient and sign in equations (1.5)--(1.6) for arbitrary n at least two and codimension k at least one. No Laplacian formula is proved."
+      "limitation": "Lean proves every coefficient and sign in equations (1.5)--(1.6) for arbitrary finite tangent and normal frames from a differentiated Gauss--Weingarten jet, with an adapter to actual immersion tangent and kernel-normal fibers. The remaining source-setting gap is constructing that jet from covariant derivatives of a smooth extension and discharging symmetry, contracted Codazzi, and bracket--Weingarten from the immersion geometry."
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
       "intellectual_thread": "Gauss formula for ambient versus intrinsic Hodge Laplacians",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_statement",
-      "relationship": "source-signature",
+      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_of_weizenbock",
+      "relationship": "interface-theorem",
       "dependencies": [
-        "RiemannianFluids.HasGaussFormula",
-        "RiemannianFluids.HasWeingartenFormula",
-        "RiemannianFluids.HasAbstractContractedCodazziIdentity"
+        "RiemannianFluids.PointwiseRicciGaussJet.ambientRicci_eq_gaussFormula",
+        "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_firstGaussFormula",
+        "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_secondGaussFormula",
+        "RiemannianFluids.submanifoldRicciGaussJetAt"
       ],
-      "limitation": "The axiom-free proposition records both equivalent arbitrary-codimension formulas of Corollary 1.20 with all curvature and normal terms. No Hodge Gauss formula is proved."
+      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. The remaining source-setting gap is deriving the scalar Gauss and ambient Ricci trace-splitting identities from an actual isometric immersion and its ambient connection."
     },
     {
       "id": "CCF25-four-candidates-sphere",
       "intellectual_thread": "constant curvature collapses four ellipsoid candidates to two endpoints",
       "lean_module": "RiemannianFluids.Literature.CCF25",
-      "declaration": "RiemannianFluids.Literature.CCF25.four_candidates_sphere_statement",
-      "relationship": "source-signature",
-      "dependencies": ["RiemannianFluids.ViscosityCandidates"],
-      "limitation": "The axiom-free proposition isolates the rigorous algebraic content of Remark 1.5: unit Gaussian curvature forces the scaling generator to vanish and the four formulas to equal their Navier or Hodge endpoints. The heuristic shell derivations are outside this proof target."
+      "declaration": "RiemannianFluids.Literature.CCF25.EllipsoidCandidateConstruction.four_candidates_sphere",
+      "relationship": "proved-core",
+      "dependencies": [
+        "RiemannianFluids.Literature.CCF25.EllipsoidCandidateConstruction.scalingGenerator_eq_zero_of_unit_curvature",
+        "RiemannianFluids.Literature.CCF25.EllipsoidCandidateConstruction.generatorComponentMap_zero"
+      ],
+      "limitation": "Lean constructs all four formulas (1.4)--(1.7), proves that unit Gaussian curvature kills -1/4 grad(log K), and proves the exact Navier/Hodge endpoint collapse of Remark 1.5. The paper's thin-shell derivations remain explicitly heuristic and are outside this source-proof node."
     },
     {
       "id": "WBK26-lie-strain",

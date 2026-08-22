@@ -20,6 +20,8 @@ import RiemannianFluids.FunctionSpaces.HyperbolicScalarEnergy
 import RiemannianFluids.FunctionSpaces.HyperbolicCCP25
 import RiemannianFluids.Operators.ConstructedHodge
 import RiemannianFluids.Operators.ConstructedLaplacians
+import RiemannianFluids.Operators.EllipsoidEccentricity
+import RiemannianFluids.Operators.EllipsoidRestriction
 import RiemannianFluids.Operators.GeometricIdentities
 import RiemannianFluids.Operators.HyperbolicHodgeStokes
 import RiemannianFluids.Operators.HyperbolicHodgeStokesCCP25
@@ -41,6 +43,7 @@ import RiemannianFluids.Tensors.VectorCalculus
 import RiemannianFluids.Geometry.BoundedGeometry
 import RiemannianFluids.Geometry.Connections
 import RiemannianFluids.Geometry.Curvature
+import RiemannianFluids.Geometry.Instances.AxisymmetricEllipsoid
 import RiemannianFluids.Geometry.Instances.HyperbolicPlane
 import RiemannianFluids.Geometry.Instances.HyperbolicPlaneCensus
 import RiemannianFluids.Geometry.Instances.HyperbolicPlaneMeasure
@@ -48,6 +51,9 @@ import RiemannianFluids.Geometry.Manifolds
 import RiemannianFluids.Geometry.Musical
 import RiemannianFluids.Geometry.SpaceForms
 import RiemannianFluids.Geometry.Submanifolds
+import RiemannianFluids.Geometry.SubmanifoldGauss
+import RiemannianFluids.Geometry.SubmanifoldLaplacian
+import RiemannianFluids.Geometry.SubmanifoldHodge
 import RiemannianFluids.Geometry.SurfacesOfRevolution
 import RiemannianFluids.Geometry.ThinShells
 import RiemannianFluids.Literature.Czubak
