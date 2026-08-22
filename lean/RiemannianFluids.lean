@@ -44,6 +44,7 @@ import RiemannianFluids.Tensors.VectorCalculus
 import RiemannianFluids.Geometry.BoundedGeometry
 import RiemannianFluids.Geometry.Connections
 import RiemannianFluids.Geometry.Curvature
+import RiemannianFluids.Geometry.GeodesicFrames
 import RiemannianFluids.Geometry.Instances.AxisymmetricEllipsoid
 import RiemannianFluids.Geometry.Instances.HyperbolicPlane
 import RiemannianFluids.Geometry.Instances.HyperbolicPlaneCensus

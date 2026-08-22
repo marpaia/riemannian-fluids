@@ -1,3 +1,4 @@
+import RiemannianFluids.Geometry.GeodesicFrames
 import RiemannianFluids.Geometry.SubmanifoldTangentHessian
 
 /-!
@@ -654,6 +655,28 @@ theorem CovariantSubmanifoldFieldExtensionData.normalDerivative_sum_normal_at
         rw [hadd, ih]
   exact hsumDerivative Finset.univ
 
+/-- Ordinary source-field data for the smooth CCG25 calculation.  It contains no differentiated
+geometric identity and no local geodesic frame: the latter is constructed canonically below from
+the induced connection and the chosen pointwise tangent basis. -/
+structure SmoothSubmanifoldLaplacianInputDataAt
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (x : M) where
+  tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x)
+  normalFrame : OrthonormalBasis κ ℝ
+    (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting x)
+  field : (y : M) → TangentSpace I y
+  fieldRegular : CMDiffAt 2 (T% field) x
+
 /-- Source-level data for the smooth-field CCG25 calculation.  The tangent frame is represented
 by genuine `C²` fields whose values give the chosen orthonormal basis and whose induced covariant
 derivatives vanish at the base point.  No mean-curvature field or derivative identity is stored. -/
@@ -684,6 +707,46 @@ structure SmoothSubmanifoldLaplacianSourceDataAt
   geodesicFrame_covariantDerivative_eq_zero : ∀ i,
     (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
       (geodesicFrame i) x = 0
+
+/-- Construct the geodesic-frame carrier from ordinary source-field data.  This is the standard
+pointwise normal-frame argument, realized explicitly through chart-affine corrections of the
+canonical tangent-bundle trivialization. -/
+def SmoothSubmanifoldLaplacianInputDataAt.toSourceData
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    (data : SmoothSubmanifoldLaplacianInputDataAt
+      (ι := ι) (κ := κ) immersion x) :
+    SmoothSubmanifoldLaplacianSourceDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x where
+  tangentFrame := data.tangentFrame
+  normalFrame := data.normalFrame
+  field := data.field
+  fieldRegular := data.fieldRegular
+  geodesicFrame := geodesicFrameFieldAt
+    (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+    x data.tangentFrame
+  geodesicFrameRegular i := geodesicFrameFieldAt_contMDiffAt
+    (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+    x data.tangentFrame i
+  geodesicFrame_value i := geodesicFrameFieldAt_apply_self
+    (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+    x data.tangentFrame i
+  geodesicFrame_covariantDerivative_eq_zero i :=
+    geodesicFrameFieldAt_covariantDerivative_eq_zero
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+      x data.tangentFrame i
 
 /-- The local mean-curvature field obtained by tracing `II` in the geodesic frame. -/
 def SmoothSubmanifoldLaplacianSourceDataAt.meanNormalField

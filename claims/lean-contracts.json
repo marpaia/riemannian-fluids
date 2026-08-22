@@ -88,7 +88,7 @@
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
       "intellectual_thread": "Gauss--Weingarten decomposition of the ambient Bochner Laplacian",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_from_geodesic_frame",
+      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_from_smooth_field",
       "relationship": "conditional-theorem",
       "dependencies": [
         "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_firstGaussFormula",
@@ -108,16 +108,18 @@
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasAmbientTangentHessianTraceGaussAt",
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.ambientBochner_eq_roughLaplacianAt",
         "RiemannianFluids.CovariantSubmanifoldFieldExtensionData.covariantDerivativeSecondFundamentalAlong_eq_point_of_smooth",
+        "RiemannianFluids.geodesicFrameFieldAt_covariantDerivative_eq_zero",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianInputDataAt.toSourceData",
         "RiemannianFluids.SmoothSubmanifoldLaplacianSourceDataAt.meanNormalField_derivative",
         "RiemannianFluids.SmoothSubmanifoldLaplacianSourceDataAt.toFieldJetData"
       ],
-      "limitation": "Lean proves equations (1.5)--(1.6) on actual tangent, kernel-normal, and ambient tangent fibers for one C2 source tangent field. It proves both Hessian traces and constructs the mean-curvature field and its first normal derivative by tracing II in a C2 tangent frame geodesic at the base point; none of those identities is a paper-facing premise. Exact source reproduction still requires constructing that geodesic frame and the compatible smooth extension operator, including its regularity-preservation contract, from the source's local-neighborhood geometry."
+      "limitation": "Lean proves equations (1.5)--(1.6) on actual tangent, kernel-normal, and ambient tangent fibers for one C2 source tangent field. From pointwise orthonormal bases it explicitly constructs a C2 geodesic tangent frame, then proves both Hessian traces and constructs the mean-curvature field and its first normal derivative; none of those identities is a paper-facing premise. Exact source reproduction still requires constructing the compatible smooth ambient extension operator and its regularity-preservation contract from the source's local-neighborhood geometry."
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
       "intellectual_thread": "Gauss formula for ambient versus intrinsic Hodge Laplacians",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_from_geodesic_frame",
+      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_from_smooth_field",
       "relationship": "conditional-theorem",
       "dependencies": [
         "RiemannianFluids.PointwiseRicciGaussJet.ambientRicci_eq_gaussFormula",
@@ -134,10 +136,12 @@
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasAmbientTangentHessianTraceGaussAt",
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.intrinsicHodge_eq_mfderiv_hodgeLaplacianConstructedAt_of_leviCivita",
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.ambientHodge_eq_hodgeLaplacianConstructedAt_of_leviCivita",
+        "RiemannianFluids.geodesicFrameFieldAt_covariantDerivative_eq_zero",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianInputDataAt.toSourceData",
         "RiemannianFluids.SmoothSubmanifoldLaplacianSourceDataAt.meanNormalField_derivative",
         "RiemannianFluids.SmoothSubmanifoldLaplacianSourceDataAt.toFieldJetData"
       ],
-      "limitation": "Lean assembles one actual-fiber Ricci/Hodge jet, proves scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas, and identifies both values with independently constructed Hodge Laplacians. The tangent-Hessian trace, Ricci symmetry, and mean-curvature first jet are proved internally from the geodesic-frame source carrier. Exact source reproduction still requires the same local geodesic-frame and smooth-extension realization as the Bochner node."
+      "limitation": "Lean assembles one actual-fiber Ricci/Hodge jet, proves scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas, and identifies both values with independently constructed Hodge Laplacians. The geodesic frame, tangent-Hessian trace, Ricci symmetry, and mean-curvature first jet are all constructed internally from an ordinary C2 field and pointwise bases. Exact source reproduction still requires the same smooth local ambient-extension realization as the Bochner node."
     },
     {
       "id": "CCF25-four-candidates-sphere",
