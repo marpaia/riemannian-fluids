@@ -69,7 +69,7 @@
       "id": "CCG25-gauss-ricci-codimension-two",
       "intellectual_thread": "the Euclidean Gauss equation determines intrinsic Ricci curvature",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_of_euclidean_gauss",
+      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_of_isometric_immersion",
       "relationship": "interface-theorem",
       "dependencies": [
         "RiemannianFluids.euclidean_gauss_ricci",
@@ -77,9 +77,12 @@
         "RiemannianFluids.CovariantSubmanifoldFieldExtensionData.inducedCovariantDerivative_independent",
         "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric",
         "RiemannianFluids.tangentialAmbientConnectionCurvatureAt_apply",
-        "RiemannianFluids.PointwiseGaussData.hasGaussEquationRelativeTo_of_vector"
+        "RiemannianFluids.inducedCurvatureAction_eq_tangentialAmbient_add_shape",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasVectorGaussEquationRelativeTo",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasGaussEquationRelativeTo",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasEuclideanGaussEquation"
       ],
-      "limitation": "Lean constructs the canonical orthogonal splitting, induced Levi--Civita connection, actual kernel-normal second fundamental form, and tangentially projected ambient connection curvature from one isometric-immersion package. Naturality of brackets of f-related fields, canonical-extension regularity, extension-choice independence, Levi--Civita restriction locality along immersed tangent directions, and symmetry are proved; vector Gauss implies the scalar contraction used in (1.12). The remaining source-setting gap is the exact second-order regularity and differentiated Gauss--Weingarten argument deriving the vector Gauss equation."
+      "limitation": "Lean now differentiates the constructed Gauss splitting, identifies the resulting Weingarten terms with the Riesz shape operators, and proves vector, scalar, and flat-ambient Euclidean Gauss for the same actual-fiber immersion package under an explicit differentiated-extension regularity contract. The paper-facing codimension-two Ricci theorem consumes actual Fin 2 tangent and normal frames and no longer assumes a Gauss identity. The remaining exact-source gate is to realize the regularity contract and ambient flatness from a smooth tubular extension in the concrete Euclidean ambient model."
     },
     {
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
@@ -95,7 +98,7 @@
         "RiemannianFluids.SubmanifoldFieldExtensionData.ambientDerivativeAlong_eq_weingarten",
         "RiemannianFluids.SubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt_apply"
       ],
-      "limitation": "Lean proves every coefficient and sign in equations (1.5)--(1.6) for arbitrary finite tangent and normal frames. On actual immersion fibers it now constructs the orthogonal projections, induced tangent and normal derivatives, Gauss and Weingarten splittings, and a continuous bilinear kernel-normal second fundamental form. The remaining source-setting gap is constructing the complete twice-differentiated jet and deriving tangent-bracket involutivity, contracted Codazzi, and bracket--Weingarten from embedded-submanifold geometry."
+      "limitation": "Lean proves every coefficient and sign in equations (1.5)--(1.6) for arbitrary finite tangent and normal frames. On actual immersion fibers it constructs the orthogonal projections, induced tangent and normal derivatives, Gauss and Weingarten splittings, a continuous bilinear kernel-normal second fundamental form, bracket naturality, and the differentiated tangential Gauss identity. The remaining source-setting gap is constructing the complete twice-differentiated jet and deriving contracted Codazzi and bracket--Weingarten from embedded-submanifold geometry."
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
@@ -110,7 +113,7 @@
         "RiemannianFluids.submanifoldRicciGaussJetAt",
         "RiemannianFluids.isometricConnectionSubmanifoldPointwiseGaussDataAt"
       ],
-      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. Induced curvature, the constructed second fundamental tensor, and projected ambient connection curvature now inhabit the same actual fibers of one isometric-immersion package. The remaining source-setting gap is deriving vector Gauss, Codazzi, and ambient Ricci trace splitting from those connections."
+      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. Induced curvature, the constructed second fundamental tensor, projected ambient connection curvature, and the derived scalar Gauss equation now inhabit the same actual fibers of one isometric-immersion package. The remaining source-setting gap is constructing Codazzi, the complete jet, and the ambient Ricci trace splitting from those connections."
     },
     {
       "id": "CCF25-four-candidates-sphere",

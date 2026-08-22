@@ -161,6 +161,20 @@ theorem PointwiseGaussData.hasGaussEquationRelativeTo_of_vector
   rw [real_inner_comm (data.secondFundamental second test)
     (data.secondFundamental first field)]
 
+omit [FiniteDimensional ℝ Tangent] [FiniteDimensional ℝ Normal] in
+/-- If the ambient tangential curvature vanishes, the relative scalar Gauss equation is exactly
+the Euclidean scalar Gauss equation. -/
+theorem PointwiseGaussData.hasEuclideanGaussEquation_of_relative_eq_zero
+    (data : PointwiseGaussData (Tangent := Tangent) (Normal := Normal))
+    (ambientTangentialCurvature :
+      Tangent →L[ℝ] Tangent →L[ℝ] Tangent →L[ℝ] Tangent)
+    (gauss : data.HasGaussEquationRelativeTo ambientTangentialCurvature)
+    (flat : ambientTangentialCurvature = 0) :
+    data.HasEuclideanGaussEquation := by
+  intro first second field test
+  rw [gauss, flat]
+  simp
+
 /-- Vectorial mean curvature computed in a tangent orthonormal frame. -/
 def meanCurvatureOfSecondFundamental
     {ι : Type*} [Fintype ι]
@@ -627,6 +641,518 @@ theorem tangentialAmbientConnectionCurvatureAt_apply
           (mfderiv I I' immersion.toFun x field)) :=
   rfl
 
+/-! ## The differentiated Gauss identity -/
+
+/-- The analytic regularity needed to differentiate the Gauss splitting on the canonical fields
+used by the pointwise second fundamental form.  The fields of this structure are regularity
+statements only: no curvature, bracket, Gauss, or shape identity is assumed.
+
+The first field says that extending a canonical source tangent field into the ambient manifold
+preserves the `C²` regularity required by the curvature tensor.  The second says that the chosen
+ambient extension of each normal Gauss term is differentiable, so it may be differentiated once
+in the Weingarten term. -/
+structure CovariantSubmanifoldFieldExtensionData.HasDifferentiatedGaussRegularityAt
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M) : Prop where
+  tangentExtension_contMDiffAt_two : ∀ field : TangentSpace I x,
+    CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension
+        (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field)))
+      (immersion.toFun x)
+  normalGaussExtension_mdifferentiableAt : ∀ first field : TangentSpace I x,
+    MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension
+        (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+          immersion splitting ambientConnection
+          (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x first)
+          (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field))))
+      (immersion.toFun x)
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [∀ x : M, FiniteDimensional ℝ (TangentSpace I x)] in
+/-- The field-level shape operator is adjoint to the constructed second fundamental form.
+The normal field is allowed to vary; only differentiability of its chosen ambient extension and
+pointwise orthogonality to the immersed tangent spaces are required. -/
+theorem shapeOperatorAlong_inner_secondFundamentalFormAlong
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    {first test : (y : M) → TangentSpace I y}
+    (normal : AmbientVectorFieldAlong immersion.toSmoothImmersionData)
+    {x : M}
+    (hfirst : MDiffAt (T% first) x)
+    (htest : MDiffAt (T% test) x)
+    (hnormalExtension : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension normal))
+      (immersion.toFun x))
+    (normalOrthogonal : ∀ y tangent,
+      inner ℝ (normal y) (mfderiv I I' immersion.toFun y tangent) = 0) :
+    inner ℝ
+        (extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection first normal x)
+        (test x) =
+      inner ℝ
+        (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection first test x)
+        (normal x) := by
+  let eFirst :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension first
+  let eTest := extensions.toSubmanifoldFieldExtensionData.tangentExtension test
+  let eNormal := extensions.toSubmanifoldFieldExtensionData.alongExtension normal
+  let ambientInner : N → ℝ := fun y ↦ inner ℝ (eTest y) (eNormal y)
+  have hfirstExtension : MDiffAt (T% eFirst) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt hfirst
+  have htestExtension : MDiffAt (T% eTest) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt htest
+  have hnormalExtension' : MDiffAt (T% eNormal) (immersion.toFun x) := by
+    exact hnormalExtension
+  have hambientInner : MDiffAt ambientInner (immersion.toFun x) :=
+    MDifferentiableAt.inner_bundle
+      (E := (TangentSpace I' : N → Type _)) htestExtension hnormalExtension'
+  have innerAlong_zero : ambientInner ∘ immersion.toFun = fun _ : M ↦ 0 := by
+    funext y
+    change inner ℝ (eTest (immersion.toFun y)) (eNormal (immersion.toFun y)) = 0
+    dsimp only [eTest, eNormal]
+    rw [extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees test y]
+    rw [extensions.toSubmanifoldFieldExtensionData.alongExtension_agrees normal y]
+    rw [real_inner_comm, normalOrthogonal]
+  have hImmersion : MDiffAt immersion.toFun x :=
+    immersion.contMDiff.mdifferentiableAt (by simp)
+  have chain := mfderiv_comp_apply x hambientInner hImmersion (first x)
+  have ambientDerivative_zero :
+      d% ambientInner (immersion.toFun x)
+          (mfderiv I I' immersion.toFun x (first x)) = 0 := by
+    calc
+      _ = d% (ambientInner ∘ immersion.toFun) x (first x) := chain.symm
+      _ = d% (fun _ : M ↦ (0 : ℝ)) x (first x) := by rw [innerAlong_zero]
+      _ = 0 := by
+        rw [mvfderiv_const]
+        rfl
+  have eFirstValue : eFirst (immersion.toFun x) =
+      mfderiv I I' immersion.toFun x (first x) :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees first x
+  have eTestValue : eTest (immersion.toFun x) =
+      mfderiv I I' immersion.toFun x (test x) :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees test x
+  have eNormalValue : eNormal (immersion.toFun x) = normal x :=
+    extensions.toSubmanifoldFieldExtensionData.alongExtension_agrees normal x
+  have metricIdentity := ambientLeviCivita.metricCompatible
+    hfirstExtension htestExtension hnormalExtension'
+  rw [eFirstValue, eTestValue, eNormalValue, ambientDerivative_zero] at metricIdentity
+  have gaussIdentity :=
+    extensions.ambientDerivativeTangent_eq_gauss_inducedCovariantDerivative
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection immersion.hasTangentNormalDecomposition
+      immersion.hasTangentProjectionLeftInverse first test x
+  have pairedGauss := congrArg (fun ambient : TangentSpace I' (immersion.toFun x) ↦
+    inner ℝ ambient (normal x)) gaussIdentity
+  have tangentPairingZero :
+      inner ℝ
+          (mfderiv I I' immersion.toFun x
+            (extensions.inducedCovariantDerivative immersion.toSmoothImmersionData
+              immersion.orthogonalSplitting ambientLeviCivita.connection
+              immersion.hasTangentProjectionLeftInverse test x (first x)))
+          (normal x) = 0 := by
+    rw [real_inner_comm]
+    exact normalOrthogonal x _
+  rw [inner_add_left, tangentPairingZero, zero_add] at pairedGauss
+  have firstPairing :
+      inner ℝ
+          (ambientLeviCivita.connection eTest (immersion.toFun x)
+            (mfderiv I I' immersion.toFun x (first x)))
+          (normal x) =
+        inner ℝ
+          (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection first test x)
+          (normal x) := by
+    simpa [SubmanifoldFieldExtensionData.ambientDerivativeTangent, eTest] using pairedGauss
+  have shapePairing :
+      inner ℝ
+          (extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection first normal x)
+          (test x) =
+        -inner ℝ
+          (ambientLeviCivita.connection eNormal (immersion.toFun x)
+            (mfderiv I I' immersion.toFun x (first x)))
+          (mfderiv I I' immersion.toFun x (test x)) := by
+    change inner ℝ
+        (-((mfderiv I I' immersion.toFun x).adjoint
+          (ambientLeviCivita.connection eNormal (immersion.toFun x)
+            (mfderiv I I' immersion.toFun x (first x))))) (test x) = _
+    rw [inner_neg_left, ContinuousLinearMap.adjoint_inner_left]
+  rw [shapePairing]
+  rw [← firstPairing]
+  rw [real_inner_comm
+    (ambientLeviCivita.connection eNormal (immersion.toFun x)
+      (mfderiv I I' immersion.toFun x (first x)))
+    (mfderiv I I' immersion.toFun x (test x))] at metricIdentity
+  linarith
+
+/-- On the canonical source extensions used to construct the pointwise second fundamental form,
+the Riesz-defined pointwise shape operator agrees with the differentiate-then-project field-level
+shape operator.  The only extra premise is differentiability of the chosen ambient extension of
+the normal Gauss term being differentiated. -/
+theorem shapeOperatorOfProjectedSecondFundamentalAt_eq_shapeOperatorAlong
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M) (first second field : TangentSpace I x)
+    (hnormalExtension : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension
+        (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection
+          (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x second)
+          (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field))))
+      (immersion.toFun x)) :
+    shapeOperatorOfSecondFundamental
+        (CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+          immersion.hasTangentProjectionLeftInverse x)
+        (CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+          immersion.hasTangentProjectionLeftInverse x second field)
+        first =
+      extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+        immersion.toSmoothImmersionData immersion.orthogonalSplitting
+        ambientLeviCivita.connection
+        (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x first)
+        (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection
+          (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x second)
+          (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field)) x := by
+  let firstField :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x first
+  let secondField :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x second
+  let fieldField :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field
+  let normal :=
+    extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection secondField fieldField
+  let pointII :=
+    CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+      immersion.hasTangentProjectionLeftInverse x
+  apply ext_inner_right ℝ
+  intro test
+  let testField :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x test
+  have normalOrthogonal : ∀ y tangent,
+      inner ℝ (normal y) (mfderiv I I' immersion.toFun y tangent) = 0 := by
+    intro y tangent
+    exact immersion.hasOrthogonalNormalProjection y
+      (extensions.toSubmanifoldFieldExtensionData.ambientDerivativeTangent
+        immersion.toSmoothImmersionData ambientLeviCivita.connection
+        secondField fieldField y) tangent
+  have shapePairing :=
+    shapeOperatorAlong_inner_secondFundamentalFormAlong
+      immersion ambientLeviCivita extensions normal
+      (x := x)
+      (hfirst := SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt
+        (I := I) x first)
+      (htest := SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt
+        (I := I) x test)
+      (hnormalExtension := by simpa [normal, secondField, fieldField] using hnormalExtension)
+      normalOrthogonal
+  change inner ℝ
+      (shapeOperatorOfSecondFundamental pointII (pointII second field) first) test = _
+  rw [shapeOperatorOfSecondFundamental_inner]
+  have shapePairing' :
+      inner ℝ
+          (extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection firstField normal x)
+          test =
+        inner ℝ
+          (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection firstField testField x)
+          (normal x) := by
+    simpa [testField] using shapePairing
+  rw [shapePairing']
+  simp [pointII, normal, firstField, secondField, fieldField, testField,
+    SubmanifoldFieldExtensionData.secondFundamentalFormAlong,
+    SubmanifoldFieldExtensionData.ambientDerivativeTangent]
+  rfl
+
+omit [FiniteDimensional ℝ E]
+  [∀ x : M, FiniteDimensional ℝ (TangentSpace I x)] in
+/-- Field-level tangential Gauss equation obtained by differentiating the constructed Gauss
+splitting.  The two explicit extension hypotheses are regularity statements, not geometric
+identities: the differentiated tangent extension is `C²`, and the ambient extensions of the two
+normal Gauss terms are differentiable. -/
+theorem inducedCurvatureAction_eq_tangentialAmbient_add_shape
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedCovariantDerivative immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection
+        immersion.hasTangentProjectionLeftInverse) x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    {first second field : (y : M) → TangentSpace I y}
+    (hfirst : MDiffAt (T% first) x)
+    (hsecond : MDiffAt (T% second) x)
+    (hfield : CMDiffAt 2 (T% field) x)
+    (hfieldExtension : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (hnormalSecondExtension : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension
+        (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection second field)))
+      (immersion.toFun x))
+    (hnormalFirstExtension : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension
+        (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection first field)))
+      (immersion.toFun x)) :
+    connectionCurvatureAction I
+        (extensions.inducedCovariantDerivative immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting ambientLeviCivita.connection
+          immersion.hasTangentProjectionLeftInverse)
+        first second field x =
+      immersion.orthogonalSplitting.tangentProjection x
+        (connectionCurvatureAction I' ambientLeviCivita.connection
+          (extensions.toSubmanifoldFieldExtensionData.tangentExtension first)
+          (extensions.toSubmanifoldFieldExtensionData.tangentExtension second)
+          (extensions.toSubmanifoldFieldExtensionData.tangentExtension field)
+          (immersion.toFun x)) +
+        extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection first
+          (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection second field) x -
+        extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection second
+          (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection first field) x := by
+  let induced :=
+    extensions.inducedCovariantDerivative immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting ambientLeviCivita.connection
+      immersion.hasTangentProjectionLeftInverse
+  let eFirst :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension first
+  let eSecond :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension second
+  let eField :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension field
+  let intrinsicSecond := covariantDerivativeAlong I induced second field
+  let intrinsicFirst := covariantDerivativeAlong I induced first field
+  let normalSecond :=
+    extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection second field
+  let normalFirst :=
+    extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection first field
+  let tangentSecondExtension :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension intrinsicSecond
+  let tangentFirstExtension :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension intrinsicFirst
+  let normalSecondExtension :=
+    extensions.toSubmanifoldFieldExtensionData.alongExtension normalSecond
+  let normalFirstExtension :=
+    extensions.toSubmanifoldFieldExtensionData.alongExtension normalFirst
+  let comparisonSecond := tangentSecondExtension + normalSecondExtension
+  let comparisonFirst := tangentFirstExtension + normalFirstExtension
+  let ambientSecond :=
+    covariantDerivativeAlong I' ambientLeviCivita.connection eSecond eField
+  let ambientFirst :=
+    covariantDerivativeAlong I' ambientLeviCivita.connection eFirst eField
+  have hfirstExtension : MDiffAt (T% eFirst) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt hfirst
+  have hsecondExtension : MDiffAt (T% eSecond) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt hsecond
+  have hintrinsicSecond : MDiffAt (T% intrinsicSecond) x :=
+    intrinsicRegular second field hsecond hfield
+  have hintrinsicFirst : MDiffAt (T% intrinsicFirst) x :=
+    intrinsicRegular first field hfirst hfield
+  have htangentSecondExtension :
+      MDiffAt (T% tangentSecondExtension) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt hintrinsicSecond
+  have htangentFirstExtension :
+      MDiffAt (T% tangentFirstExtension) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt hintrinsicFirst
+  have hnormalSecondExtension' :
+      MDiffAt (T% normalSecondExtension) (immersion.toFun x) := by
+    exact hnormalSecondExtension
+  have hnormalFirstExtension' :
+      MDiffAt (T% normalFirstExtension) (immersion.toFun x) := by
+    exact hnormalFirstExtension
+  have hcomparisonSecond : MDiffAt (T% comparisonSecond) (immersion.toFun x) :=
+    mdifferentiableAt_add_section htangentSecondExtension hnormalSecondExtension'
+  have hcomparisonFirst : MDiffAt (T% comparisonFirst) (immersion.toFun x) :=
+    mdifferentiableAt_add_section htangentFirstExtension hnormalFirstExtension'
+  have hambientSecond : MDiffAt (T% ambientSecond) (immersion.toFun x) :=
+    ambientRegular eSecond eField hsecondExtension hfieldExtension
+  have hambientFirst : MDiffAt (T% ambientFirst) (immersion.toFun x) :=
+    ambientRegular eFirst eField hfirstExtension hfieldExtension
+  have ambientSecond_agrees (y : M) :
+      ambientSecond (immersion.toFun y) = comparisonSecond (immersion.toFun y) := by
+    dsimp only [ambientSecond, comparisonSecond, tangentSecondExtension,
+      normalSecondExtension, intrinsicSecond, normalSecond, eSecond, eField,
+      covariantDerivativeAlong]
+    simp only [Pi.add_apply]
+    rw [extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees second y]
+    rw [extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees
+      (covariantDerivativeAlong I induced second field) y]
+    rw [extensions.toSubmanifoldFieldExtensionData.alongExtension_agrees]
+    exact extensions.ambientDerivativeTangent_eq_gauss_inducedCovariantDerivative
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection immersion.hasTangentNormalDecomposition
+      immersion.hasTangentProjectionLeftInverse second field y
+  have ambientFirst_agrees (y : M) :
+      ambientFirst (immersion.toFun y) = comparisonFirst (immersion.toFun y) := by
+    dsimp only [ambientFirst, comparisonFirst, tangentFirstExtension,
+      normalFirstExtension, intrinsicFirst, normalFirst, eFirst, eField,
+      covariantDerivativeAlong]
+    simp only [Pi.add_apply]
+    rw [extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees first y]
+    rw [extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees
+      (covariantDerivativeAlong I induced first field) y]
+    rw [extensions.toSubmanifoldFieldExtensionData.alongExtension_agrees]
+    exact extensions.ambientDerivativeTangent_eq_gauss_inducedCovariantDerivative
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection immersion.hasTangentNormalDecomposition
+      immersion.hasTangentProjectionLeftInverse first field y
+  have hImmersion : MDiffAt immersion.toFun x :=
+    immersion.contMDiff.mdifferentiableAt (by simp)
+  have outerFirst := ambientLeviCivita.eq_on_mfderiv_of_comp_eq I'
+    hImmersion hambientSecond hcomparisonSecond ambientSecond_agrees (first x)
+  have outerSecond := ambientLeviCivita.eq_on_mfderiv_of_comp_eq I'
+    hImmersion hambientFirst hcomparisonFirst ambientFirst_agrees (second x)
+  have projectedComparisonSecond :
+      immersion.orthogonalSplitting.tangentProjection x
+          (ambientLeviCivita.connection comparisonSecond (immersion.toFun x)
+            (mfderiv I I' immersion.toFun x (first x))) =
+        induced intrinsicSecond x (first x) -
+          extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection first normalSecond x := by
+    change immersion.orthogonalSplitting.tangentProjection x
+        (ambientLeviCivita.connection
+          (tangentSecondExtension + normalSecondExtension) (immersion.toFun x)
+          (mfderiv I I' immersion.toFun x (first x))) = _
+    rw [DFunLike.congr_fun
+      (ambientLeviCivita.connection.isCovariantDerivativeOn.add
+        htangentSecondExtension hnormalSecondExtension')]
+    simp only [add_apply, map_add]
+    simp [induced, intrinsicSecond, tangentSecondExtension, normalSecondExtension,
+      SubmanifoldFieldExtensionData.shapeOperatorAlong]
+    rfl
+  have projectedComparisonFirst :
+      immersion.orthogonalSplitting.tangentProjection x
+          (ambientLeviCivita.connection comparisonFirst (immersion.toFun x)
+            (mfderiv I I' immersion.toFun x (second x))) =
+        induced intrinsicFirst x (second x) -
+          extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection second normalFirst x := by
+    change immersion.orthogonalSplitting.tangentProjection x
+        (ambientLeviCivita.connection
+          (tangentFirstExtension + normalFirstExtension) (immersion.toFun x)
+          (mfderiv I I' immersion.toFun x (second x))) = _
+    rw [DFunLike.congr_fun
+      (ambientLeviCivita.connection.isCovariantDerivativeOn.add
+        htangentFirstExtension hnormalFirstExtension')]
+    simp only [add_apply, map_add]
+    simp [induced, intrinsicFirst, tangentFirstExtension, normalFirstExtension,
+      SubmanifoldFieldExtensionData.shapeOperatorAlong]
+    rfl
+  have eFirstValue : eFirst (immersion.toFun x) =
+      mfderiv I I' immersion.toFun x (first x) :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees first x
+  have eSecondValue : eSecond (immersion.toFun x) =
+      mfderiv I I' immersion.toFun x (second x) :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees second x
+  have projectedOuterFirst :
+      immersion.orthogonalSplitting.tangentProjection x
+          (ambientLeviCivita.connection ambientSecond (immersion.toFun x)
+            (eFirst (immersion.toFun x))) =
+        induced intrinsicSecond x (first x) -
+          extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection first normalSecond x := by
+    rw [eFirstValue, outerFirst, projectedComparisonSecond]
+  have projectedOuterSecond :
+      immersion.orthogonalSplitting.tangentProjection x
+          (ambientLeviCivita.connection ambientFirst (immersion.toFun x)
+            (eSecond (immersion.toFun x))) =
+        induced intrinsicFirst x (second x) -
+          extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection second normalFirst x := by
+    rw [eSecondValue, outerSecond, projectedComparisonFirst]
+  have bracketCompatibility :
+      extensions.HasBracketCompatibility immersion.toSmoothImmersionData :=
+    extensions.hasBracketCompatibility immersion.toSmoothImmersionData
+  have projectedBracket :
+      immersion.orthogonalSplitting.tangentProjection x
+          (ambientLeviCivita.connection eField (immersion.toFun x)
+            (VectorField.mlieBracket I' eFirst eSecond (immersion.toFun x))) =
+        induced field x (VectorField.mlieBracket I first second x) := by
+    rw [bracketCompatibility hfirst hsecond]
+    rfl
+  rw [connectionCurvatureAction, connectionCurvatureAction]
+  simp only [Pi.sub_apply, map_sub]
+  change
+    induced intrinsicSecond x (first x) - induced intrinsicFirst x (second x) -
+          induced field x (VectorField.mlieBracket I first second x) =
+      (immersion.orthogonalSplitting.tangentProjection x
+            (ambientLeviCivita.connection ambientSecond (immersion.toFun x)
+              (eFirst (immersion.toFun x))) -
+          immersion.orthogonalSplitting.tangentProjection x
+            (ambientLeviCivita.connection ambientFirst (immersion.toFun x)
+              (eSecond (immersion.toFun x))) -
+          immersion.orthogonalSplitting.tangentProjection x
+            (ambientLeviCivita.connection eField (immersion.toFun x)
+              (VectorField.mlieBracket I' eFirst eSecond (immersion.toFun x)))) + _ - _
+  rw [projectedOuterFirst, projectedOuterSecond, projectedBracket]
+  abel
+
 /-! ## A single-source induced Gauss package -/
 
 /-- Actual-fiber Gauss data whose intrinsic curvature and second fundamental form are constructed
@@ -687,6 +1213,206 @@ def inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
     immersion ambientLeviCivita extensions
     (extensions.hasBracketCompatibility immersion.toSmoothImmersionData)
     x intrinsicRegular
+
+/-- The canonical boundaryless pointwise package satisfies the vector Gauss equation relative to
+the tangential projection of the ambient connection-curvature tensor.  Every geometric term is
+constructed from the same immersion, ambient Levi--Civita connection, and extension operator.
+The sole additional input is `HasDifferentiatedGaussRegularityAt`, whose fields assert only the
+regularity needed to differentiate those constructed terms. -/
+theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasVectorGaussEquationRelativeTo
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x) :
+    (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
+      immersion ambientLeviCivita extensions x intrinsicRegular).HasVectorGaussEquationRelativeTo
+        (tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting ambientLeviCivita.connection x ambientRegular) := by
+  intro first second field
+  let induced :=
+    extensions.inducedCovariantDerivative immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting ambientLeviCivita.connection
+      immersion.hasTangentProjectionLeftInverse
+  let firstField :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x first
+  let secondField :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x second
+  let fieldField :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field
+  let eFirst :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension firstField
+  let eSecond :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension secondField
+  let eField :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension fieldField
+  let pointII :=
+    CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+      immersion.hasTangentProjectionLeftInverse x
+  have hfirst : MDiffAt (T% firstField) x :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt
+      (I := I) x first
+  have hsecond : MDiffAt (T% secondField) x :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt
+      (I := I) x second
+  have hfield : CMDiffAt 2 (T% fieldField) x :=
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt_contMDiffAt_two
+      (I := I) x field
+  have hfieldExtension : CMDiffAt 2 (T% eField) (immersion.toFun x) := by
+    exact extensionRegular.tangentExtension_contMDiffAt_two field
+  have hnormalSecondExtension : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension
+        (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection secondField fieldField)))
+      (immersion.toFun x) := by
+    exact extensionRegular.normalGaussExtension_mdifferentiableAt second field
+  have hnormalFirstExtension : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension
+        (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection firstField fieldField)))
+      (immersion.toFun x) := by
+    exact extensionRegular.normalGaussExtension_mdifferentiableAt first field
+  have differentiated :=
+    inducedCurvatureAction_eq_tangentialAmbient_add_shape
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+      hfirst hsecond hfield hfieldExtension
+      hnormalSecondExtension hnormalFirstExtension
+  have intrinsicTensor :
+      connectionCurvatureTensorAt I induced x intrinsicRegular first second field =
+        connectionCurvatureAction I induced firstField secondField fieldField x := by
+    simpa [firstField, secondField, fieldField] using
+      (connectionCurvatureTensorAt_apply I induced x intrinsicRegular
+        hfirst hsecond hfield)
+  have hfirstExtension : MDiffAt (T% eFirst) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt hfirst
+  have hsecondExtension : MDiffAt (T% eSecond) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt hsecond
+  have ambientTensor :
+      connectionCurvatureTensorAt I' ambientLeviCivita.connection (immersion.toFun x)
+          ambientRegular
+          (mfderiv I I' immersion.toFun x first)
+          (mfderiv I I' immersion.toFun x second)
+          (mfderiv I I' immersion.toFun x field) =
+        connectionCurvatureAction I' ambientLeviCivita.connection
+          eFirst eSecond eField (immersion.toFun x) := by
+    simpa only [eFirst, eSecond, eField,
+      extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees,
+      firstField, secondField, fieldField,
+      SubmanifoldFieldExtensionData.linearFiberExtensionAt_apply_self] using
+      (connectionCurvatureTensorAt_apply I' ambientLeviCivita.connection
+        (immersion.toFun x) ambientRegular hfirstExtension hsecondExtension hfieldExtension)
+  have shapeSecond :
+      shapeOperatorOfSecondFundamental pointII (pointII second field) first =
+        extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection firstField
+          (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection secondField fieldField) x := by
+    exact shapeOperatorOfProjectedSecondFundamentalAt_eq_shapeOperatorAlong
+      immersion ambientLeviCivita extensions x first second field hnormalSecondExtension
+  have shapeFirst :
+      shapeOperatorOfSecondFundamental pointII (pointII first field) second =
+        extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection secondField
+          (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection firstField fieldField) x := by
+    exact shapeOperatorOfProjectedSecondFundamentalAt_eq_shapeOperatorAlong
+      immersion ambientLeviCivita extensions x second first field hnormalFirstExtension
+  change connectionCurvatureTensorAt I induced x intrinsicRegular first second field =
+    tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection x ambientRegular
+        first second field +
+      shapeOperatorOfSecondFundamental pointII (pointII second field) first -
+      shapeOperatorOfSecondFundamental pointII (pointII first field) second
+  rw [intrinsicTensor, tangentialAmbientConnectionCurvatureAt_apply, ambientTensor,
+    shapeSecond, shapeFirst]
+  exact differentiated
+
+/-- The scalar Gauss equation for the same canonical package follows by pairing the proved vector
+identity with a fourth tangent vector.  It is therefore no longer an independent hypothesis in
+the submanifold-to-Ricci contraction pipeline. -/
+theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasGaussEquationRelativeTo
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x) :
+    (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
+      immersion ambientLeviCivita extensions x intrinsicRegular).HasGaussEquationRelativeTo
+        (tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting ambientLeviCivita.connection x ambientRegular) :=
+  PointwiseGaussData.hasGaussEquationRelativeTo_of_vector _ _
+    (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasVectorGaussEquationRelativeTo
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular)
+
+/-- For a flat ambient curvature tensor, the canonical immersion package satisfies the Euclidean
+scalar Gauss equation used in CCG25 Theorem 1.9. -/
+theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasEuclideanGaussEquation
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (ambientFlat : tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting ambientLeviCivita.connection x ambientRegular = 0) :
+    (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
+      immersion ambientLeviCivita extensions x intrinsicRegular).HasEuclideanGaussEquation :=
+  PointwiseGaussData.hasEuclideanGaussEquation_of_relative_eq_zero _ _
+    (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasGaussEquationRelativeTo
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular)
+    ambientFlat
 
 /-- The single-source Gauss package has a symmetric second fundamental form.  Canonical extension
 regularity and normal-bracket tangency are both discharged by the covariant extension layer. -/

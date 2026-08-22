@@ -48,7 +48,7 @@
       "id": "CCG25-gauss-ricci-codimension-two",
       "state": "proved-fragment",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_of_euclidean_gauss"
+      "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_of_isometric_immersion"
     },
     {
       "id": "CCF25-four-candidates-sphere",

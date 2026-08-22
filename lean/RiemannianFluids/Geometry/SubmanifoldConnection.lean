@@ -239,6 +239,36 @@ theorem linearFiberExtensionAt_mdifferentiableAt
     · simpa using (contMDiffAt_const : CMDiffAt 1 (fun _ : M => coordinate) x)
   exact (smoothInverse.clm_bundle_apply smoothCoordinate).mdifferentiableAt one_ne_zero
 
+/-- With a `C³` source atlas, the canonical linear fiber extension is `C²` at its base
+point.  This is the regularity needed to evaluate the connection-curvature tensor using the same
+field extensions that define the pointwise second fundamental form. -/
+theorem linearFiberExtensionAt_contMDiffAt_two
+    [IsManifold I 3 M]
+    (x : M) (tangent : TangentSpace I x) :
+    CMDiffAt 2 (T% (linearFiberExtensionAt (I := I) x tangent)) x := by
+  letI : IsManifold I ((2 : ℕ∞ω) + 1) M := by
+    norm_num
+    infer_instance
+  letI : ContMDiffVectorBundle 2 E (TangentSpace I : M → Type _) I :=
+    TangentBundle.contMDiffVectorBundle
+  let trivialization := trivializationAt E (TangentSpace I : M → Type _) x
+  let coordinate : E := trivialization.continuousLinearMapAt ℝ x tangent
+  have smoothInverse :
+      CMDiffAt 2
+        (fun y =>
+          (⟨y, trivialization.symmL ℝ y⟩ :
+            TotalSpace (E →L[ℝ] E) (fun z : M => E →L[ℝ] TangentSpace I z))) x :=
+    trivialization.contMDiffAt_symmL
+      (mem_baseSet_trivializationAt E (TangentSpace I : M → Type _) x)
+  have smoothCoordinate :
+      CMDiffAt 2
+        (fun y : M => (⟨y, coordinate⟩ : TotalSpace E (fun _ : M => E))) x := by
+    rw [Bundle.contMDiffAt_totalSpace]
+    constructor
+    · exact contMDiffAt_id
+    · simpa using (contMDiffAt_const : CMDiffAt 2 (fun _ : M => coordinate) x)
+  exact smoothInverse.clm_bundle_apply smoothCoordinate
+
 /-- Canonical tangent vectors are extended on the source and then by the chosen ambient
 extension; this predicate records the differentiability needed for the connection's additivity
 and constant-scalar laws. -/

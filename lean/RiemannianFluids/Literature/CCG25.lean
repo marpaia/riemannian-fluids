@@ -14,6 +14,9 @@ paper's hypotheses; the values are pointwise tangent or ambient vectors in one c
 
 namespace RiemannianFluids.Literature.CCG25
 
+open Bundle
+open scoped Bundle ContDiff Manifold
+
 /-- Complete contracted terms in the two equivalent Bochner Gauss formulas (1.5)--(1.6). -/
 structure BochnerGaussFormulaData (Argument Value : Type*) where
   ambientBochner : Argument → Value
@@ -275,5 +278,68 @@ theorem gauss_ricci_codimension_two_of_euclidean_gauss
   simpa [euclideanCodimensionTwoRicciData] using h
 
 end EuclideanRicciProof
+
+/-! ## Source-setting Euclidean immersion theorem -/
+
+section ImmersionEuclideanRicciProof
+
+variable
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    [CompleteSpace E] [FiniteDimensional ℝ E]
+  {H : Type*} [TopologicalSpace H]
+  {I : ModelWithCorners ℝ E H}
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I 1 M]
+  [RiemannianBundle (fun x : M ↦ TangentSpace I x)]
+  [∀ x : M, FiniteDimensional ℝ (TangentSpace I x)]
+  {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
+    [CompleteSpace E'] [FiniteDimensional ℝ E']
+  {H' : Type*} [TopologicalSpace H']
+  {I' : ModelWithCorners ℝ E' H'}
+  {N : Type*} [TopologicalSpace N] [ChartedSpace H' N] [IsManifold I' 1 N]
+  [RiemannianBundle (fun x : N ↦ TangentSpace I' x)]
+  [∀ x : N, FiniteDimensional ℝ (TangentSpace I' x)]
+
+/-- CCG25 Theorem 1.9, equation (1.12), on the actual tangent and normal fibers of a
+two-dimensional isometric immersion with two-dimensional normal fiber and flat ambient curvature.
+The Euclidean Gauss equation is derived from the induced and ambient connections under the exact
+differentiated-extension regularity contract; it is not supplied as a premise. -/
+theorem gauss_ricci_codimension_two_of_isometric_immersion
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (ambientFlat : tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting ambientLeviCivita.connection x ambientRegular = 0)
+    (tangentFrame : OrthonormalBasis (Fin 2) ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis (Fin 2) ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x)) :
+    gauss_ricci_codimension_two_statement
+      (euclideanCodimensionTwoRicciData tangentFrame normalFrame
+        (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
+          immersion ambientLeviCivita extensions x intrinsicRegular)) := by
+  apply gauss_ricci_codimension_two_of_euclidean_gauss
+  · exact inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric
+      immersion ambientLeviCivita extensions x intrinsicRegular
+  · exact inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasEuclideanGaussEquation
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+      extensionRegular ambientFlat
+
+end ImmersionEuclideanRicciProof
 
 end RiemannianFluids.Literature.CCG25
