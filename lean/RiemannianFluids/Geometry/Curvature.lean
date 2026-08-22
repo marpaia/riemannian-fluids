@@ -1485,6 +1485,17 @@ def connectionRicciFormAt
   letI : FiniteDimensional ℝ (TangentSpace I x) := tangentFiniteDimensional I x
   ricciFormOfCurvatureTensor (connectionCurvatureTensorAt I connection x regular)
 
+/-- Symmetry of the connection-derived Ricci form at one point.  The property is separated from
+the construction because deriving it for a Levi--Civita connection requires the metric curvature
+symmetry and the first Bianchi identity, not merely the definition of the curvature trace. -/
+def ConnectionRicciSymmetricAt
+    [IsManifold I 3 M]
+    (connection : CovariantDerivative I E (TangentSpace I : M → Type _)) (x : M)
+    (regular : HasConnectionCurvatureRegularityAt I connection x) : Prop :=
+  ∀ first second : TangentSpace I x,
+    connectionRicciFormAt I connection x regular first second =
+      connectionRicciFormAt I connection x regular second first
+
 /-- The metric-raised pointwise Ricci endomorphism constructed from the connection curvature. -/
 def connectionRicciActionAt
     [IsManifold I 3 M]

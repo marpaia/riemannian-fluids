@@ -259,6 +259,22 @@ theorem inner_connectionRicciTransposeActionAt
   rw [connectionRicciTransposeActionAt, inner_rieszRepresentative]
   rfl
 
+omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
+/-- When the connection Ricci form is symmetric, the pre-Bianchi transposed Ricci action used by
+the constructed Weitzenbock formula agrees with the usual raised Ricci action. -/
+theorem connectionRicciTransposeActionAt_eq_connectionRicciActionAt
+    [IsManifold I 3 M]
+    (connection : CovariantDerivative I E (TangentSpace I : M → Type _)) (x : M)
+    (regular : HasConnectionCurvatureRegularityAt I connection x)
+    (symmetric : ConnectionRicciSymmetricAt I connection x regular)
+    (field : TangentSpace I x) :
+    connectionRicciTransposeActionAt I connection x regular field =
+      connectionRicciActionAt I connection x regular field := by
+  apply ext_inner_right ℝ
+  intro w
+  rw [inner_connectionRicciTransposeActionAt,
+    connectionRicciActionAt_inner, symmetric]
+
 omit [CompleteSpace E] [IsManifold I 2 M]
     [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
 /-- Every orthonormal frame of the tangent fiber computes the intrinsic endomorphism trace. -/
@@ -363,6 +379,23 @@ theorem inner_roughLaplacianAt
   letI : FiniteDimensional ℝ (TangentSpace I x) := tangentFiniteDimensional I x
   rw [roughLaplacianAt, inner_neg_left, inner_bilinearMetricTrace,
     bilinearMetricTraceAgainst_eq_sum basis]
+
+omit [CompleteSpace E] [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
+/-- The vector-valued rough Laplacian itself is the negative diagonal Hessian sum in every
+orthonormal frame.  This is the basis-expansion bridge used by submanifold trace formulas, whose
+left-hand sides are naturally written in an adapted orthonormal frame. -/
+theorem roughLaplacianAt_eq_neg_sum
+    (connection : CovariantDerivative I E (TangentSpace I : M → Type _)) (x : M)
+    (regular : HasConnectionCurvatureRegularityAt I connection x)
+    (field : (y : M) → TangentSpace I y) (hfield : CMDiffAt 2 (T% field) x)
+    {ι : Type*} [Fintype ι] (basis : OrthonormalBasis ι ℝ (TangentSpace I x)) :
+    roughLaplacianAt I connection x regular field hfield =
+      -∑ i, secondCovariantDerivativeAt I connection x regular field hfield
+        (basis i) (basis i) := by
+  apply ext_inner_right ℝ
+  intro w
+  rw [inner_roughLaplacianAt I connection x regular field hfield basis w,
+    inner_neg_left, sum_inner]
 
 /-- The divergence of the deformation tensor tested against `w`:
 

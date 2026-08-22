@@ -88,36 +88,46 @@
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
       "intellectual_thread": "Gauss--Weingarten decomposition of the ambient Bochner Laplacian",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_of_isometric_immersion",
+      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_with_constructed_operators",
       "relationship": "conditional-theorem",
       "dependencies": [
         "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_firstGaussFormula",
         "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_secondGaussFormula",
         "RiemannianFluids.projectedCovariantDerivativeSecondFundamentalAt",
         "RiemannianFluids.normalAmbientConnectionCurvatureAt_eq_projectedCovariantDerivativeSecondFundamental_sub",
-        "RiemannianFluids.inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt_hasContractedCodazzi",
-        "RiemannianFluids.ambientNormalDerivative_sub_meanNormalDerivative_eq_bracket_sub_meanShape",
-        "RiemannianFluids.inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfMeanFieldAt_gaussFormulas"
+        "RiemannianFluids.ambientNormalRawSecondDerivativeOfTangentFieldUsingNormalExtensionsAt_apply",
+        "RiemannianFluids.ambientNormalDerivativeOfTangentField_sub_meanNormalDerivative_eq_bracket_sub_meanShape",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.ambientNormalSecondDerivative_apply",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasContractedCodazzi",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasGaussFormulas",
+        "RiemannianFluids.roughLaplacianAt_eq_neg_sum",
+        "RiemannianFluids.SmoothIsometricImmersionData.roughLaplacianAt_eq_neg_tangent_sum_sub_normal_sum",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.intrinsicBochner_eq_mfderiv_roughLaplacianAt",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.normalSecondDerivativeTrace_sub_acceleration_eq",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.ambientBochner_eq_roughLaplacianAt"
       ],
-      "limitation": "Lean now proves equations (1.5)--(1.6) on the actual tangent, kernel-normal, and ambient tangent fibers of one isometric immersion. It constructs a continuous trilinear normal covariant derivative of II, proves uncontracted and contracted Codazzi with the CCG25 slot/sign convention, and derives the mean-bracket conversion from torsion-freeness and Weingarten for a normal field realizing the mean-curvature first jet. The remaining exact-source gate is to construct the field-specific intrinsic and ambient normal two-jets, the mean-curvature-field realization, and the differentiated-extension regularity contract from one smooth tubular neighborhood extension rather than accepting those analytic realization inputs explicitly."
+      "limitation": "Lean proves equations (1.5)--(1.6) on actual tangent, kernel-normal, and ambient tangent fibers for one C2 source tangent field and chosen C2 ambient extension. It now identifies the intrinsic value with the constructed rough Laplacian, expands the constructed ambient rough Laplacian in an adapted tangent-normal frame, and identifies the complete normal trace. Conditional on one explicit tangent-Hessian trace identity, the paper-facing theorem identifies the ambient value with the constructed rough Laplacian as well. Exact source reproduction still requires constructing the compatible extension package, its differentiated regularity, and the mean-curvature normal-field first jet from tubular geometry, then proving that varying-field tangent-Hessian trace identity rather than accepting it as a premise."
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
       "intellectual_thread": "Gauss formula for ambient versus intrinsic Hodge Laplacians",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_of_isometric_immersion",
+      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_with_constructed_operators",
       "relationship": "conditional-theorem",
       "dependencies": [
         "RiemannianFluids.PointwiseRicciGaussJet.ambientRicci_eq_gaussFormula",
         "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_firstGaussFormula",
         "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_secondGaussFormula",
         "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasGaussEquationRelativeTo",
-        "RiemannianFluids.inducedLeviCivitaSubmanifoldRicciGaussJetOfMeanFieldAt",
-        "RiemannianFluids.inducedLeviCivitaSubmanifoldRicciGaussJetOfMeanFieldAt_hasAmbientRicciTraceSplitting",
-        "RiemannianFluids.inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt_hasContractedCodazzi",
-        "RiemannianFluids.inducedLeviCivitaSubmanifoldRicciGaussJetOfMeanFieldAt_hodgeGaussFormulas"
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.toRicciGaussJet",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasAmbientRicciTraceSplitting",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasContractedCodazzi",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasHodgeGaussFormulas",
+        "RiemannianFluids.connectionRicciTransposeActionAt_eq_connectionRicciActionAt",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.intrinsicHodge_eq_mfderiv_hodgeLaplacianConstructedAt",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.ambientHodge_eq_hodgeLaplacianConstructedAt"
       ],
-      "limitation": "Lean now assembles one actual-fiber Ricci/Hodge jet from the induced and ambient Levi-Civita curvatures and the completed differentiated Gauss-Weingarten core. Scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas are proved for that common object. The remaining exact-source gate is the same smooth tubular field realization as for the Bochner theorem: construct the visible field and normal-direction two-jets, mean-curvature first jet, and extension regularity from a single smooth ambient extension."
+      "limitation": "Lean assembles one actual-fiber Ricci/Hodge jet, proves scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas, and identifies both jet values with independently constructed Hodge Laplacians under the explicit tangent-Hessian trace identity and pointwise Ricci symmetry. Exact source reproduction still requires the common tubular construction and varying-field tangent-Hessian proof from the Bochner node, plus a reusable proof that the induced and ambient Levi-Civita Ricci forms are symmetric."
     },
     {
       "id": "CCF25-four-candidates-sphere",

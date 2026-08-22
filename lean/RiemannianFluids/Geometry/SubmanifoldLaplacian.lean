@@ -1,4 +1,5 @@
 import RiemannianFluids.Geometry.SubmanifoldGauss
+import RiemannianFluids.Tensors.SecondDerivative
 
 /-!
 # Pointwise Gauss--Weingarten trace for the Bochner Laplacian
@@ -484,6 +485,27 @@ theorem PointwiseBochnerGaussJet.ambientBochner_eq_firstGaussFormula
           rw [meanConversion]
     _ = _ := by module
 
+/-- A full differentiated Gauss--Weingarten jet satisfies both CCG25 Bochner formulas once
+the three geometric compatibility statements have been proved.  This packages the common
+algebraic endpoint used by concrete field-realization adapters. -/
+theorem PointwiseDifferentiatedGaussWeingartenJet.hasGaussFormulas
+    [Nonempty ι]
+    (jet : PointwiseDifferentiatedGaussWeingartenJet
+      (ι := ι) (κ := κ) (Tangent := Tangent) (Normal := Normal) (Ambient := Ambient))
+    (secondFundamentalSymmetric : ∀ first second,
+      jet.secondFundamental first second = jet.secondFundamental second first)
+    (derivativeSymmetric : jet.IsSymmetricDerivative)
+    (codazzi : jet.HasCodazziEquation)
+    (bracketWeingarten : jet.toPointwiseBochnerGaussJet.HasMeanBracketWeingarten) :
+    jet.toPointwiseBochnerGaussJet.HasGaussFormulas := by
+  rw [PointwiseBochnerGaussJet.HasGaussFormulas]
+  exact ⟨
+    jet.toPointwiseBochnerGaussJet.ambientBochner_eq_firstGaussFormula
+      secondFundamentalSymmetric (jet.hasContractedCodazzi derivativeSymmetric codazzi)
+      bracketWeingarten,
+    jet.toPointwiseBochnerGaussJet.ambientBochner_eq_secondGaussFormula
+      secondFundamentalSymmetric⟩
+
 end PointwiseBochner
 
 /-! ## Actual tangent-fiber realization -/
@@ -666,8 +688,44 @@ theorem connectionSubmanifoldDifferentiatedGaussWeingartenJetAt_ambientNormalCur
           leftInverse x ambientRegular :=
   rfl
 
+/-- Differentiate the chosen ambient extension of a source tangent field in an actual normal
+direction. -/
+def ambientNormalDerivativeOfTangentFieldAt
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M) (field : (y : M) → TangentSpace I y) :
+    SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+      TangentSpace I' (immersion.toFun x) :=
+  (ambientConnection
+    (extensions.toSubmanifoldFieldExtensionData.tangentExtension field)
+    (immersion.toFun x)).comp
+      (LinearMap.ker (splitting.tangentProjection x).toLinearMap).subtypeL
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I 1 M]
+  [RiemannianBundle (fun x : M ↦ TangentSpace I x)]
+  [CompleteSpace E'] [FiniteDimensional ℝ E']
+  [RiemannianBundle (fun x : N ↦ TangentSpace I' x)] in
+@[simp]
+theorem ambientNormalDerivativeOfTangentFieldAt_apply
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M) (field : (y : M) → TangentSpace I y)
+    (normal : SubmanifoldNormalSpaceAt immersion splitting x) :
+    ambientNormalDerivativeOfTangentFieldAt immersion splitting ambientConnection
+        extensions x field normal =
+      ambientConnection
+        (extensions.toSubmanifoldFieldExtensionData.tangentExtension field)
+        (immersion.toFun x) normal :=
+  rfl
+
 /-- Differentiate the canonical ambient extension of a tangent-fiber vector in an actual normal
-direction.  This constructs the normal-direction first derivative used by the CCG25 trace. -/
+direction.  This is the fiber-value specialization of `ambientNormalDerivativeOfTangentFieldAt`. -/
 def ambientNormalDerivativeOfCanonicalTangentFieldAt
     [IsManifold I 2 M] [IsManifold I' 2 N]
     [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
@@ -678,11 +736,8 @@ def ambientNormalDerivativeOfCanonicalTangentFieldAt
     (x : M) (field : TangentSpace I x) :
     SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
       TangentSpace I' (immersion.toFun x) :=
-  (ambientConnection
-    (extensions.toSubmanifoldFieldExtensionData.tangentExtension
-      (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field))
-    (immersion.toFun x)).comp
-      (LinearMap.ker (splitting.tangentProjection x).toLinearMap).subtypeL
+  ambientNormalDerivativeOfTangentFieldAt immersion splitting ambientConnection extensions x
+    (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field)
 
 omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I 1 M]
   [RiemannianBundle (fun x : M ↦ TangentSpace I x)]
@@ -706,8 +761,21 @@ theorem ambientNormalDerivativeOfCanonicalTangentFieldAt_apply
         (immersion.toFun x) normal :=
   rfl
 
-/-- The actual ambient Lie bracket between a chosen normal field along the immersion (after its
-ambient extension) and the canonical ambient extension of a tangent-fiber vector. -/
+/-- The actual ambient Lie bracket between a chosen normal field along the immersion and the
+chosen ambient extension of a source tangent field. -/
+def ambientBracketOfNormalAndTangentFieldAt
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M) (field : (y : M) → TangentSpace I y)
+    (normal : AmbientVectorFieldAlong immersion) :
+    TangentSpace I' (immersion.toFun x) :=
+  VectorField.mlieBracket I'
+    (extensions.toSubmanifoldFieldExtensionData.alongExtension normal)
+    (extensions.toSubmanifoldFieldExtensionData.tangentExtension field)
+    (immersion.toFun x)
+
+/-- The canonical fiber-value specialization of `ambientBracketOfNormalAndTangentFieldAt`. -/
 def ambientBracketOfNormalAndCanonicalTangentFieldAt
     [IsManifold I 2 M] [IsManifold I' 2 N]
     (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
@@ -715,11 +783,276 @@ def ambientBracketOfNormalAndCanonicalTangentFieldAt
     (x : M) (field : TangentSpace I x)
     (normal : AmbientVectorFieldAlong immersion) :
     TangentSpace I' (immersion.toFun x) :=
-  VectorField.mlieBracket I'
-    (extensions.toSubmanifoldFieldExtensionData.alongExtension normal)
-    (extensions.toSubmanifoldFieldExtensionData.tangentExtension
-      (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field))
-    (immersion.toFun x)
+  ambientBracketOfNormalAndTangentFieldAt immersion extensions x
+    (SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field) normal
+
+/-- A linear choice of differentiable ambient vector-field extension for every vector in the
+kernel-normal fiber at one point.  Agreement at the base point makes these honest extensions;
+linearity is the exact structure needed to turn their connection accelerations into a bilinear
+normal-fiber tensor. -/
+structure SubmanifoldNormalFieldExtensionDataAt
+    [IsManifold I 1 M] [IsManifold I' 1 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion) (x : M) where
+  toLinearMap : SubmanifoldNormalSpaceAt immersion splitting x →ₗ[ℝ]
+    ((y : N) → TangentSpace I' y)
+  mdifferentiableAt : ∀ normal,
+    MDiffAt (T% (toLinearMap normal)) (immersion.toFun x)
+  agrees : ∀ normal,
+    toLinearMap normal (immersion.toFun x) =
+      (normal : TangentSpace I' (immersion.toFun x))
+
+/-- The ambient bundle's canonical local extensions provide a linear differentiable extension
+of every normal-fiber vector.  No tubular-neighborhood theorem is needed for this pointwise
+normal-frame choice. -/
+def canonicalSubmanifoldNormalFieldExtensionDataAt
+    [IsManifold I' 2 N]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion) (x : M) :
+    SubmanifoldNormalFieldExtensionDataAt immersion splitting x where
+  toLinearMap :=
+    (SubmanifoldFieldExtensionData.linearFiberExtensionAt
+      (I := I') (immersion.toFun x)).comp
+        (LinearMap.ker (splitting.tangentProjection x).toLinearMap).subtype
+  mdifferentiableAt := fun normal ↦
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt (I := I')
+      (immersion.toFun x)
+      (normal : TangentSpace I' (immersion.toFun x))
+  agrees := fun normal ↦
+    SubmanifoldFieldExtensionData.linearFiberExtensionAt_apply_self (I := I')
+      (immersion.toFun x) (normal : TangentSpace I' (immersion.toFun x))
+
+/-- Construct the paper's normal-frame acceleration derivative
+`∇̃_{∇̃_η ζ} ṽ` from actual ambient normal-field extensions. -/
+def ambientNormalAccelerationDerivativeOfTangentFieldAt
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M)
+    (field : (y : M) → TangentSpace I y)
+    (normalExtensions : SubmanifoldNormalFieldExtensionDataAt immersion splitting x) :
+    SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+      SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+        TangentSpace I' (immersion.toFun x) :=
+  let ambientField := extensions.toSubmanifoldFieldExtensionData.tangentExtension field
+  let fieldDerivative := ambientConnection ambientField (immersion.toFun x)
+  let normalLift := (LinearMap.ker (splitting.tangentProjection x).toLinearMap).subtypeL
+  LinearMap.toContinuousLinearMap {
+    toFun := fun first ↦ LinearMap.toContinuousLinearMap {
+      toFun := fun second ↦ fieldDerivative
+        (ambientConnection (normalExtensions.toLinearMap second) (immersion.toFun x)
+          (normalLift first))
+      map_add' := by
+        intro second second'
+        have connectionAdd := DFunLike.congr_fun
+          (ambientConnection.isCovariantDerivativeOn.add
+            (normalExtensions.mdifferentiableAt second)
+            (normalExtensions.mdifferentiableAt second')) (normalLift first)
+        rw [map_add]
+        rw [connectionAdd]
+        simp
+      map_smul' := by
+        intro scalar second
+        have connectionSmul := DFunLike.congr_fun
+          (ambientConnection.isCovariantDerivativeOn.smul_const scalar
+            (normalExtensions.mdifferentiableAt second)) (normalLift first)
+        rw [map_smul]
+        rw [connectionSmul]
+        simp }
+    map_add' := by
+      intro first first'
+      ext second
+      simp [normalLift]
+    map_smul' := by
+      intro scalar first
+      ext second
+      simp [normalLift] }
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [RiemannianBundle (fun x : M ↦ TangentSpace I x)]
+  [CompleteSpace E'] [FiniteDimensional ℝ E'] in
+@[simp]
+theorem ambientNormalAccelerationDerivativeOfTangentFieldAt_apply
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M)
+    (field : (y : M) → TangentSpace I y)
+    (normalExtensions : SubmanifoldNormalFieldExtensionDataAt immersion splitting x)
+    (first second : SubmanifoldNormalSpaceAt immersion splitting x) :
+    ambientNormalAccelerationDerivativeOfTangentFieldAt immersion splitting ambientConnection
+        extensions x field normalExtensions first second =
+      ambientConnection
+        (extensions.toSubmanifoldFieldExtensionData.tangentExtension field)
+        (immersion.toFun x)
+        (ambientConnection (normalExtensions.toLinearMap second) (immersion.toFun x)
+          (first : TangentSpace I' (immersion.toFun x))) := by
+  simp [ambientNormalAccelerationDerivativeOfTangentFieldAt]
+
+/-- Restrict the ambient covariant Hessian of the chosen tangent-field extension to the two
+kernel-normal input slots.  This is the tensorial combination
+`∇̃²v(η,ζ) = ∇̃_η∇̃_ζv - ∇̃_{∇̃_ηζ}v`. -/
+def ambientNormalCovariantHessianOfTangentFieldAt
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (field : (y : M) → TangentSpace I y)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x)) :
+    SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+      SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+        TangentSpace I' (immersion.toFun x) :=
+  let hessian := secondCovariantDerivativeAt I' ambientConnection (immersion.toFun x)
+    ambientRegular (extensions.toSubmanifoldFieldExtensionData.tangentExtension field)
+    ambientFieldRegular
+  let normalLift := (LinearMap.ker (splitting.tangentProjection x).toLinearMap).subtypeL
+  LinearMap.toContinuousLinearMap {
+    toFun := fun first ↦ (hessian (normalLift first)).comp normalLift
+    map_add' := by
+      intro first first'
+      ext second
+      simp [hessian, normalLift]
+    map_smul' := by
+      intro scalar first
+      ext second
+      simp [hessian, normalLift] }
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I 1 M]
+  [RiemannianBundle (fun x : M ↦ TangentSpace I x)] [CompleteSpace E'] in
+@[simp]
+theorem ambientNormalCovariantHessianOfTangentFieldAt_apply
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (field : (y : M) → TangentSpace I y)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (first second : SubmanifoldNormalSpaceAt immersion splitting x) :
+    ambientNormalCovariantHessianOfTangentFieldAt immersion splitting ambientConnection
+        extensions x ambientRegular field ambientFieldRegular first second =
+      secondCovariantDerivativeAt I' ambientConnection (immersion.toFun x) ambientRegular
+        (extensions.toSubmanifoldFieldExtensionData.tangentExtension field)
+        ambientFieldRegular (first : TangentSpace I' (immersion.toFun x))
+          (second : TangentSpace I' (immersion.toFun x)) := by
+  simp [ambientNormalCovariantHessianOfTangentFieldAt]
+
+/-- Reconstruct the paper's uncorrected iterated normal derivative from the tensorial ambient
+Hessian and the separately named normal-frame acceleration term.  In the Bochner trace the latter
+is added back, so the pair reduces exactly to the covariant Hessian. -/
+def ambientNormalRawSecondDerivativeOfTangentFieldAt
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (field : (y : M) → TangentSpace I y)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (ambientNormalAccelerationDerivative :
+      SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+        SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+          TangentSpace I' (immersion.toFun x)) :
+    SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+      SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+        TangentSpace I' (immersion.toFun x) :=
+  ambientNormalCovariantHessianOfTangentFieldAt immersion splitting ambientConnection extensions
+    x ambientRegular field ambientFieldRegular + ambientNormalAccelerationDerivative
+
+/-- The raw iterated normal derivative built from actual ambient normal-field extensions. -/
+def ambientNormalRawSecondDerivativeOfTangentFieldUsingNormalExtensionsAt
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (field : (y : M) → TangentSpace I y)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (normalExtensions : SubmanifoldNormalFieldExtensionDataAt immersion splitting x) :
+    SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+      SubmanifoldNormalSpaceAt immersion splitting x →L[ℝ]
+        TangentSpace I' (immersion.toFun x) :=
+  ambientNormalRawSecondDerivativeOfTangentFieldAt immersion splitting ambientConnection
+    extensions x ambientRegular field ambientFieldRegular
+    (ambientNormalAccelerationDerivativeOfTangentFieldAt immersion splitting ambientConnection
+      extensions x field normalExtensions)
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [RiemannianBundle (fun x : M ↦ TangentSpace I x)] [CompleteSpace E'] in
+/-- Evaluation of the preceding tensor is the genuinely iterated derivative
+`∇̃_η (∇̃_ζ ṽ)`: the connection-acceleration term exactly cancels the tensorial Hessian
+correction. -/
+theorem ambientNormalRawSecondDerivativeOfTangentFieldUsingNormalExtensionsAt_apply
+    [IsManifold I 2 M] [IsManifold I' 2 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : CovariantSubmanifoldFieldExtensionData immersion)
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (field : (y : M) → TangentSpace I y)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (normalExtensions : SubmanifoldNormalFieldExtensionDataAt immersion splitting x)
+    (first second : SubmanifoldNormalSpaceAt immersion splitting x) :
+    ambientNormalRawSecondDerivativeOfTangentFieldUsingNormalExtensionsAt immersion splitting
+        ambientConnection extensions x ambientRegular field ambientFieldRegular
+        normalExtensions first second =
+      ambientConnection
+        (covariantDerivativeAlong I' ambientConnection (normalExtensions.toLinearMap second)
+          (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+        (immersion.toFun x) (first : TangentSpace I' (immersion.toFun x)) := by
+  rw [ambientNormalRawSecondDerivativeOfTangentFieldUsingNormalExtensionsAt,
+    ambientNormalRawSecondDerivativeOfTangentFieldAt, add_apply, add_apply,
+    ambientNormalCovariantHessianOfTangentFieldAt_apply,
+    ambientNormalAccelerationDerivativeOfTangentFieldAt_apply]
+  rw [← normalExtensions.agrees first, ← normalExtensions.agrees second]
+  rw [secondCovariantDerivativeAt_apply I' ambientConnection (immersion.toFun x) ambientRegular
+    (extensions.toSubmanifoldFieldExtensionData.tangentExtension field) ambientFieldRegular
+    (normalExtensions.mdifferentiableAt first) (normalExtensions.mdifferentiableAt second)]
+  simp only [secondCovariantDerivativeAlong, covariantDerivativeAlong, Pi.sub_apply]
+  module
 
 /-- The single-source differentiated Gauss--Weingarten jet for a boundaryless isometric
 immersion.  Its second fundamental form, covariant derivative of `II`, and normal ambient
@@ -1052,9 +1385,159 @@ def inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt
       x intrinsicRegular extensionRegular field (tangentFrame i) (tangentFrame i)
 
 /-- Torsion-freeness and the constructed Weingarten formula prove the CCG25 mean-bracket
-identity from an actual normal field realizing the value and normal derivative of mean curvature
-at the base point.  The hypotheses describe that first-order realization and its regularity;
-they do not assume the bracket identity. -/
+identity for the chosen extension of an actual source tangent field.  The normal-field hypotheses
+describe a first-order realization of mean curvature; they do not assume the bracket identity. -/
+theorem ambientNormalDerivativeOfTangentField_sub_meanNormalDerivative_eq_bracket_sub_meanShape
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedCovariantDerivative immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection
+        immersion.hasTangentProjectionLeftInverse) x)
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (field : (y : M) → TangentSpace I y)
+    (field_mdifferentiableAt : MDiffAt (T% field) x)
+    (normal : AmbientVectorFieldAlong immersion.toSmoothImmersionData)
+    (normalExtension_mdifferentiableAt : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension normal))
+      (immersion.toFun x))
+    (normal_mem : ∀ y,
+      immersion.orthogonalSplitting.tangentProjection y (normal y) = 0)
+    (normal_value : normal x =
+      (inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
+        extensions x tangentFrame : TangentSpace I' (immersion.toFun x)))
+    (normal_derivative :
+      extensions.toSubmanifoldFieldExtensionData.normalDerivative
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection
+          field normal x =
+        (inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt immersion ambientLeviCivita
+          extensions x intrinsicRegular extensionRegular tangentFrame (field x) :
+            TangentSpace I' (immersion.toFun x))) :
+    ambientNormalDerivativeOfTangentFieldAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting ambientLeviCivita.connection extensions x field
+          (inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
+            extensions x tangentFrame) -
+        (inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt immersion ambientLeviCivita
+          extensions x intrinsicRegular extensionRegular tangentFrame (field x) :
+            TangentSpace I' (immersion.toFun x)) =
+      ambientBracketOfNormalAndTangentFieldAt immersion.toSmoothImmersionData
+          extensions x field normal -
+        mfderiv I I' immersion.toFun x
+          (shapeOperatorOfSecondFundamental
+            (CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+              immersion.toSmoothImmersionData immersion.orthogonalSplitting
+              ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+              immersion.hasTangentProjectionLeftInverse x)
+            (inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
+              extensions x tangentFrame) (field x)) := by
+  let pointII :=
+    CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+      immersion.hasTangentProjectionLeftInverse x
+  let meanNormal :=
+    inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
+      extensions x tangentFrame
+  let meanNormalDerivative :=
+    inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt immersion ambientLeviCivita
+      extensions x intrinsicRegular extensionRegular tangentFrame (field x)
+  let fieldExtension := field
+  let ambientField :=
+    extensions.toSubmanifoldFieldExtensionData.tangentExtension fieldExtension
+  let ambientNormal :=
+    extensions.toSubmanifoldFieldExtensionData.alongExtension normal
+  let shapeAlong :=
+    extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection fieldExtension normal x
+  have hfield : MDiffAt (T% fieldExtension) x := field_mdifferentiableAt
+  have hambientField : MDiffAt (T% ambientField) (immersion.toFun x) :=
+    extensions.tangentExtension_mdifferentiableAt hfield
+  have normalOrthogonal : ∀ y tangent,
+      inner ℝ (normal y) (mfderiv I I' immersion.toFun y tangent) = 0 := by
+    intro y tangent
+    exact (immersion.mem_normalSpace_iff y (normal y)).mp (normal_mem y) tangent
+  have shapeEquality :
+      shapeOperatorOfSecondFundamental pointII meanNormal (field x) = shapeAlong := by
+    apply ext_inner_right ℝ
+    intro test
+    let testField :=
+      SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x test
+    have shapePairing := shapeOperatorAlong_inner_secondFundamentalFormAlong
+      immersion ambientLeviCivita extensions normal
+      (x := x) (hfirst := hfield)
+      (htest := SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt
+        (I := I) x test)
+      (hnormalExtension := normalExtension_mdifferentiableAt) normalOrthogonal
+    rw [shapeOperatorOfSecondFundamental_inner]
+    have shapePairing' :
+        inner ℝ shapeAlong test =
+          inner ℝ
+            (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
+              immersion.toSmoothImmersionData immersion.orthogonalSplitting
+              ambientLeviCivita.connection fieldExtension testField x)
+            (normal x) := by
+      simpa [shapeAlong, testField] using shapePairing
+    rw [shapePairing']
+    rw [normal_value]
+    simp [pointII, fieldExtension, testField,
+      SubmanifoldFieldExtensionData.secondFundamentalFormAlong,
+      SubmanifoldFieldExtensionData.ambientDerivativeTangent]
+    rfl
+  have ambientNormalValue : ambientNormal (immersion.toFun x) = normal x :=
+    extensions.toSubmanifoldFieldExtensionData.alongExtension_agrees normal x
+  have ambientFieldValue : ambientField (immersion.toFun x) =
+      mfderiv I I' immersion.toFun x (field x) := by
+    simpa [ambientField, fieldExtension] using
+      (extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees fieldExtension x)
+  have torsionIdentity := ambientLeviCivita.connection.torsion_eq_zero_iff.mp
+    ambientLeviCivita.torsionFree normalExtension_mdifferentiableAt hambientField
+  have torsionAt :
+      ambientLeviCivita.connection ambientField (immersion.toFun x) (normal x) -
+          ambientLeviCivita.connection ambientNormal (immersion.toFun x)
+            (mfderiv I I' immersion.toFun x (field x)) =
+        VectorField.mlieBracket I' ambientNormal ambientField (immersion.toFun x) := by
+    dsimp only [ambientNormal] at ambientNormalValue ⊢
+    rw [← ambientNormalValue, ← ambientFieldValue]
+    exact torsionIdentity
+  have weingartenAt :
+      ambientLeviCivita.connection ambientNormal (immersion.toFun x)
+          (mfderiv I I' immersion.toFun x (field x)) =
+        -(mfderiv I I' immersion.toFun x shapeAlong) +
+          extensions.toSubmanifoldFieldExtensionData.normalDerivative
+            immersion.toSmoothImmersionData immersion.orthogonalSplitting
+            ambientLeviCivita.connection fieldExtension normal x := by
+    simpa [SubmanifoldFieldExtensionData.ambientDerivativeAlong, ambientNormal,
+      fieldExtension, shapeAlong] using
+      (extensions.toSubmanifoldFieldExtensionData.ambientDerivativeAlong_eq_weingarten
+        immersion.toSmoothImmersionData immersion.orthogonalSplitting
+        ambientLeviCivita.connection immersion.hasTangentNormalDecomposition
+        fieldExtension normal x)
+  change ambientLeviCivita.connection ambientField (immersion.toFun x)
+        (meanNormal : TangentSpace I' (immersion.toFun x)) -
+      (meanNormalDerivative : TangentSpace I' (immersion.toFun x)) =
+    VectorField.mlieBracket I' ambientNormal ambientField (immersion.toFun x) -
+      mfderiv I I' immersion.toFun x
+        (shapeOperatorOfSecondFundamental pointII meanNormal (field x))
+  rw [← normal_value, ← normal_derivative, shapeEquality, ← torsionAt, weingartenAt]
+  module
+
+/-- Fiber-value specialization of the source-field mean-bracket theorem, using the canonical
+linear source extension at the base point. -/
 theorem ambientNormalDerivative_sub_meanNormalDerivative_eq_bracket_sub_meanShape
     [IsManifold I 3 M] [IsManifold I' 3 N]
     [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
@@ -1112,100 +1595,23 @@ theorem ambientNormalDerivative_sub_meanNormalDerivative_eq_bracket_sub_meanShap
               immersion.hasTangentProjectionLeftInverse x)
             (inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
               extensions x tangentFrame) field) := by
-  let pointII :=
-    CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
-      immersion.toSmoothImmersionData immersion.orthogonalSplitting
-      ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
-      immersion.hasTangentProjectionLeftInverse x
-  let meanNormal :=
-    inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
-      extensions x tangentFrame
-  let meanNormalDerivative :=
-    inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt immersion ambientLeviCivita
-      extensions x intrinsicRegular extensionRegular tangentFrame field
   let fieldExtension :=
     SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x field
-  let ambientField :=
-    extensions.toSubmanifoldFieldExtensionData.tangentExtension fieldExtension
-  let ambientNormal :=
-    extensions.toSubmanifoldFieldExtensionData.alongExtension normal
-  let shapeAlong :=
-    extensions.toSubmanifoldFieldExtensionData.shapeOperatorAlong
-      immersion.toSmoothImmersionData immersion.orthogonalSplitting
-      ambientLeviCivita.connection fieldExtension normal x
-  have hfield : MDiffAt (T% fieldExtension) x :=
-    SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt
-      (I := I) x field
-  have hambientField : MDiffAt (T% ambientField) (immersion.toFun x) :=
-    extensions.tangentExtension_mdifferentiableAt hfield
-  have normalOrthogonal : ∀ y tangent,
-      inner ℝ (normal y) (mfderiv I I' immersion.toFun y tangent) = 0 := by
-    intro y tangent
-    exact (immersion.mem_normalSpace_iff y (normal y)).mp (normal_mem y) tangent
-  have shapeEquality :
-      shapeOperatorOfSecondFundamental pointII meanNormal field = shapeAlong := by
-    apply ext_inner_right ℝ
-    intro test
-    let testField :=
-      SubmanifoldFieldExtensionData.linearFiberExtensionAt (I := I) x test
-    have shapePairing := shapeOperatorAlong_inner_secondFundamentalFormAlong
-      immersion ambientLeviCivita extensions normal
-      (x := x) (hfirst := hfield)
-      (htest := SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt
-        (I := I) x test)
-      (hnormalExtension := normalExtension_mdifferentiableAt) normalOrthogonal
-    rw [shapeOperatorOfSecondFundamental_inner]
-    have shapePairing' :
-        inner ℝ shapeAlong test =
-          inner ℝ
-            (extensions.toSubmanifoldFieldExtensionData.secondFundamentalFormAlong
-              immersion.toSmoothImmersionData immersion.orthogonalSplitting
-              ambientLeviCivita.connection fieldExtension testField x)
-            (normal x) := by
-      simpa [shapeAlong, testField] using shapePairing
-    rw [shapePairing']
-    rw [normal_value]
-    simp [pointII, fieldExtension, testField,
-      SubmanifoldFieldExtensionData.secondFundamentalFormAlong,
-      SubmanifoldFieldExtensionData.ambientDerivativeTangent]
-    rfl
-  have ambientNormalValue : ambientNormal (immersion.toFun x) = normal x :=
-    extensions.toSubmanifoldFieldExtensionData.alongExtension_agrees normal x
-  have ambientFieldValue : ambientField (immersion.toFun x) =
-      mfderiv I I' immersion.toFun x field := by
-    simpa [ambientField, fieldExtension] using
-      (extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees fieldExtension x)
-  have torsionIdentity := ambientLeviCivita.connection.torsion_eq_zero_iff.mp
-    ambientLeviCivita.torsionFree normalExtension_mdifferentiableAt hambientField
-  have torsionAt :
-      ambientLeviCivita.connection ambientField (immersion.toFun x) (normal x) -
-          ambientLeviCivita.connection ambientNormal (immersion.toFun x)
-            (mfderiv I I' immersion.toFun x field) =
-        VectorField.mlieBracket I' ambientNormal ambientField (immersion.toFun x) := by
-    dsimp only [ambientNormal] at ambientNormalValue ⊢
-    rw [← ambientNormalValue, ← ambientFieldValue]
-    exact torsionIdentity
-  have weingartenAt :
-      ambientLeviCivita.connection ambientNormal (immersion.toFun x)
-          (mfderiv I I' immersion.toFun x field) =
-        -(mfderiv I I' immersion.toFun x shapeAlong) +
-          extensions.toSubmanifoldFieldExtensionData.normalDerivative
-            immersion.toSmoothImmersionData immersion.orthogonalSplitting
-            ambientLeviCivita.connection fieldExtension normal x := by
-    simpa [SubmanifoldFieldExtensionData.ambientDerivativeAlong, ambientNormal,
-      fieldExtension, shapeAlong] using
-      (extensions.toSubmanifoldFieldExtensionData.ambientDerivativeAlong_eq_weingarten
-        immersion.toSmoothImmersionData immersion.orthogonalSplitting
-        ambientLeviCivita.connection immersion.hasTangentNormalDecomposition
-        fieldExtension normal x)
-  change ambientLeviCivita.connection ambientField (immersion.toFun x)
-        (meanNormal : TangentSpace I' (immersion.toFun x)) -
-      (meanNormalDerivative : TangentSpace I' (immersion.toFun x)) =
-    VectorField.mlieBracket I' ambientNormal ambientField (immersion.toFun x) -
-      mfderiv I I' immersion.toFun x
-        (shapeOperatorOfSecondFundamental pointII meanNormal field)
-  rw [← normal_value, ← normal_derivative, shapeEquality, ← torsionAt, weingartenAt]
-  module
+  have normal_derivative' :
+      extensions.toSubmanifoldFieldExtensionData.normalDerivative
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection fieldExtension normal x =
+        (inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt immersion ambientLeviCivita
+          extensions x intrinsicRegular extensionRegular tangentFrame (fieldExtension x) :
+            TangentSpace I' (immersion.toFun x)) := by
+    simpa [fieldExtension] using normal_derivative
+  simpa [ambientNormalDerivativeOfCanonicalTangentFieldAt,
+    ambientBracketOfNormalAndCanonicalTangentFieldAt, fieldExtension] using
+    (ambientNormalDerivativeOfTangentField_sub_meanNormalDerivative_eq_bracket_sub_meanShape
+      immersion ambientLeviCivita extensions x intrinsicRegular extensionRegular tangentFrame
+      fieldExtension
+      (SubmanifoldFieldExtensionData.linearFiberExtensionAt_mdifferentiableAt (I := I) x field)
+      normal normalExtension_mdifferentiableAt normal_mem normal_value normal_derivative')
 
 /-- Specialize the single-source differentiated jet by constructing its normal-direction first
 derivative and mean bracket from the ambient connection and a chosen normal mean-curvature
@@ -1537,6 +1943,417 @@ theorem inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfMeanFieldA
         intrinsicSecondDerivative ambientNormalSecondDerivative
         ambientNormalAccelerationDerivative normal first second
 
+/-- Construct the differentiated Gauss--Weingarten jet of an actual `C²` source tangent field.
+The intrinsic first derivative and Hessian use the induced Levi--Civita connection; the normal
+first derivative and covariant Hessian use the chosen ambient extension of that same field.  The
+paper's raw iterated normal derivative is reconstructed as covariant Hessian plus the separately
+named normal-frame acceleration term. -/
+def inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (field : (y : M) → TangentSpace I y)
+    (fieldRegular : CMDiffAt 2 (T% field) x)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (ambientNormalAccelerationDerivative :
+      SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting x →L[ℝ]
+        SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+            immersion.orthogonalSplitting x →L[ℝ]
+          TangentSpace I' (immersion.toFun x))
+    (meanNormalField : AmbientVectorFieldAlong immersion.toSmoothImmersionData) :
+    SubmanifoldDifferentiatedGaussWeingartenJetAt
+      (ι := ι) (κ := κ) immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x :=
+  inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt
+    immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
+    tangentFrame normalFrame (field x)
+    ((extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection field x)
+    (secondCovariantDerivativeAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+      x intrinsicRegular field fieldRegular)
+    (ambientNormalDerivativeOfTangentFieldAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting ambientLeviCivita.connection extensions x field)
+    (ambientNormalRawSecondDerivativeOfTangentFieldAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting ambientLeviCivita.connection extensions x ambientRegular
+      field ambientFieldRegular ambientNormalAccelerationDerivative)
+    ambientNormalAccelerationDerivative
+    (ambientBracketOfNormalAndTangentFieldAt immersion.toSmoothImmersionData extensions x field
+      meanNormalField)
+
+/-- The actual-field jet inherits symmetry of the constructed second fundamental form. -/
+theorem inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_secondFundamental_comm
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (field : (y : M) → TangentSpace I y)
+    (fieldRegular : CMDiffAt 2 (T% field) x)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (ambientNormalAccelerationDerivative :
+      SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting x →L[ℝ]
+        SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+            immersion.orthogonalSplitting x →L[ℝ]
+          TangentSpace I' (immersion.toFun x))
+    (meanNormalField : AmbientVectorFieldAlong immersion.toSmoothImmersionData)
+    (first second : TangentSpace I x) :
+    (inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+      extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+      ambientNormalAccelerationDerivative meanNormalField).secondFundamental first second =
+    (inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+      extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+      ambientNormalAccelerationDerivative meanNormalField).secondFundamental second first := by
+  change
+    CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+        immersion.toSmoothImmersionData immersion.orthogonalSplitting
+        ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+        immersion.hasTangentProjectionLeftInverse x first second =
+      CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+        immersion.toSmoothImmersionData immersion.orthogonalSplitting
+        ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+        immersion.hasTangentProjectionLeftInverse x second first
+  exact extensions.projectedSecondFundamentalFormAt_comm
+    immersion.toSmoothImmersionData immersion.orthogonalSplitting
+    ambientLeviCivita.connection immersion.hasTangentNormalDecomposition
+    immersion.hasTangentProjectionLeftInverse ambientLeviCivita.torsionFree
+    (extensions.hasBracketCompatibility immersion.toSmoothImmersionData) x first second
+
+/-- Symmetry of `∇ᴮ II` for the actual-field jet is inherited from the common immersion
+construction. -/
+theorem inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_isSymmetricDerivative
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (field : (y : M) → TangentSpace I y)
+    (fieldRegular : CMDiffAt 2 (T% field) x)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (ambientNormalAccelerationDerivative :
+      SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting x →L[ℝ]
+        SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+            immersion.orthogonalSplitting x →L[ℝ]
+          TangentSpace I' (immersion.toFun x))
+    (meanNormalField : AmbientVectorFieldAlong immersion.toSmoothImmersionData) :
+    (inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+      extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+      ambientNormalAccelerationDerivative meanNormalField).IsSymmetricDerivative := by
+  simpa [inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt] using
+    (inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt_isSymmetricDerivative
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
+      tangentFrame normalFrame (field x)
+      ((extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection field x)
+      (secondCovariantDerivativeAt I
+        (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+        x intrinsicRegular field fieldRegular)
+      (ambientNormalDerivativeOfTangentFieldAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection extensions x field)
+      (ambientNormalRawSecondDerivativeOfTangentFieldAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection extensions x ambientRegular
+        field ambientFieldRegular ambientNormalAccelerationDerivative)
+      ambientNormalAccelerationDerivative
+      (ambientBracketOfNormalAndTangentFieldAt immersion.toSmoothImmersionData extensions x field
+        meanNormalField))
+
+/-- The actual-field jet satisfies the uncontracted normal Codazzi equation inherited from the
+same ambient Levi--Civita curvature used in its differentiated Gauss formula. -/
+theorem inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_hasCodazziEquation
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (field : (y : M) → TangentSpace I y)
+    (fieldRegular : CMDiffAt 2 (T% field) x)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (ambientNormalAccelerationDerivative :
+      SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting x →L[ℝ]
+        SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+            immersion.orthogonalSplitting x →L[ℝ]
+          TangentSpace I' (immersion.toFun x))
+    (meanNormalField : AmbientVectorFieldAlong immersion.toSmoothImmersionData) :
+    (inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+      extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+      ambientNormalAccelerationDerivative meanNormalField).HasCodazziEquation := by
+  simpa [inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt] using
+    (inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt_hasCodazziEquation
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
+      tangentFrame normalFrame (field x)
+      ((extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection field x)
+      (secondCovariantDerivativeAt I
+        (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+        x intrinsicRegular field fieldRegular)
+      (ambientNormalDerivativeOfTangentFieldAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection extensions x field)
+      (ambientNormalRawSecondDerivativeOfTangentFieldAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting ambientLeviCivita.connection extensions x ambientRegular
+        field ambientFieldRegular ambientNormalAccelerationDerivative)
+      ambientNormalAccelerationDerivative
+      (ambientBracketOfNormalAndTangentFieldAt immersion.toSmoothImmersionData extensions x field
+        meanNormalField))
+
+/-- Torsion-freeness and Weingarten prove the mean-bracket identity for the actual source field,
+provided the chosen normal field realizes mean curvature and its normal derivative to first
+order at the base point. -/
+theorem inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_hasMeanBracketWeingarten
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (field : (y : M) → TangentSpace I y)
+    (fieldRegular : CMDiffAt 2 (T% field) x)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (ambientNormalAccelerationDerivative :
+      SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting x →L[ℝ]
+        SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+            immersion.orthogonalSplitting x →L[ℝ]
+          TangentSpace I' (immersion.toFun x))
+    (meanNormalField : AmbientVectorFieldAlong immersion.toSmoothImmersionData)
+    (meanNormalField_extension_mdifferentiableAt : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension meanNormalField))
+      (immersion.toFun x))
+    (meanNormalField_mem : ∀ y,
+      immersion.orthogonalSplitting.tangentProjection y (meanNormalField y) = 0)
+    (meanNormalField_value : meanNormalField x =
+      (inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
+        extensions x tangentFrame : TangentSpace I' (immersion.toFun x)))
+    (meanNormalField_derivative :
+      extensions.toSubmanifoldFieldExtensionData.normalDerivative
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection field meanNormalField x =
+        (inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt immersion ambientLeviCivita
+          extensions x intrinsicRegular extensionRegular tangentFrame (field x) :
+            TangentSpace I' (immersion.toFun x))) :
+    (inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+      extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+      ambientNormalAccelerationDerivative meanNormalField
+      ).toPointwiseBochnerGaussJet.HasMeanBracketWeingarten := by
+  simpa [PointwiseBochnerGaussJet.HasMeanBracketWeingarten,
+    PointwiseBochnerGaussJet.meanDerivative, PointwiseBochnerGaussJet.meanShape,
+    inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt,
+    inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt,
+    connectionSubmanifoldDifferentiatedGaussWeingartenJetAt,
+    submanifoldDifferentiatedGaussWeingartenJetAt,
+    PointwiseDifferentiatedGaussWeingartenJet.toPointwiseBochnerGaussJet,
+    PointwiseDifferentiatedGaussWeingartenJet.meanNormalDerivative,
+    inducedLeviCivitaSubmanifoldMeanCurvatureAt,
+    inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt] using
+    (ambientNormalDerivativeOfTangentField_sub_meanNormalDerivative_eq_bracket_sub_meanShape
+      immersion ambientLeviCivita extensions x intrinsicRegular extensionRegular tangentFrame
+      field (fieldRegular.mdifferentiableAt (by norm_num)) meanNormalField
+      meanNormalField_extension_mdifferentiableAt meanNormalField_mem meanNormalField_value
+      meanNormalField_derivative)
+
+/-- Both CCG25 Bochner Gauss formulas for one actual `C²` tangent field and its chosen `C²`
+ambient extension.  No intrinsic derivative, ambient normal derivative, Hessian, Codazzi, or
+bracket identity is supplied independently. -/
+theorem inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_hasGaussFormulas
+    [Nonempty ι]
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (field : (y : M) → TangentSpace I y)
+    (fieldRegular : CMDiffAt 2 (T% field) x)
+    (ambientFieldRegular : CMDiffAt 2
+      (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+      (immersion.toFun x))
+    (ambientNormalAccelerationDerivative :
+      SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting x →L[ℝ]
+        SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+            immersion.orthogonalSplitting x →L[ℝ]
+          TangentSpace I' (immersion.toFun x))
+    (meanNormalField : AmbientVectorFieldAlong immersion.toSmoothImmersionData)
+    (meanNormalField_extension_mdifferentiableAt : MDiffAt
+      (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension meanNormalField))
+      (immersion.toFun x))
+    (meanNormalField_mem : ∀ y,
+      immersion.orthogonalSplitting.tangentProjection y (meanNormalField y) = 0)
+    (meanNormalField_value : meanNormalField x =
+      (inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
+        extensions x tangentFrame : TangentSpace I' (immersion.toFun x)))
+    (meanNormalField_derivative :
+      extensions.toSubmanifoldFieldExtensionData.normalDerivative
+          immersion.toSmoothImmersionData immersion.orthogonalSplitting
+          ambientLeviCivita.connection field meanNormalField x =
+        (inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt immersion ambientLeviCivita
+          extensions x intrinsicRegular extensionRegular tangentFrame (field x) :
+            TangentSpace I' (immersion.toFun x))) :
+    (inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt
+      immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+      extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+      ambientNormalAccelerationDerivative meanNormalField
+      ).toPointwiseBochnerGaussJet.HasGaussFormulas := by
+  apply PointwiseDifferentiatedGaussWeingartenJet.hasGaussFormulas
+  · intro first second
+    exact
+      inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_secondFundamental_comm
+        immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+        extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+        ambientNormalAccelerationDerivative meanNormalField first second
+  · exact
+      inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_isSymmetricDerivative
+        immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+        extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+        ambientNormalAccelerationDerivative meanNormalField
+  · exact
+      inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_hasCodazziEquation
+        immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+        extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+        ambientNormalAccelerationDerivative meanNormalField
+  · exact
+      inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_hasMeanBracketWeingarten
+        immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular
+        extensionRegular tangentFrame normalFrame field fieldRegular ambientFieldRegular
+        ambientNormalAccelerationDerivative meanNormalField
+        meanNormalField_extension_mdifferentiableAt meanNormalField_mem meanNormalField_value
+        meanNormalField_derivative
+
 /-- The remaining analytic data needed to realize the CCG25 pointwise Laplacian formulas from a
 single smooth tangent field and its ambient extension.  The geometric identities are deliberately
 absent: `II`, `∇ᴮ II`, Codazzi, and bracket--Weingarten are constructed by the theorems above.
@@ -1672,6 +2489,350 @@ theorem SubmanifoldLaplacianFieldJetDataAt.hasGaussFormulas
     immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
     data.tangentFrame data.normalFrame data.field data.firstDerivative
     data.intrinsicSecondDerivative data.ambientNormalSecondDerivative
+    data.ambientNormalAccelerationDerivative data.meanNormalField
+    data.meanNormalField_extension_mdifferentiableAt data.meanNormalField_mem
+    data.meanNormalField_value data.meanNormalField_derivative
+
+/-- A source-faithful analytic realization boundary for CCG25.  Unlike
+`SubmanifoldLaplacianFieldJetDataAt`, this structure stores one actual `C²` tangent field and
+regularity of its chosen ambient extension; its intrinsic first derivative, intrinsic Hessian,
+ambient normal derivative, and ambient normal covariant Hessian are constructed rather than
+accepted as unrelated pointwise tensors.
+
+The remaining field-specific tubular input is explicit: a first-order normal-field realization
+of mean curvature.  Normal-frame acceleration is constructed from canonical linear ambient
+extensions of the normal-fiber vectors. -/
+structure SmoothSubmanifoldLaplacianFieldJetDataAt
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x)
+    (extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x) where
+  tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x)
+  normalFrame : OrthonormalBasis κ ℝ
+    (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting x)
+  field : (y : M) → TangentSpace I y
+  fieldRegular : CMDiffAt 2 (T% field) x
+  ambientFieldRegular : CMDiffAt 2
+    (T% (extensions.toSubmanifoldFieldExtensionData.tangentExtension field))
+    (immersion.toFun x)
+  meanNormalField : AmbientVectorFieldAlong immersion.toSmoothImmersionData
+  meanNormalField_extension_mdifferentiableAt : MDiffAt
+    (T% (extensions.toSubmanifoldFieldExtensionData.alongExtension meanNormalField))
+    (immersion.toFun x)
+  meanNormalField_mem : ∀ y,
+    immersion.orthogonalSplitting.tangentProjection y (meanNormalField y) = 0
+  meanNormalField_value : meanNormalField x =
+    (inducedLeviCivitaSubmanifoldMeanCurvatureAt immersion ambientLeviCivita
+      extensions x tangentFrame : TangentSpace I' (immersion.toFun x))
+  meanNormalField_derivative :
+    extensions.toSubmanifoldFieldExtensionData.normalDerivative
+        immersion.toSmoothImmersionData immersion.orthogonalSplitting
+        ambientLeviCivita.connection field meanNormalField x =
+      (inducedLeviCivitaSubmanifoldMeanNormalDerivativeAt immersion ambientLeviCivita
+        extensions x intrinsicRegular extensionRegular tangentFrame (field x) :
+          TangentSpace I' (immersion.toFun x))
+
+/-- The normal-frame acceleration tensor constructed from the stored ambient normal-field
+extensions and the same ambient extension of the source tangent field. -/
+def SmoothSubmanifoldLaplacianFieldJetDataAt.ambientNormalAccelerationDerivative
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular) :
+    SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x →L[ℝ]
+      SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+          immersion.orthogonalSplitting x →L[ℝ]
+        TangentSpace I' (immersion.toFun x) :=
+  ambientNormalAccelerationDerivativeOfTangentFieldAt immersion.toSmoothImmersionData
+    immersion.orthogonalSplitting ambientLeviCivita.connection extensions x data.field
+    (canonicalSubmanifoldNormalFieldExtensionDataAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting x)
+
+/-- Build the differentiated Gauss--Weingarten jet of the stored smooth field. -/
+def SmoothSubmanifoldLaplacianFieldJetDataAt.toDifferentiatedGaussWeingartenJet
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    SubmanifoldDifferentiatedGaussWeingartenJetAt
+      (ι := ι) (κ := κ) immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x :=
+  inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt
+    immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
+    data.tangentFrame data.normalFrame data.field data.fieldRegular data.ambientFieldRegular
+    data.ambientNormalAccelerationDerivative data.meanNormalField
+
+/-- The normal second derivative stored by the smooth-field jet is the actual iterated ambient
+derivative along the canonical normal-field extensions, rather than an independently supplied
+bilinear tensor. -/
+theorem SmoothSubmanifoldLaplacianFieldJetDataAt.ambientNormalSecondDerivative_apply
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (first second : SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting x) :
+    (data.toDifferentiatedGaussWeingartenJet ambientRegular
+      ).ambientNormalSecondDerivative first second =
+      ambientLeviCivita.connection
+        (covariantDerivativeAlong I' ambientLeviCivita.connection
+          ((canonicalSubmanifoldNormalFieldExtensionDataAt immersion.toSmoothImmersionData
+            immersion.orthogonalSplitting x).toLinearMap second)
+          (extensions.toSubmanifoldFieldExtensionData.tangentExtension data.field))
+        (immersion.toFun x) (first : TangentSpace I' (immersion.toFun x)) := by
+  simpa [SmoothSubmanifoldLaplacianFieldJetDataAt.toDifferentiatedGaussWeingartenJet,
+    inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt,
+    inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt,
+    connectionSubmanifoldDifferentiatedGaussWeingartenJetAt,
+    submanifoldDifferentiatedGaussWeingartenJetAt,
+    SmoothSubmanifoldLaplacianFieldJetDataAt.ambientNormalAccelerationDerivative,
+    ambientNormalRawSecondDerivativeOfTangentFieldUsingNormalExtensionsAt] using
+    (ambientNormalRawSecondDerivativeOfTangentFieldUsingNormalExtensionsAt_apply
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection extensions x ambientRegular data.field
+      data.ambientFieldRegular
+      (canonicalSubmanifoldNormalFieldExtensionDataAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x) first second)
+
+/-- The stored smooth-field construction has symmetric `∇ᴮ II`. -/
+theorem SmoothSubmanifoldLaplacianFieldJetDataAt.isSymmetricDerivative
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    (data.toDifferentiatedGaussWeingartenJet ambientRegular).IsSymmetricDerivative :=
+  inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_isSymmetricDerivative
+    immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
+    data.tangentFrame data.normalFrame data.field data.fieldRegular data.ambientFieldRegular
+    data.ambientNormalAccelerationDerivative data.meanNormalField
+
+/-- The stored smooth-field construction satisfies the uncontracted normal Codazzi equation. -/
+theorem SmoothSubmanifoldLaplacianFieldJetDataAt.hasCodazziEquation
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    (data.toDifferentiatedGaussWeingartenJet ambientRegular).HasCodazziEquation :=
+  inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_hasCodazziEquation
+    immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
+    data.tangentFrame data.normalFrame data.field data.fieldRegular data.ambientFieldRegular
+    data.ambientNormalAccelerationDerivative data.meanNormalField
+
+/-- Contracted Codazzi follows from the two uncontracted properties of the stored field jet. -/
+theorem SmoothSubmanifoldLaplacianFieldJetDataAt.hasContractedCodazzi
+    [Nonempty ι]
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    (data.toDifferentiatedGaussWeingartenJet ambientRegular
+      ).toPointwiseBochnerGaussJet.HasContractedCodazzi :=
+  (data.toDifferentiatedGaussWeingartenJet ambientRegular).hasContractedCodazzi
+    (data.isSymmetricDerivative ambientRegular) (data.hasCodazziEquation ambientRegular)
+
+/-- The stored mean-normal realization proves bracket--Weingarten for the same source field. -/
+theorem SmoothSubmanifoldLaplacianFieldJetDataAt.hasMeanBracketWeingarten
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    (data.toDifferentiatedGaussWeingartenJet ambientRegular
+      ).toPointwiseBochnerGaussJet.HasMeanBracketWeingarten :=
+  inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_hasMeanBracketWeingarten
+    immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
+    data.tangentFrame data.normalFrame data.field data.fieldRegular data.ambientFieldRegular
+    data.ambientNormalAccelerationDerivative data.meanNormalField
+    data.meanNormalField_extension_mdifferentiableAt data.meanNormalField_mem
+    data.meanNormalField_value data.meanNormalField_derivative
+
+/-- A value of the source-faithful smooth-field boundary produces both CCG25 Bochner Gauss
+formulas with every field derivative constructed from the stored field. -/
+theorem SmoothSubmanifoldLaplacianFieldJetDataAt.hasGaussFormulas
+    [Nonempty ι]
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SmoothSubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    (data.toDifferentiatedGaussWeingartenJet ambientRegular
+      ).toPointwiseBochnerGaussJet.HasGaussFormulas :=
+  inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFieldAt_hasGaussFormulas
+    immersion ambientLeviCivita extensions x intrinsicRegular ambientRegular extensionRegular
+    data.tangentFrame data.normalFrame data.field data.fieldRegular data.ambientFieldRegular
     data.ambientNormalAccelerationDerivative data.meanNormalField
     data.meanNormalField_extension_mdifferentiableAt data.meanNormalField_mem
     data.meanNormalField_value data.meanNormalField_derivative
