@@ -60,7 +60,7 @@
       "id": "WBK26-lie-strain",
       "state": "proved-fragment",
       "lean_module": "RiemannianFluids.Literature.WBK26",
-      "declaration": "RiemannianFluids.Literature.WBK26.metric_rate_eq_twice_deformation"
+      "declaration": "RiemannianFluids.Literature.WBK26.material_inner_product_rate_eq_twice_deformation"
     },
     {
       "id": "WBS26-local-interpolating-family",

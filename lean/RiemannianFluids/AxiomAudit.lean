@@ -179,6 +179,7 @@ unfinished proof. That distinction is exactly the formal boundary described in `
 #print axioms RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric
 #print axioms RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_of_isometric_immersion
 #print axioms RiemannianFluids.Literature.WBK26.metric_rate_eq_twice_deformation
+#print axioms RiemannianFluids.Literature.WBK26.material_inner_product_rate_eq_twice_deformation
 #print axioms RiemannianFluids.Literature.WBK26.exponential_decay_of_energy_identity_and_coercivity
 #print axioms RiemannianFluids.Literature.WBS26.local_interpolating_family_analysisPositive
 #print axioms RiemannianFluids.Literature.CCP25.h2_oneForm_h1_decomposition

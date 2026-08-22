@@ -44,7 +44,7 @@ Formal implementation: all four candidate formulas and the exact sphere collapse
 
 Wang--Braunstein derive deformation viscosity from the infinitesimal rate of metric strain and connect negative curvature with coercivity, uniqueness, and energy decay.
 
-Formal implementation: the intrinsic infinitesimal metric-rate tensor and its identity with twice the deformation tensor.
+Formal implementation: the intrinsic infinitesimal metric-rate tensor; the manifold chain rule for the metric pairing along an actual particle integral curve; and the identification of a Lie-dragged connecting-pair jet's material rate with twice the deformation tensor. Constructing the connecting fields as pushforwards by a generated local flow remains open.
 
 Analytic target: weak deformation-viscosity evolution on negatively curved surfaces, including coercivity, existence, pressure recovery, uniqueness, and exponential decay.
 

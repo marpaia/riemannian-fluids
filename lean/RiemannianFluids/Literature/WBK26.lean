@@ -109,6 +109,29 @@ abbrev metric_rate_eq_twice_deformation
   _root_.RiemannianFluids.infinitesimalMetricRate_eq_metricLieDerivativeAt I
     regularity connection smooth field hX hY
 
+/-- WBK26 equations (20)--(24) on an actual material trajectory.  The first conjunct proves the
+manifold differential of the inner product along the integral curve; the second identifies its
+directional material rate with twice the deformation tensor using the Lie-drag conditions. -/
+theorem material_inner_product_rate_eq_twice_deformation
+    (regularity : ℕ∞ω)
+    [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
+    [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)]
+    (connection : LeviCivitaConnection (M := M) I)
+    (smooth : LeviCivitaConnection.IsContMDiff I connection regularity)
+    (field : SmoothVectorField (M := M) I (regularity + 1))
+    {x : M} (data : MaterialConnectingPairJetAt I field x) :
+    HasMFDerivAt%
+        (materialInnerProduct I data.trajectory data.first data.second) (0 : ℝ)
+        ((mfderiv I (modelWithCornersSelf ℝ ℝ)
+            (fun y ↦ inner ℝ (data.first y) (data.second y)) x).comp
+          ((1 : ℝ →L[ℝ] ℝ).smulRight (field x))) ∧
+      materialMetricRateAt I field data.first data.second x =
+        2 * deformationTensor I regularity connection smooth field x
+          (data.first x) (data.second x) := by
+  exact ⟨data.hasMFDerivAt_materialInnerProduct,
+    MaterialConnectingPairJetAt.materialMetricRate_eq_two_deformationTensor
+      I regularity connection smooth field data⟩
+
 /-- Exponential decay from an assumed energy identity and coercive dissipation estimate. -/
 abbrev exponential_decay_of_energy_identity_and_coercivity
     {energy dissipation : ℝ → ℝ} {μ κ T : ℝ} :=

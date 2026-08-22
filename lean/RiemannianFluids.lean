@@ -36,6 +36,7 @@ import RiemannianFluids.Tensors.DifferentialForms
 import RiemannianFluids.Tensors.ExteriorCalculus
 import RiemannianFluids.Tensors.ExteriorDerivativeConstructed
 import RiemannianFluids.Tensors.LieDerivative
+import RiemannianFluids.Tensors.MaterialRate
 import RiemannianFluids.Tensors.ScalarCalculus
 import RiemannianFluids.Tensors.SecondDerivative
 import RiemannianFluids.Tensors.SmoothSections

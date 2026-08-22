@@ -1,4 +1,4 @@
-import RiemannianFluids.Tensors.LieDerivative
+import RiemannianFluids.Tensors.MaterialRate
 
 /-!
 # Intrinsic strain as the kinematic starting point
@@ -21,9 +21,9 @@ The identification is a theorem, not a definition.  `Tensors.LieDerivative` prov
 `metricLieDerivativeAt_leviCivita`: the flow-free Lie derivative of the metric, built from the
 manifold Lie bracket alone, equals the symmetrized covariant derivative for any metric-compatible
 torsion-free connection.  `infinitesimalMetricRate_eq_metricLieDerivativeAt` below transports
-that identity to the bundled metric-rate tensor.  One boundary remains: interpreting
-`metricLieDerivativeAt` as the derivative of an actual flow pullback awaits an integral-curve
-theory for manifold vector fields.
+that identity to the bundled metric-rate tensor.  `Tensors.MaterialRate` supplies the complementary
+kinematic bridge: for an actual integral curve and a Lie-dragged connecting-pair jet, the
+directional metric rate is the differential of the material inner-product curve.
 -/
 
 namespace RiemannianFluids
@@ -88,5 +88,48 @@ theorem infinitesimalMetricRate_eq_metricLieDerivativeAt
   -- Evaluate the metric rate and the Lie derivative through their covariant-derivative forms.
   rw [infinitesimalMetricRate_apply, metricLieDerivativeAt_leviCivita I connection
     (field.mdifferentiable' (by simp) x) hX hY]
+
+omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
+/-- Along an actual material trajectory with Lie-dragged connecting fields, the scalar material
+metric rate is the intrinsic infinitesimal metric-rate tensor. -/
+theorem MaterialConnectingPairJetAt.materialMetricRate_eq_infinitesimalMetricRate
+    (regularity : ℕ∞ω)
+    [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
+    (connection : LeviCivitaConnection (M := M) I)
+    (smooth : LeviCivitaConnection.IsContMDiff I connection regularity)
+    (field : SmoothVectorField (M := M) I (regularity + 1))
+    {x : M} (data : MaterialConnectingPairJetAt I field x) :
+    materialMetricRateAt I field data.first data.second x =
+      infinitesimalMetricRate I regularity connection smooth field x
+        (data.first x) (data.second x) := by
+  calc
+    materialMetricRateAt I field data.first data.second x =
+        metricLieDerivativeAt I field data.first data.second x :=
+      data.materialMetricRate_eq_metricLieDerivativeAt
+    _ = infinitesimalMetricRate I regularity connection smooth field x
+          (data.first x) (data.second x) :=
+      (infinitesimalMetricRate_eq_metricLieDerivativeAt I regularity connection smooth field
+        data.first_mdifferentiableAt data.second_mdifferentiableAt).symm
+
+omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
+/-- The Lagrangian material rate of a Lie-dragged connecting pair is twice deformation strain. -/
+theorem MaterialConnectingPairJetAt.materialMetricRate_eq_two_deformationTensor
+    (regularity : ℕ∞ω)
+    [IsContMDiffRiemannianBundle I regularity E (TangentSpace I : M → Type _)]
+    (connection : LeviCivitaConnection (M := M) I)
+    (smooth : LeviCivitaConnection.IsContMDiff I connection regularity)
+    (field : SmoothVectorField (M := M) I (regularity + 1))
+    {x : M} (data : MaterialConnectingPairJetAt I field x) :
+    materialMetricRateAt I field data.first data.second x =
+      2 * deformationTensor I regularity connection smooth field x
+        (data.first x) (data.second x) := by
+  calc
+    materialMetricRateAt I field data.first data.second x =
+        metricLieDerivativeAt I field data.first data.second x :=
+      data.materialMetricRate_eq_metricLieDerivativeAt
+    _ = 2 * deformationTensor I regularity connection smooth field x
+          (data.first x) (data.second x) :=
+      metricLieDerivativeAt_eq_two_deformationTensor I regularity connection smooth field
+        data.first_mdifferentiableAt data.second_mdifferentiableAt
 
 end RiemannianFluids

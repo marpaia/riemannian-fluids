@@ -159,10 +159,13 @@
       "id": "WBK26-lie-strain",
       "intellectual_thread": "intrinsic strain as the kinematic origin of deformation viscosity",
       "lean_module": "RiemannianFluids.Literature.WBK26",
-      "declaration": "RiemannianFluids.Literature.WBK26.metric_rate_eq_twice_deformation",
+      "declaration": "RiemannianFluids.Literature.WBK26.material_inner_product_rate_eq_twice_deformation",
       "relationship": "proved-core",
-      "dependencies": ["RiemannianFluids.infinitesimalMetricRate_eq_metricLieDerivativeAt"],
-      "limitation": "The algebraic Lie-derivative identity is proved from metric compatibility and torsion-freeness. Interpreting it as the derivative of a flow pullback still awaits integral-curve theory."
+      "dependencies": [
+        "RiemannianFluids.hasMFDerivAt_materialInnerProduct_of_integralCurve",
+        "RiemannianFluids.MaterialConnectingPairJetAt.materialMetricRate_eq_two_deformationTensor"
+      ],
+      "limitation": "Lean now differentiates the metric pairing along an actual integral curve and proves that a Lie-dragged connecting-pair jet has material rate twice the deformation tensor. Constructing the connecting fields as pushforwards by a generated local flow remains open."
     },
     {
       "id": "WBK26-negative-curvature-global-weak-existence",

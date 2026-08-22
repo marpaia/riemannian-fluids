@@ -28,8 +28,9 @@ Levi-Civita properties plus one derivative of each field at the base point.
 
 The identity is a theorem about `metricLieDerivativeAt`, not a definition: the left-hand side is
 built from the Lie bracket alone, while the right-hand side is built from the connection alone.
-Identifying `metricLieDerivativeAt` with the derivative of an actual flow pullback awaits an
-integral-curve theory for manifold vector fields.
+`Tensors.MaterialRate` adds the complementary material-trajectory theorem for actual integral
+curves and Lie-dragged connecting-field jets.  Constructing those jets as pushforwards by the
+generated local flow is a separate local-flow problem.
 -/
 
 namespace RiemannianFluids
