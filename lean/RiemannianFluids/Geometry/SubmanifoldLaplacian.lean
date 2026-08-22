@@ -2357,8 +2357,9 @@ theorem inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfTangentFie
 /-- The remaining analytic data needed to realize the CCG25 pointwise Laplacian formulas from a
 single smooth tangent field and its ambient extension.  The geometric identities are deliberately
 absent: `II`, `∇ᴮ II`, Codazzi, and bracket--Weingarten are constructed by the theorems above.
-A tubular-neighborhood adapter closes the source setting by constructing a value of this
-structure and identifying its derivative fields with the paper's smooth extension. -/
+  A smooth local-neighborhood adapter closes the source setting by constructing a value of this
+  structure and identifying its derivative fields with the paper's smooth extension.  A tubular
+  retraction is one possible construction, not a hypothesis of CCG25 Theorem 1.1. -/
 structure SubmanifoldLaplacianFieldJetDataAt
     [IsManifold I 3 M] [IsManifold I' 3 N]
     [I.Boundaryless] [I'.Boundaryless]
@@ -2499,8 +2500,8 @@ regularity of its chosen ambient extension; its intrinsic first derivative, intr
 ambient normal derivative, and ambient normal covariant Hessian are constructed rather than
 accepted as unrelated pointwise tensors.
 
-The remaining field-specific tubular input is explicit: a first-order normal-field realization
-of mean curvature.  Normal-frame acceleration is constructed from canonical linear ambient
+The remaining field-specific local input is explicit: a first-order normal-field realization of
+mean curvature.  Normal-frame acceleration is constructed from canonical linear ambient
 extensions of the normal-fiber vectors. -/
 structure SmoothSubmanifoldLaplacianFieldJetDataAt
     [IsManifold I 3 M] [IsManifold I' 3 N]

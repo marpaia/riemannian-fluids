@@ -10,13 +10,13 @@ one differentiated Gauss--Weingarten jet.  This module identifies those jet valu
 repository's independently constructed rough and Hodge operators wherever the currently
 available regularity is sufficient.
 
-The intrinsic rough value is now identified without an extra hypothesis: the jet stores the
-actual covariant Hessian of its source field and its frame trace is the basis expansion of
+The intrinsic rough value is identified without an extra hypothesis: the jet stores the actual
+covariant Hessian of its source field and its frame trace is the basis expansion of
 `roughLaplacianAt`.  The normal part of the ambient trace is also identified with the actual
-ambient covariant Hessian.  The remaining ambient bridge is therefore localized to the tangent
-trace of that ambient Hessian, i.e. to differentiating the Gauss splitting for the nonconstant
-source field.  Keeping that boundary explicit prevents a pointwise jet identity from being
-silently advertised as an equality of constructed differential operators.
+ambient covariant Hessian.  This module exposes the exact remaining tangent-trace proposition so
+that no pointwise jet identity is silently advertised as an equality of constructed differential
+operators.  `Geometry.SubmanifoldTangentHessian` proves that proposition by differentiating Gauss
+for the actual varying source field.
 -/
 
 namespace RiemannianFluids

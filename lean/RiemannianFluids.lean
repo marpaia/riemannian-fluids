@@ -60,6 +60,7 @@ import RiemannianFluids.Geometry.SubmanifoldGauss
 import RiemannianFluids.Geometry.SubmanifoldLaplacian
 import RiemannianFluids.Geometry.SubmanifoldHodge
 import RiemannianFluids.Geometry.SubmanifoldOperatorBridge
+import RiemannianFluids.Geometry.SubmanifoldTangentHessian
 import RiemannianFluids.Geometry.SurfacesOfRevolution
 import RiemannianFluids.Geometry.ThinShells
 import RiemannianFluids.Literature.Czubak

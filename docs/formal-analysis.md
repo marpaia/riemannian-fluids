@@ -252,8 +252,8 @@ representation; that broader packaging is not needed for the CZ24 counterexample
 | Levi--Civita restriction locality along an immersion | proved for equality of pulled-back differentiable germs (`LeviCivitaConnection.eq_on_mfderiv_of_comp_eventuallyEq`) |
 | pointwise submanifold `∇ᴮ II` | constructed as a continuous trilinear map into the actual kernel-normal fiber; symmetry in the `II` slots proved |
 | uncontracted and contracted Codazzi | proved from the differentiated Gauss identity with the CCG25 curvature-slot convention |
-| actual-fiber CCG25 Bochner and Hodge Gauss formulas | proved from one actual `C²` source field and its chosen `C²` ambient extension; the intrinsic rough value and ambient normal Hessian trace are identified with constructed operators, one explicit tangent-Hessian identity completes the ambient rough bridge, and first Bianchi plus curvature metric-skewness prove the Ricci symmetry needed for both constructed Hodge values |
-| smooth tubular realization of the remaining CCG25 data | open: construct the compatible extension package, its differentiated regularity, and the mean-curvature first jet, then derive the varying-field tangent-Hessian trace |
+| actual-fiber CCG25 Bochner and Hodge Gauss formulas | proved from one actual `C²` source field and its chosen `C²` ambient extension; the intrinsic rough value and both adapted ambient Hessian traces are identified with constructed operators, and first Bianchi plus curvature metric-skewness prove the Ricci symmetry needed for both constructed Hodge values |
+| smooth local-field realization of the remaining CCG25 data | open: construct the compatible neighborhood extension package, its differentiated regularity, and the mean-curvature first jet from the source hypotheses; a tubular retraction is one possible implementation, not a source premise |
 | trace, divergence, and divergence-free predicate | constructed |
 | tensor transpose, symmetrization, and `Def` | constructed |
 | metric Lie-derivative identity \(L_u g = 2\operatorname{Def}u\) | proved from metric compatibility and torsion-freeness |

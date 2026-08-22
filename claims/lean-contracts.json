@@ -104,9 +104,11 @@
         "RiemannianFluids.SmoothIsometricImmersionData.roughLaplacianAt_eq_neg_tangent_sum_sub_normal_sum",
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.intrinsicBochner_eq_mfderiv_roughLaplacianAt",
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.normalSecondDerivativeTrace_sub_acceleration_eq",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.ambientTangentHessianDiagonal_eq_pointGauss",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasAmbientTangentHessianTraceGaussAt",
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.ambientBochner_eq_roughLaplacianAt"
       ],
-      "limitation": "Lean proves equations (1.5)--(1.6) on actual tangent, kernel-normal, and ambient tangent fibers for one C2 source tangent field and chosen C2 ambient extension. It now identifies the intrinsic value with the constructed rough Laplacian, expands the constructed ambient rough Laplacian in an adapted tangent-normal frame, and identifies the complete normal trace. Conditional on one explicit tangent-Hessian trace identity, the paper-facing theorem identifies the ambient value with the constructed rough Laplacian as well. Exact source reproduction still requires constructing the compatible extension package, its differentiated regularity, and the mean-curvature normal-field first jet from tubular geometry, then proving that varying-field tangent-Hessian trace identity rather than accepting it as a premise."
+      "limitation": "Lean proves equations (1.5)--(1.6) on actual tangent, kernel-normal, and ambient tangent fibers for one C2 source tangent field and chosen C2 ambient extension. It identifies the intrinsic value with the constructed rough Laplacian, expands the constructed ambient rough Laplacian in an adapted tangent-normal frame, and proves both the normal and tangent Hessian traces. The tangent trace follows by twice differentiating Gauss for the actual varying field and using Codazzi; it is no longer a paper-facing premise. Exact source reproduction still requires constructing the compatible local-extension regularity and mean-curvature normal-field first jet from the source's smooth neighborhood data."
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
@@ -126,10 +128,11 @@
         "RiemannianFluids.LeviCivitaConnection.connectionCurvatureFirstBianchiAt",
         "RiemannianFluids.LeviCivitaConnection.connectionCurvatureMetricSkewAt",
         "RiemannianFluids.LeviCivitaConnection.connectionRicciSymmetricAt",
+        "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.hasAmbientTangentHessianTraceGaussAt",
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.intrinsicHodge_eq_mfderiv_hodgeLaplacianConstructedAt_of_leviCivita",
         "RiemannianFluids.SmoothSubmanifoldLaplacianFieldJetDataAt.ambientHodge_eq_hodgeLaplacianConstructedAt_of_leviCivita"
       ],
-      "limitation": "Lean assembles one actual-fiber Ricci/Hodge jet, proves scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas, and identifies both jet values with independently constructed Hodge Laplacians under the explicit tangent-Hessian trace identity. For C2 source and ambient metrics, first Bianchi and curvature metric-skewness are now proved from the Levi-Civita structure and discharge Ricci symmetry internally. Exact source reproduction still requires the common tubular construction and varying-field tangent-Hessian proof from the Bochner node."
+      "limitation": "Lean assembles one actual-fiber Ricci/Hodge jet, proves scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas, and identifies both jet values with independently constructed Hodge Laplacians. The common tangent-Hessian trace and, for C2 source and ambient metrics, Ricci symmetry are now proved internally. Exact source reproduction still requires the smooth local-extension and mean-curvature-field realization shared with the Bochner node."
     },
     {
       "id": "CCF25-four-candidates-sphere",
