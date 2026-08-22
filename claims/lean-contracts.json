@@ -111,9 +111,12 @@
         "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_firstGaussFormula",
         "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_secondGaussFormula",
         "RiemannianFluids.submanifoldRicciGaussJetAt",
-        "RiemannianFluids.isometricConnectionSubmanifoldPointwiseGaussDataAt"
+        "RiemannianFluids.isometricConnectionSubmanifoldPointwiseGaussDataAt",
+        "RiemannianFluids.SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt",
+        "RiemannianFluids.SmoothIsometricImmersionData.connectionRicciActionAlong_eq_adaptedTraceAt",
+        "RiemannianFluids.isometricConnectionSubmanifoldRicciGaussJetAt_hasAmbientRicciTraceSplitting"
       ],
-      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. Induced curvature, the constructed second fundamental tensor, projected ambient connection curvature, and the derived scalar Gauss equation now inhabit the same actual fibers of one isometric-immersion package. The remaining source-setting gap is constructing Codazzi, the complete jet, and the ambient Ricci trace splitting from those connections."
+      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. Induced curvature, the constructed second fundamental tensor, projected ambient connection curvature, and the derived scalar Gauss equation inhabit the same actual fibers of one isometric-immersion package. An adapted tangent-plus-normal ambient basis now derives the full ambient Ricci trace splitting from the same connection curvature. The remaining source-setting gap is constructing the complete twice-differentiated jet and deriving Codazzi and bracket--Weingarten from the immersion connection."
     },
     {
       "id": "CCF25-four-candidates-sphere",

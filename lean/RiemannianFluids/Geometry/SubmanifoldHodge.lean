@@ -241,6 +241,89 @@ def submanifoldRicciGaussJetAt
   ambientNormalRicciTrace := ambientNormalRicciTrace
   ambientRicciNormal := ambientRicciNormal
 
+/-- Extend an actual-fiber Bochner jet by Ricci data constructed from one ambient connection.
+The tangent-frame curvature, the ambient Ricci action, the normal-frame tangent trace, and the
+normal output are all derived from the same ambient curvature tensor. -/
+def isometricConnectionSubmanifoldRicciGaussJetAt
+    [IsManifold I' 3 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (bochner : SubmanifoldBochnerGaussJetAt
+      (ι := ι) (κ := κ) immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x)
+    (intrinsicCurvature :
+      TangentSpace I x →L[ℝ] TangentSpace I x →L[ℝ]
+        TangentSpace I x →L[ℝ] TangentSpace I x) :
+    SubmanifoldRicciGaussJetAt
+      (ι := ι) (κ := κ) immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x :=
+  submanifoldRicciGaussJetAt immersion.toSmoothImmersionData
+    immersion.orthogonalSplitting x bochner intrinsicCurvature
+    (tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting ambientConnection x ambientRegular)
+    (connectionRicciActionAt I' ambientConnection (immersion.toFun x) ambientRegular
+      (mfderiv I I' immersion.toFun x bochner.field))
+    (normalFrameAmbientRicciActionAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting ambientConnection x ambientRegular bochner.normalFrame
+      bochner.field)
+    (immersion.orthogonalSplitting.normalProjection x
+      (connectionRicciActionAt I' ambientConnection (immersion.toFun x) ambientRegular
+        (mfderiv I I' immersion.toFun x bochner.field)))
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [IsManifold I 1 M] in
+/-- The connection-constructed Ricci jet satisfies ambient trace splitting as a theorem whenever
+its Bochner jet uses the canonical tangent lift `df_x`.  In particular, no Ricci splitting
+identity remains to be supplied by a paper-facing adapter. -/
+theorem isometricConnectionSubmanifoldRicciGaussJetAt_hasAmbientRicciTraceSplitting
+    [IsManifold I' 3 N]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (bochner : SubmanifoldBochnerGaussJetAt
+      (ι := ι) (κ := κ) immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x)
+    (intrinsicCurvature :
+      TangentSpace I x →L[ℝ] TangentSpace I x →L[ℝ]
+        TangentSpace I x →L[ℝ] TangentSpace I x)
+    (canonicalTangentLift :
+      bochner.tangentLift = mfderiv I I' immersion.toFun x) :
+    (isometricConnectionSubmanifoldRicciGaussJetAt immersion ambientConnection x
+      ambientRegular bochner intrinsicCurvature).HasAmbientRicciTraceSplitting := by
+  rw [PointwiseRicciGaussJet.HasAmbientRicciTraceSplitting]
+  change
+    connectionRicciActionAt I' ambientConnection (immersion.toFun x) ambientRegular
+        (mfderiv I I' immersion.toFun x bochner.field) =
+      bochner.tangentLift
+          (ricciActionOfCurvatureTensor
+              (tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+                immersion.orthogonalSplitting ambientConnection x ambientRegular)
+              bochner.field +
+            normalFrameAmbientRicciActionAt immersion.toSmoothImmersionData
+              immersion.orthogonalSplitting ambientConnection x ambientRegular
+              bochner.normalFrame bochner.field) +
+        immersion.orthogonalSplitting.normalProjection x
+          (connectionRicciActionAt I' ambientConnection (immersion.toFun x) ambientRegular
+            (mfderiv I I' immersion.toFun x bochner.field))
+  rw [canonicalTangentLift]
+  exact immersion.connectionRicciActionAlong_eq_adaptedTraceAt ambientConnection x
+    ambientRegular bochner.tangentFrame bochner.normalFrame bochner.field
+
 end ManifoldFibers
 
 end

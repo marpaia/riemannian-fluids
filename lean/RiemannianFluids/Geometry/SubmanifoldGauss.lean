@@ -468,6 +468,122 @@ abbrev SubmanifoldPointwiseGaussDataAt
     (Tangent := TangentSpace I x)
     (Normal := SubmanifoldNormalSpaceAt immersion splitting x)
 
+/-- The union of an intrinsic orthonormal tangent frame, lifted by `df_x`, and an orthonormal
+frame of the kernel-normal fiber is an orthonormal basis of the ambient tangent fiber.  This is
+the adapted frame needed to split ambient traces into tangent and normal contributions. -/
+def SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt
+    {ι κ : Type*} [Fintype ι] [Fintype κ]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (x : M)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x)) :
+    OrthonormalBasis (ι ⊕ κ) ℝ (TangentSpace I' (immersion.toFun x)) := by
+  classical
+  let frame : ι ⊕ κ → TangentSpace I' (immersion.toFun x) :=
+    Sum.elim
+      (fun i ↦ mfderiv I I' immersion.toFun x (tangentFrame i))
+      (fun l ↦ (normalFrame l : TangentSpace I' (immersion.toFun x)))
+  have orthonormal : Orthonormal ℝ frame := by
+    rw [orthonormal_iff_ite]
+    intro first second
+    cases first with
+    | inl i =>
+        cases second with
+        | inl j =>
+            simpa [frame, immersion.mfderiv_inner] using
+              (orthonormal_iff_ite.mp tangentFrame.orthonormal i j)
+        | inr l =>
+            have normalOrthogonal := (immersion.mem_normalSpace_iff x (normalFrame l)).mp
+              (normalFrame l).property (tangentFrame i)
+            simpa [frame, real_inner_comm] using normalOrthogonal
+    | inr l =>
+        cases second with
+        | inl i =>
+            have normalOrthogonal := (immersion.mem_normalSpace_iff x (normalFrame l)).mp
+              (normalFrame l).property (tangentFrame i)
+            simpa [frame] using normalOrthogonal
+        | inr k =>
+            simpa [frame] using (orthonormal_iff_ite.mp normalFrame.orthonormal l k)
+  refine OrthonormalBasis.mk orthonormal ?_
+  intro ambient _
+  let normalValue : SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting x :=
+    ⟨immersion.orthogonalSplitting.normalProjection x ambient,
+      tangentProjection_normalProjection_eq_zero immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting immersion.hasTangentNormalDecomposition
+        immersion.hasTangentProjectionLeftInverse x ambient⟩
+  have tangentMem : mfderiv I I' immersion.toFun x
+      (immersion.orthogonalSplitting.tangentProjection x ambient) ∈
+        Submodule.span ℝ (Set.range frame) := by
+    rw [← tangentFrame.sum_repr
+      (immersion.orthogonalSplitting.tangentProjection x ambient), map_sum]
+    exact Submodule.sum_mem _ fun i _ ↦ by
+      rw [map_smul]
+      exact Submodule.smul_mem _ _
+        (Submodule.subset_span (Set.mem_range_self (Sum.inl i)))
+  have normalMem : (normalValue : TangentSpace I' (immersion.toFun x)) ∈
+      Submodule.span ℝ (Set.range frame) := by
+    let normalLift :=
+      (LinearMap.ker
+        (immersion.orthogonalSplitting.tangentProjection x).toLinearMap).subtypeL
+    change normalLift normalValue ∈ Submodule.span ℝ (Set.range frame)
+    rw [← normalFrame.sum_repr normalValue, map_sum]
+    exact Submodule.sum_mem _ fun l _ ↦ by
+      rw [map_smul]
+      exact Submodule.smul_mem _ _
+        (Submodule.subset_span (Set.mem_range_self (Sum.inr l)))
+  rw [← immersion.hasTangentNormalDecomposition x ambient]
+  exact Submodule.add_mem _ tangentMem normalMem
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+  [CompleteSpace E'] [FiniteDimensional ℝ E']
+  [IsManifold I 1 M] [IsManifold I' 1 N] in
+@[simp]
+theorem SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt_apply_inl
+    {ι κ : Type*} [Fintype ι] [Fintype κ]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (x : M)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (i : ι) :
+    immersion.adaptedAmbientOrthonormalBasisAt x tangentFrame normalFrame (Sum.inl i) =
+      mfderiv I I' immersion.toFun x (tangentFrame i) := by
+  classical
+  simp [SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt]
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+  [CompleteSpace E'] [FiniteDimensional ℝ E']
+  [IsManifold I 1 M] [IsManifold I' 1 N] in
+@[simp]
+theorem SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt_apply_inr
+    {ι κ : Type*} [Fintype ι] [Fintype κ]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (x : M)
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (l : κ) :
+    immersion.adaptedAmbientOrthonormalBasisAt x tangentFrame normalFrame (Sum.inr l) =
+      (normalFrame l : TangentSpace I' (immersion.toFun x)) := by
+  classical
+  simp [SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt]
+
 /-- Populate the intrinsic curvature slot from an actual bundled connection.  The only supplied
 tensor is the normal-valued second fundamental form; Ricci is still constructed later by trace. -/
 def connectionSubmanifoldPointwiseGaussDataAt
@@ -640,6 +756,246 @@ theorem tangentialAmbientConnectionCurvatureAt_apply
           (mfderiv I I' immersion.toFun x second)
           (mfderiv I I' immersion.toFun x field)) :=
   rfl
+
+/-! ## Ambient Ricci trace in an adapted frame -/
+
+/-- The contribution to the ambient Ricci form obtained by tracing its first curvature slot over
+an orthonormal frame of the normal fiber.  Its two remaining arguments live in the source tangent
+fiber and are transported into the ambient fiber by `df_x`. -/
+def normalFrameAmbientRicciFormAt
+    [IsManifold I' 3 N]
+    {κ : Type*} [Fintype κ]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion splitting x)) :
+    TangentSpace I x →L[ℝ] TangentSpace I x →L[ℝ] ℝ :=
+  let df := mfderiv I I' immersion.toFun x
+  let ambientCurvature :=
+    connectionCurvatureTensorAt I' ambientConnection (immersion.toFun x) ambientRegular
+  ∑ l,
+    (ContinuousLinearMap.compL ℝ (TangentSpace I x)
+      (TangentSpace I' (immersion.toFun x)) ℝ
+      (innerSL ℝ (normalFrame l : TangentSpace I' (immersion.toFun x)))).comp
+      (((ContinuousLinearMap.compL ℝ (TangentSpace I x)
+        (TangentSpace I' (immersion.toFun x))
+        (TangentSpace I' (immersion.toFun x))).flip df).comp
+        ((ambientCurvature (normalFrame l : TangentSpace I' (immersion.toFun x))).comp df))
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [IsManifold I 1 M]
+  [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)] in
+@[simp]
+theorem normalFrameAmbientRicciFormAt_apply
+    [IsManifold I' 3 N]
+    {κ : Type*} [Fintype κ]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion splitting x))
+    (field test : TangentSpace I x) :
+    normalFrameAmbientRicciFormAt immersion splitting ambientConnection x ambientRegular
+        normalFrame field test =
+      ∑ l, inner ℝ
+        (normalFrame l : TangentSpace I' (immersion.toFun x))
+        (connectionCurvatureTensorAt I' ambientConnection (immersion.toFun x)
+          ambientRegular
+          (normalFrame l : TangentSpace I' (immersion.toFun x))
+          (mfderiv I I' immersion.toFun x field)
+          (mfderiv I I' immersion.toFun x test)) := by
+  simp [normalFrameAmbientRicciFormAt]
+
+/-- Raise the normal-frame part of the ambient Ricci form to a source tangent endomorphism. -/
+noncomputable def normalFrameAmbientRicciActionAt
+    [IsManifold I' 3 N]
+    {κ : Type*} [Fintype κ]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion splitting x)) :
+    TangentSpace I x →L[ℝ] TangentSpace I x :=
+  InnerProductSpace.continuousLinearMapOfBilin
+    (normalFrameAmbientRicciFormAt immersion splitting ambientConnection x ambientRegular
+      normalFrame)
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [IsManifold I 1 M] in
+@[simp]
+theorem normalFrameAmbientRicciActionAt_inner
+    [IsManifold I' 3 N]
+    {κ : Type*} [Fintype κ]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion splitting x))
+    (field test : TangentSpace I x) :
+    inner ℝ
+        (normalFrameAmbientRicciActionAt immersion splitting ambientConnection x ambientRegular
+          normalFrame field) test =
+      ∑ l, inner ℝ
+        (normalFrame l : TangentSpace I' (immersion.toFun x))
+        (connectionCurvatureTensorAt I' ambientConnection (immersion.toFun x)
+          ambientRegular
+          (normalFrame l : TangentSpace I' (immersion.toFun x))
+          (mfderiv I I' immersion.toFun x field)
+          (mfderiv I I' immersion.toFun x test)) := by
+  rw [normalFrameAmbientRicciActionAt,
+    InnerProductSpace.continuousLinearMapOfBilin_apply,
+    normalFrameAmbientRicciFormAt_apply]
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E]
+  [IsManifold I 1 M] in
+/-- The ambient Ricci action along an isometric immersion splits canonically into the
+tangent-frame trace, the normal-frame trace with tangent output, and the normal projection of
+the output.  This derives the trace-splitting identity used by the Hodge Gauss formula from an
+adapted orthonormal basis; it is not an additional curvature hypothesis. -/
+theorem SmoothIsometricImmersionData.connectionRicciActionAlong_eq_adaptedTraceAt
+    [IsManifold I' 3 N]
+    {ι κ : Type*} [Fintype ι] [Fintype κ]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (tangentFrame : OrthonormalBasis ι ℝ (TangentSpace I x))
+    (normalFrame : OrthonormalBasis κ ℝ
+      (SubmanifoldNormalSpaceAt immersion.toSmoothImmersionData
+        immersion.orthogonalSplitting x))
+    (field : TangentSpace I x) :
+    connectionRicciActionAt I' ambientConnection (immersion.toFun x) ambientRegular
+        (mfderiv I I' immersion.toFun x field) =
+      mfderiv I I' immersion.toFun x
+          (ricciActionOfCurvatureTensor
+              (tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+                immersion.orthogonalSplitting ambientConnection x ambientRegular) field +
+            normalFrameAmbientRicciActionAt immersion.toSmoothImmersionData
+              immersion.orthogonalSplitting ambientConnection x ambientRegular normalFrame
+              field) +
+        immersion.orthogonalSplitting.normalProjection x
+          (connectionRicciActionAt I' ambientConnection (immersion.toFun x) ambientRegular
+            (mfderiv I I' immersion.toFun x field)) := by
+  let ambientCurvature :=
+    connectionCurvatureTensorAt I' ambientConnection (immersion.toFun x) ambientRegular
+  let ambientRicci :=
+    connectionRicciActionAt I' ambientConnection (immersion.toFun x) ambientRegular
+      (mfderiv I I' immersion.toFun x field)
+  let adaptedFrame :=
+    immersion.adaptedAmbientOrthonormalBasisAt x tangentFrame normalFrame
+  have ambientTrace (test : TangentSpace I x) :
+      inner ℝ ambientRicci (mfderiv I I' immersion.toFun x test) =
+        ∑ q : ι ⊕ κ,
+          inner ℝ (adaptedFrame q)
+            (ambientCurvature (adaptedFrame q)
+              (mfderiv I I' immersion.toFun x field)
+              (mfderiv I I' immersion.toFun x test)) := by
+    dsimp only [ambientRicci]
+    rw [connectionRicciActionAt_inner,
+      connectionRicciFormAt_eq_sum_inner I' ambientConnection (immersion.toFun x)
+        ambientRegular adaptedFrame]
+  have tangentTrace (test : TangentSpace I x) :
+      inner ℝ
+          (ricciActionOfCurvatureTensor
+            (tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+              immersion.orthogonalSplitting ambientConnection x ambientRegular) field)
+          test =
+        ∑ i, inner ℝ
+          (mfderiv I I' immersion.toFun x (tangentFrame i))
+          (ambientCurvature
+            (mfderiv I I' immersion.toFun x (tangentFrame i))
+            (mfderiv I I' immersion.toFun x field)
+            (mfderiv I I' immersion.toFun x test)) := by
+    rw [ricciActionOfCurvatureTensor_inner,
+      ricciFormOfCurvatureTensor_eq_sum_inner _ tangentFrame]
+    apply Finset.sum_congr rfl
+    intro i _
+    rw [tangentialAmbientConnectionCurvatureAt_apply]
+    change inner ℝ (tangentFrame i)
+      ((mfderiv I I' immersion.toFun x).adjoint
+        (ambientCurvature
+          (mfderiv I I' immersion.toFun x (tangentFrame i))
+          (mfderiv I I' immersion.toFun x field)
+          (mfderiv I I' immersion.toFun x test))) = _
+    calc
+      _ = inner ℝ
+          ((mfderiv I I' immersion.toFun x).adjoint
+            (ambientCurvature
+              (mfderiv I I' immersion.toFun x (tangentFrame i))
+              (mfderiv I I' immersion.toFun x field)
+              (mfderiv I I' immersion.toFun x test)))
+          (tangentFrame i) := real_inner_comm _ _
+      _ = inner ℝ
+          (ambientCurvature
+            (mfderiv I I' immersion.toFun x (tangentFrame i))
+            (mfderiv I I' immersion.toFun x field)
+            (mfderiv I I' immersion.toFun x test))
+          (mfderiv I I' immersion.toFun x (tangentFrame i)) :=
+        ContinuousLinearMap.adjoint_inner_left _ _ _
+      _ = _ := real_inner_comm _ _
+  have tangentProjectionIdentity :
+      immersion.orthogonalSplitting.tangentProjection x ambientRicci =
+        ricciActionOfCurvatureTensor
+            (tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+              immersion.orthogonalSplitting ambientConnection x ambientRegular) field +
+          normalFrameAmbientRicciActionAt immersion.toSmoothImmersionData
+            immersion.orthogonalSplitting ambientConnection x ambientRegular normalFrame
+            field := by
+    apply ext_inner_right ℝ
+    intro test
+    change inner ℝ ((mfderiv I I' immersion.toFun x).adjoint ambientRicci) test = _
+    calc
+      _ = inner ℝ ambientRicci (mfderiv I I' immersion.toFun x test) :=
+        ContinuousLinearMap.adjoint_inner_left _ _ _
+      _ = (∑ i, inner ℝ
+              (mfderiv I I' immersion.toFun x (tangentFrame i))
+              (ambientCurvature
+                (mfderiv I I' immersion.toFun x (tangentFrame i))
+                (mfderiv I I' immersion.toFun x field)
+                (mfderiv I I' immersion.toFun x test))) +
+            ∑ l, inner ℝ
+              (normalFrame l : TangentSpace I' (immersion.toFun x))
+              (ambientCurvature
+                (normalFrame l : TangentSpace I' (immersion.toFun x))
+                (mfderiv I I' immersion.toFun x field)
+                (mfderiv I I' immersion.toFun x test)) := by
+        rw [ambientTrace, Fintype.sum_sum_type]
+        simp only [adaptedFrame,
+          SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt_apply_inl,
+          SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt_apply_inr]
+      _ = inner ℝ
+            (ricciActionOfCurvatureTensor
+              (tangentialAmbientConnectionCurvatureAt immersion.toSmoothImmersionData
+                immersion.orthogonalSplitting ambientConnection x ambientRegular) field)
+            test +
+          inner ℝ
+            (normalFrameAmbientRicciActionAt immersion.toSmoothImmersionData
+              immersion.orthogonalSplitting ambientConnection x ambientRegular normalFrame
+              field) test := by
+        rw [tangentTrace,
+          normalFrameAmbientRicciActionAt_inner]
+      _ = _ := (inner_add_left _ _ _).symm
+  change ambientRicci = _
+  rw [← immersion.hasTangentNormalDecomposition x ambientRicci,
+    tangentProjectionIdentity]
 
 /-! ## The differentiated Gauss identity -/
 
