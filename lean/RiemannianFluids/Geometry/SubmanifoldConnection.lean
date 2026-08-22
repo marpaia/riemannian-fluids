@@ -215,6 +215,30 @@ theorem linearFiberExtensionAt_apply_self (x : M) (tangent : TangentSpace I x) :
   exact (trivializationAt E (TangentSpace I : M → Type _) x).symmL_continuousLinearMapAt
     (mem_baseSet_trivializationAt E (TangentSpace I : M → Type _) x) tangent
 
+/-- The canonical linear extension of a tangent vector is differentiable at its base point.
+This is a theorem of the smooth tangent-bundle trivialization, so pointwise second-fundamental-form
+constructions do not need to receive it as independent regularity data. -/
+theorem linearFiberExtensionAt_mdifferentiableAt
+    (x : M) (tangent : TangentSpace I x) :
+    MDiffAt (T% (linearFiberExtensionAt (I := I) x tangent)) x := by
+  let trivialization := trivializationAt E (TangentSpace I : M → Type _) x
+  let coordinate : E := trivialization.continuousLinearMapAt ℝ x tangent
+  have smoothInverse :
+      CMDiffAt 1
+        (fun y =>
+          (⟨y, trivialization.symmL ℝ y⟩ :
+            TotalSpace (E →L[ℝ] E) (fun z : M => E →L[ℝ] TangentSpace I z))) x :=
+    trivialization.contMDiffAt_symmL
+      (mem_baseSet_trivializationAt E (TangentSpace I : M → Type _) x)
+  have smoothCoordinate :
+      CMDiffAt 1
+        (fun y : M => (⟨y, coordinate⟩ : TotalSpace E (fun _ : M => E))) x := by
+    rw [Bundle.contMDiffAt_totalSpace]
+    constructor
+    · exact contMDiffAt_id
+    · simpa using (contMDiffAt_const : CMDiffAt 1 (fun _ : M => coordinate) x)
+  exact (smoothInverse.clm_bundle_apply smoothCoordinate).mdifferentiableAt one_ne_zero
+
 /-- Canonical tangent vectors are extended on the source and then by the chosen ambient
 extension; this predicate records the differentiability needed for the connection's additivity
 and constant-scalar laws. -/

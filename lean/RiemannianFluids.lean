@@ -53,6 +53,7 @@ import RiemannianFluids.Geometry.Musical
 import RiemannianFluids.Geometry.SpaceForms
 import RiemannianFluids.Geometry.Submanifolds
 import RiemannianFluids.Geometry.SubmanifoldConnection
+import RiemannianFluids.Geometry.SubmanifoldInducedConnection
 import RiemannianFluids.Geometry.SubmanifoldGauss
 import RiemannianFluids.Geometry.SubmanifoldLaplacian
 import RiemannianFluids.Geometry.SubmanifoldHodge

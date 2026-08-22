@@ -74,9 +74,12 @@
       "dependencies": [
         "RiemannianFluids.euclidean_gauss_ricci",
         "RiemannianFluids.SmoothIsometricImmersionData.isOrthogonalSubmanifoldSplitting",
-        "RiemannianFluids.isometricConnectionSubmanifoldPointwiseGaussDataAt_isSymmetric"
+        "RiemannianFluids.CovariantSubmanifoldFieldExtensionData.inducedCovariantDerivative_independent",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric",
+        "RiemannianFluids.tangentialAmbientConnectionCurvatureAt_apply",
+        "RiemannianFluids.PointwiseGaussData.hasGaussEquationRelativeTo_of_vector"
       ],
-      "limitation": "Lean constructs the canonical orthogonal splitting of an isometric immersion, obtains an actual kernel-normal second fundamental form by differentiating ambient extensions and projecting, derives its symmetry from ambient torsion-freeness plus tangent-bracket involutivity, and contracts the Euclidean Gauss equation into (1.12). The remaining source-setting gap is proving bracket involutivity for embedded extensions and deriving the scalar Gauss equation from the induced connection."
+      "limitation": "Lean constructs the canonical orthogonal splitting, induced Levi--Civita connection, actual kernel-normal second fundamental form, and tangentially projected ambient connection curvature from one isometric-immersion package. Canonical-extension regularity and extension-choice independence of the induced derivative are proved; ambient torsion-freeness plus full f-related bracket compatibility gives symmetry; and vector Gauss implies the scalar contraction used in (1.12). The remaining source-setting gap is proving f-related bracket naturality and ambient connection restriction locality, then deriving the vector Gauss equation."
     },
     {
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
@@ -107,7 +110,7 @@
         "RiemannianFluids.submanifoldRicciGaussJetAt",
         "RiemannianFluids.isometricConnectionSubmanifoldPointwiseGaussDataAt"
       ],
-      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. The curvature and second fundamental tensors now inhabit the same actual fibers of a canonical isometric-immersion splitting. The remaining source-setting gap is deriving scalar Gauss, Codazzi, and ambient Ricci trace splitting from those connections."
+      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. Induced curvature, the constructed second fundamental tensor, and projected ambient connection curvature now inhabit the same actual fibers of one isometric-immersion package. The remaining source-setting gap is deriving vector Gauss, Codazzi, and ambient Ricci trace splitting from those connections."
     },
     {
       "id": "CCF25-four-candidates-sphere",

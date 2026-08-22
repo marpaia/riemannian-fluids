@@ -101,7 +101,7 @@ The atomic proof-status ledger covers 42 units: 16 atomic registry claims plus 2
 | Claim | Status | Formal route | Completion milestone |
 | --- | --- | --- | --- |
 | `CZ24-operator-census` | formally reproduced | concrete outputs → comparison identities → hyperbolic witness | completed by `Literature.CZ24.operator_census_hyperbolic_witness` |
-| `CCG25-gauss-ricci-codimension-two` | proved fragment | canonical isometric splitting → projected connection-derived `II` → conditional symmetry → scalar Gauss contraction | prove embedded tangent-bracket involutivity and derive the scalar Gauss equation from the induced connection |
+| `CCG25-gauss-ricci-codimension-two` | proved fragment | canonical isometric splitting → induced Levi--Civita connection → same-source `II` and projected ambient curvature → symmetry → vector-to-scalar Gauss contraction | prove `f`-related bracket naturality and ambient connection restriction locality, then derive vector Gauss |
 | `CCG25-laplacian-gauss-family` | split: two proved fragments | constructed Gauss--Weingarten derivatives → differentiated jet → Bochner trace → Ricci trace → Hodge formulas | construct the twice-differentiated jet and derive Codazzi, bracket--Weingarten, and Ricci splitting from the immersion connection |
 | `CCY23-invariant-restriction` | proved fragment | Section 4 radial correction → exact divergence cancellation → ellipsoid two-jet → both projected Hodge components | prove joint angular-radial smoothness and extract the coordinate jet from the constructed neighborhood field |
 | `CCY23-eccentricity-expansion` | proved fragment | exact rational candidate → exact fourth-order remainder → uniform local bound | connect smooth coordinate fields to the jet-level expansion |

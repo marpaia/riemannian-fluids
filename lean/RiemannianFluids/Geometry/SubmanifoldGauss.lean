@@ -1,4 +1,4 @@
-import RiemannianFluids.Geometry.SubmanifoldConnection
+import RiemannianFluids.Geometry.SubmanifoldInducedConnection
 import RiemannianFluids.Geometry.Curvature
 import RiemannianFluids.Tensors.Contraction
 
@@ -129,6 +129,37 @@ theorem shapeOperatorOfSecondFundamental_inner
   rw [
     InnerProductSpace.continuousLinearMapOfBilin_apply,
     secondFundamentalFormAgainst_apply]
+
+/-- The uncontracted tangential Gauss equation.  Its two shape terms are constructed from the
+same normal-valued second fundamental form; taking an inner product yields the scalar Gauss
+equation used by all Ricci contractions below. -/
+def PointwiseGaussData.HasVectorGaussEquationRelativeTo
+    (data : PointwiseGaussData (Tangent := Tangent) (Normal := Normal))
+    (ambientTangentialCurvature :
+      Tangent →L[ℝ] Tangent →L[ℝ] Tangent →L[ℝ] Tangent) : Prop :=
+  ∀ first second field,
+    data.intrinsicCurvature first second field =
+      ambientTangentialCurvature first second field +
+        shapeOperatorOfSecondFundamental data.secondFundamental
+          (data.secondFundamental second field) first -
+        shapeOperatorOfSecondFundamental data.secondFundamental
+          (data.secondFundamental first field) second
+
+/-- The vector Gauss equation implies its scalar contraction.  This theorem fixes the sign and
+argument-order bridge between differentiated Gauss--Weingarten geometry and the Ricci trace
+theorems in this file. -/
+theorem PointwiseGaussData.hasGaussEquationRelativeTo_of_vector
+    (data : PointwiseGaussData (Tangent := Tangent) (Normal := Normal))
+    (ambientTangentialCurvature :
+      Tangent →L[ℝ] Tangent →L[ℝ] Tangent →L[ℝ] Tangent)
+    (vectorGauss : data.HasVectorGaussEquationRelativeTo ambientTangentialCurvature) :
+    data.HasGaussEquationRelativeTo ambientTangentialCurvature := by
+  intro first second field test
+  rw [vectorGauss, inner_sub_left, inner_add_left,
+    shapeOperatorOfSecondFundamental_inner,
+    shapeOperatorOfSecondFundamental_inner]
+  rw [real_inner_comm (data.secondFundamental second test)
+    (data.secondFundamental first field)]
 
 /-- Vectorial mean curvature computed in a tangent orthonormal frame. -/
 def meanCurvatureOfSecondFundamental
@@ -530,6 +561,134 @@ theorem isometricConnectionSubmanifoldPointwiseGaussDataAt_isSymmetric
     ambientConnection extensions immersion.hasTangentNormalDecomposition
     immersion.hasTangentProjectionLeftInverse x intrinsicRegular extensionRegular tangentBracket
     ambientTorsionFree
+
+/-! ## Ambient curvature transported to the source tangent fiber -/
+
+/-- Pull all three input slots of the ambient connection-curvature tensor through `df_x`, then
+project its output tangentially.  This is the actual ambient tensor occurring in the vector and
+scalar Gauss equations; it is constructed from the ambient connection rather than supplied as an
+unrelated trilinear map. -/
+def tangentialAmbientConnectionCurvatureAt
+    [IsManifold I' 3 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x)) :
+    TangentSpace I x →L[ℝ] TangentSpace I x →L[ℝ]
+      TangentSpace I x →L[ℝ] TangentSpace I x :=
+  LinearMap.toContinuousLinearMap {
+    toFun := fun first ↦ LinearMap.toContinuousLinearMap {
+      toFun := fun second ↦ LinearMap.toContinuousLinearMap {
+        toFun := fun field ↦ splitting.tangentProjection x
+          (connectionCurvatureTensorAt I' ambientConnection (immersion.toFun x)
+            ambientRegular
+            (mfderiv I I' immersion.toFun x first)
+            (mfderiv I I' immersion.toFun x second)
+            (mfderiv I I' immersion.toFun x field))
+        map_add' := by simp
+        map_smul' := by simp }
+      map_add' := by
+        intro second second'
+        ext field
+        simp
+      map_smul' := by
+        intro scalar second
+        ext field
+        simp }
+    map_add' := by
+      intro first first'
+      ext second field
+      simp
+    map_smul' := by
+      intro scalar first
+      ext second field
+      simp }
+
+omit [CompleteSpace E] [FiniteDimensional ℝ E] [IsManifold I 1 M] in
+@[simp]
+theorem tangentialAmbientConnectionCurvatureAt_apply
+    [IsManifold I' 3 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (x : M)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I' ambientConnection
+      (immersion.toFun x))
+    (first second field : TangentSpace I x) :
+    tangentialAmbientConnectionCurvatureAt immersion splitting ambientConnection x
+        ambientRegular first second field =
+      splitting.tangentProjection x
+        (connectionCurvatureTensorAt I' ambientConnection (immersion.toFun x)
+          ambientRegular
+          (mfderiv I I' immersion.toFun x first)
+          (mfderiv I I' immersion.toFun x second)
+          (mfderiv I I' immersion.toFun x field)) :=
+  rfl
+
+/-! ## A single-source induced Gauss package -/
+
+/-- Actual-fiber Gauss data whose intrinsic curvature and second fundamental form are constructed
+from the same isometric immersion, ambient Levi--Civita connection, and covariant extension
+operator.  The source connection is the induced Levi--Civita connection proved in
+`SubmanifoldInducedConnection`; neither the intrinsic connection nor `II` is independently
+supplied. -/
+def inducedLeviCivitaSubmanifoldPointwiseGaussDataAt
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (bracketCompatibility :
+      extensions.HasBracketCompatibility immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita
+        bracketCompatibility).connection x) :
+    SubmanifoldPointwiseGaussDataAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting x :=
+  connectionSubmanifoldPointwiseGaussDataAt immersion.toSmoothImmersionData
+    immersion.orthogonalSplitting
+    (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita
+      bracketCompatibility).connection x intrinsicRegular
+    (CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+      immersion.hasTangentProjectionLeftInverse x)
+
+/-- The single-source Gauss package has a symmetric second fundamental form.  Canonical extension
+regularity and normal-bracket tangency are both discharged by the covariant extension layer. -/
+theorem inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_isSymmetric
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (ambientLeviCivita : LeviCivitaConnection (M := N) I')
+    (extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (bracketCompatibility :
+      extensions.HasBracketCompatibility immersion.toSmoothImmersionData)
+    (x : M)
+    (intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita
+        bracketCompatibility).connection x) :
+    (inducedLeviCivitaSubmanifoldPointwiseGaussDataAt immersion ambientLeviCivita
+      extensions bracketCompatibility x intrinsicRegular).IsSymmetric := by
+  intro first second
+  exact CovariantSubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt_comm
+    immersion.toSmoothImmersionData immersion.orthogonalSplitting
+    ambientLeviCivita.connection extensions immersion.hasTangentNormalDecomposition
+    immersion.hasTangentProjectionLeftInverse ambientLeviCivita.torsionFree
+    bracketCompatibility x first second
 
 end ManifoldFibers
 

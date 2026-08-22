@@ -87,6 +87,85 @@ structure LeviCivitaConnection where
 
 namespace LeviCivitaConnection
 
+omit [IsContMDiffRiemannianBundle I 1 E (TangentSpace I : M → Type _)] in
+/-- Two Levi--Civita connections have the same value on differentiable direction and field
+germs.  This is the uniqueness half of the fundamental theorem of Riemannian geometry at the
+level needed by the operator corpus.
+
+The bundled `CovariantDerivative` type accepts arbitrary raw sections, so literal structure
+equality would incorrectly assert agreement on its unconstrained junk values for
+nondifferentiable fields.  The mathematically meaningful statement is therefore this pointwise
+equality on differentiable fields.  The proof uses only the two defining properties: the
+difference tensor is symmetric by torsion-freeness and skew-adjoint by metric compatibility,
+hence vanishes. -/
+theorem eq_on_mdifferentiable
+    (first second : LeviCivitaConnection (M := M) I)
+    {direction field : (x : M) → TangentSpace I x} {x : M}
+    (hdirection : MDiffAt (T% direction) x)
+    (hfield : MDiffAt (T% field) x) :
+    first.connection field x (direction x) =
+      second.connection field x (direction x) := by
+  let differenceTensor
+      (X Y : (y : M) → TangentSpace I y) : TangentSpace I x :=
+    first.connection Y x (X x) - second.connection Y x (X x)
+  have symmetric (X Y : (y : M) → TangentSpace I y)
+      (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x) :
+      differenceTensor X Y = differenceTensor Y X := by
+    have torsionFirst :=
+      first.connection.torsion_eq_zero_iff.mp first.torsionFree hX hY
+    have torsionSecond :=
+      second.connection.torsion_eq_zero_iff.mp second.torsionFree hX hY
+    dsimp only [differenceTensor]
+    calc
+      first.connection Y x (X x) - second.connection Y x (X x) =
+          (first.connection Y x (X x) - first.connection X x (Y x)) -
+            (second.connection Y x (X x) - second.connection X x (Y x)) +
+            (first.connection X x (Y x) - second.connection X x (Y x)) := by
+        abel
+      _ = first.connection X x (Y x) - second.connection X x (Y x) := by
+        rw [torsionFirst, torsionSecond, sub_self, zero_add]
+  have skewAdjoint (X Y Z : (y : M) → TangentSpace I y)
+      (hX : MDiffAt (T% X) x) (hY : MDiffAt (T% Y) x)
+      (hZ : MDiffAt (T% Z) x) :
+      inner ℝ (differenceTensor X Y) (Z x) =
+        -inner ℝ (Y x) (differenceTensor X Z) := by
+    have metricFirst := first.metricCompatible hX hY hZ
+    have metricSecond := second.metricCompatible hX hY hZ
+    dsimp only [differenceTensor]
+    rw [metricSecond] at metricFirst
+    rw [inner_sub_left, inner_sub_right]
+    linarith
+  let difference : TangentSpace I x := differenceTensor direction field
+  let testField : (y : M) → TangentSpace I y := FiberBundle.extend E difference
+  have htest : MDiffAt (T% testField) x := FiberBundle.mdifferentiableAt_extend ..
+  have htestValue : testField x = difference := by simp [testField]
+  have hqneg : inner ℝ difference difference = -inner ℝ difference difference := by
+    calc
+      inner ℝ difference difference =
+          inner ℝ (differenceTensor direction field) (testField x) := by
+        rw [htestValue]
+      _ = inner ℝ (differenceTensor field direction) (testField x) := by
+        rw [symmetric direction field hdirection hfield]
+      _ = -inner ℝ (direction x) (differenceTensor field testField) :=
+        skewAdjoint field direction testField hfield hdirection htest
+      _ = -inner ℝ (direction x) (differenceTensor testField field) := by
+        rw [symmetric field testField hfield htest]
+      _ = -inner ℝ (differenceTensor testField field) (direction x) := by
+        rw [real_inner_comm]
+      _ = inner ℝ (field x) (differenceTensor testField direction) := by
+        simpa only [neg_neg] using congrArg Neg.neg
+          (skewAdjoint testField field direction htest hfield hdirection)
+      _ = inner ℝ (field x) (differenceTensor direction testField) := by
+        rw [symmetric testField direction htest hdirection]
+      _ = -inner ℝ (differenceTensor direction field) (testField x) := by
+        have h := skewAdjoint direction field testField hdirection hfield htest
+        linarith
+      _ = -inner ℝ difference difference := by
+        rw [htestValue]
+  have hzero : inner ℝ difference difference = 0 := by linarith
+  have : difference = 0 := inner_self_eq_zero.mp hzero
+  exact sub_eq_zero.mp this
+
 /--
 The native mathlib regularity predicate for the packaged connection. It is kept separate from `LeviCivitaConnection` because different operators
 consume different numbers of derivatives.
