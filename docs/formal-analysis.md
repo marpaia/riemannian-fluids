@@ -249,6 +249,11 @@ representation; that broader packaging is not needed for the CZ24 counterexample
 | sectional curvature | constructed pointwise as the normalized contraction of `R(X,Y)Y` against `X`; geometric use requires a nonzero Gram determinant |
 | connection-derived `RiemannianCurvatureData` | all four fields derived by `connectionRiemannianCurvatureDataOfRegularCurvature` |
 | smooth `RicciData` adapter | `RicciData.ofRegularConnection` discharges the older standalone `HasConnectionRicciRegularity` input |
+| Levi--Civita restriction locality along an immersion | proved for equality of pulled-back differentiable germs (`LeviCivitaConnection.eq_on_mfderiv_of_comp_eventuallyEq`) |
+| pointwise submanifold `∇ᴮ II` | constructed as a continuous trilinear map into the actual kernel-normal fiber; symmetry in the `II` slots proved |
+| uncontracted and contracted Codazzi | proved from the differentiated Gauss identity with the CCG25 curvature-slot convention |
+| actual-fiber CCG25 Bochner and Hodge Gauss formulas | proved from one immersion/Levi--Civita package after explicit field-two-jet and mean-curvature-field realization inputs |
+| smooth tubular realization of the CCG25 analytic jet inputs | open; this is the remaining source-setting gate, not an assumed geometric identity |
 | trace, divergence, and divergence-free predicate | constructed |
 | tensor transpose, symmetrization, and `Def` | constructed |
 | metric Lie-derivative identity \(L_u g = 2\operatorname{Def}u\) | proved from metric compatibility and torsion-freeness |

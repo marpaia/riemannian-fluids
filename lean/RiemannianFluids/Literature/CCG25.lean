@@ -216,6 +216,91 @@ theorem hodge_laplacian_gauss_general_codimension_of_weizenbock
 
 end HodgeProof
 
+/-! ## Actual-immersion Bochner and Hodge theorems -/
+
+section ActualImmersionProof
+
+variable
+  {ι κ : Type*} [Fintype ι] [Nonempty ι] [Fintype κ]
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    [CompleteSpace E] [FiniteDimensional ℝ E]
+  {H : Type*} [TopologicalSpace H]
+  {I : ModelWithCorners ℝ E H}
+  {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I 1 M]
+  [RiemannianBundle (fun x : M ↦ TangentSpace I x)]
+  {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
+    [CompleteSpace E'] [FiniteDimensional ℝ E']
+  {H' : Type*} [TopologicalSpace H']
+  {I' : ModelWithCorners ℝ E' H'}
+  {N : Type*} [TopologicalSpace N] [ChartedSpace H' N] [IsManifold I' 1 N]
+  [RiemannianBundle (fun x : N ↦ TangentSpace I' x)]
+
+/-- CCG25 Theorem 1.1 on actual tangent, kernel-normal, and ambient tangent fibers of an
+isometric immersion.  `II`, `∇ᴮ II`, projected ambient curvature, contracted Codazzi, and
+bracket--Weingarten are constructed from one Levi--Civita package; `data` names the remaining
+analytic field-jet realization boundary. -/
+theorem bochner_laplacian_gauss_general_codimension_of_isometric_immersion
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    (data.toDifferentiatedGaussWeingartenJet ambientRegular
+      ).toPointwiseBochnerGaussJet.HasGaussFormulas :=
+  data.hasGaussFormulas ambientRegular
+
+/-- CCG25 Corollary 1.20 on the same actual fibers and analytic field-jet realization.  The
+Ricci, scalar Gauss, Codazzi, and bracket--Weingarten inputs are all discharged by the common
+Levi--Civita construction. -/
+theorem hodge_laplacian_gauss_general_codimension_of_isometric_immersion
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    {extensionRegular : extensions.HasDifferentiatedGaussRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x}
+    (data : SubmanifoldLaplacianFieldJetDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x intrinsicRegular
+        extensionRegular)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x)) :
+    (data.toRicciGaussJet ambientRegular).HasHodgeGaussFormulas :=
+  data.hasHodgeGaussFormulas ambientRegular
+
+end ActualImmersionProof
+
 /-- Euclidean Gauss-equation terms for the intrinsic Ricci action in codimension two. -/
 structure EuclideanCodimensionTwoRicciData (Argument Value : Type*) where
   intrinsicRicci : Argument → Value

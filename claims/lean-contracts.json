@@ -88,35 +88,36 @@
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
       "intellectual_thread": "Gauss--Weingarten decomposition of the ambient Bochner Laplacian",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_of_gaussWeingarten",
-      "relationship": "interface-theorem",
+      "declaration": "RiemannianFluids.Literature.CCG25.bochner_laplacian_gauss_general_codimension_of_isometric_immersion",
+      "relationship": "conditional-theorem",
       "dependencies": [
         "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_firstGaussFormula",
         "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_secondGaussFormula",
-        "RiemannianFluids.submanifoldBochnerGaussJetAt",
-        "RiemannianFluids.SubmanifoldFieldExtensionData.ambientDerivativeTangent_eq_gauss",
-        "RiemannianFluids.SubmanifoldFieldExtensionData.ambientDerivativeAlong_eq_weingarten",
-        "RiemannianFluids.SubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt_apply"
+        "RiemannianFluids.projectedCovariantDerivativeSecondFundamentalAt",
+        "RiemannianFluids.normalAmbientConnectionCurvatureAt_eq_projectedCovariantDerivativeSecondFundamental_sub",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt_hasContractedCodazzi",
+        "RiemannianFluids.ambientNormalDerivative_sub_meanNormalDerivative_eq_bracket_sub_meanShape",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetOfMeanFieldAt_gaussFormulas"
       ],
-      "limitation": "Lean proves every coefficient and sign in equations (1.5)--(1.6) for arbitrary finite tangent and normal frames. On actual immersion fibers it constructs the orthogonal projections, induced tangent and normal derivatives, Gauss and Weingarten splittings, a continuous bilinear kernel-normal second fundamental form, bracket naturality, and the differentiated tangential Gauss identity. The remaining source-setting gap is constructing the complete twice-differentiated jet and deriving contracted Codazzi and bracket--Weingarten from embedded-submanifold geometry."
+      "limitation": "Lean now proves equations (1.5)--(1.6) on the actual tangent, kernel-normal, and ambient tangent fibers of one isometric immersion. It constructs a continuous trilinear normal covariant derivative of II, proves uncontracted and contracted Codazzi with the CCG25 slot/sign convention, and derives the mean-bracket conversion from torsion-freeness and Weingarten for a normal field realizing the mean-curvature first jet. The remaining exact-source gate is to construct the field-specific intrinsic and ambient normal two-jets, the mean-curvature-field realization, and the differentiated-extension regularity contract from one smooth tubular neighborhood extension rather than accepting those analytic realization inputs explicitly."
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
       "intellectual_thread": "Gauss formula for ambient versus intrinsic Hodge Laplacians",
       "lean_module": "RiemannianFluids.Literature.CCG25",
-      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_of_weizenbock",
-      "relationship": "interface-theorem",
+      "declaration": "RiemannianFluids.Literature.CCG25.hodge_laplacian_gauss_general_codimension_of_isometric_immersion",
+      "relationship": "conditional-theorem",
       "dependencies": [
         "RiemannianFluids.PointwiseRicciGaussJet.ambientRicci_eq_gaussFormula",
         "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_firstGaussFormula",
         "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_secondGaussFormula",
-        "RiemannianFluids.submanifoldRicciGaussJetAt",
-        "RiemannianFluids.isometricConnectionSubmanifoldPointwiseGaussDataAt",
-        "RiemannianFluids.SmoothIsometricImmersionData.adaptedAmbientOrthonormalBasisAt",
-        "RiemannianFluids.SmoothIsometricImmersionData.connectionRicciActionAlong_eq_adaptedTraceAt",
-        "RiemannianFluids.isometricConnectionSubmanifoldRicciGaussJetAt_hasAmbientRicciTraceSplitting"
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasGaussEquationRelativeTo",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldRicciGaussJetOfMeanFieldAt",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldRicciGaussJetOfMeanFieldAt_hasAmbientRicciTraceSplitting",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldDifferentiatedGaussWeingartenJetAt_hasContractedCodazzi",
+        "RiemannianFluids.inducedLeviCivitaSubmanifoldRicciGaussJetOfMeanFieldAt_hodgeGaussFormulas"
       ],
-      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. Induced curvature, the constructed second fundamental tensor, projected ambient connection curvature, and the derived scalar Gauss equation inhabit the same actual fibers of one isometric-immersion package. An adapted tangent-plus-normal ambient basis now derives the full ambient Ricci trace splitting from the same connection curvature. The remaining source-setting gap is constructing the complete twice-differentiated jet and deriving Codazzi and bracket--Weingarten from the immersion connection."
+      "limitation": "Lean now assembles one actual-fiber Ricci/Hodge jet from the induced and ambient Levi-Civita curvatures and the completed differentiated Gauss-Weingarten core. Scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas are proved for that common object. The remaining exact-source gate is the same smooth tubular field realization as for the Bochner theorem: construct the visible field and normal-direction two-jets, mean-curvature first jet, and extension regularity from a single smooth ambient extension."
     },
     {
       "id": "CCF25-four-candidates-sphere",
