@@ -1,4 +1,4 @@
-import RiemannianFluids.Geometry.SubmanifoldTangentHessian
+import RiemannianFluids.Geometry.SubmanifoldMeanCurvature
 
 /-!
 # CCG25: Gauss formulas for Laplacians on submanifolds
@@ -456,6 +456,105 @@ theorem hodge_laplacian_gauss_general_codimension_with_constructed_operators
     data.ambientHodge_eq_hodgeLaplacianConstructedAt_of_leviCivita
       ambientRegular
         (data.hasAmbientTangentHessianTraceGaussAt ambientRegular varyingRegular)⟩
+
+/-- CCG25 Theorem 1.1 from the source-style local construction.  A genuine `C²` tangent field,
+a tangent frame geodesic at the base point, and smoothness preservation by the chosen ambient
+extension operators construct the mean-curvature field and its first normal derivative.  No
+mean-curvature jet identity or tangent-Hessian identity is supplied by the caller. -/
+theorem bochner_laplacian_gauss_general_codimension_from_geodesic_frame
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 1 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 1 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    (source : SmoothSubmanifoldLaplacianSourceDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (smoothExtensions : extensions.HasSmoothGaussExtensionRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x) :
+    let extensionRegular := smoothExtensions.toDifferentiated
+    let data := source.toFieldJetData intrinsicRegular ambientRegular extensionRegular
+      smoothExtensions
+    let jet := (data.toDifferentiatedGaussWeingartenJet ambientRegular
+      ).toPointwiseBochnerGaussJet
+    jet.HasGaussFormulas ∧
+      jet.intrinsicBochner =
+        mfderiv I I' immersion.toFun x
+          (roughLaplacianAt I
+            (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+            x intrinsicRegular source.field source.fieldRegular) ∧
+      jet.ambientBochner =
+        roughLaplacianAt I' ambientLeviCivita.connection (immersion.toFun x)
+          ambientRegular
+          (extensions.toSubmanifoldFieldExtensionData.tangentExtension source.field)
+          (smoothExtensions.tangentExtension_contMDiffAt_two source.field
+            source.fieldRegular) := by
+  let extensionRegular := smoothExtensions.toDifferentiated
+  let data := source.toFieldJetData intrinsicRegular ambientRegular extensionRegular
+    smoothExtensions
+  exact bochner_laplacian_gauss_general_codimension_with_constructed_operators
+    data ambientRegular (smoothExtensions.toVarying data)
+
+/-- CCG25 Corollary 1.20 from the same geodesic-frame construction, with the intrinsic and
+ambient Hodge Laplacians built from their Levi--Civita connections. -/
+theorem hodge_laplacian_gauss_general_codimension_from_geodesic_frame
+    [IsManifold I 3 M] [IsManifold I' 3 N]
+    [I.Boundaryless] [I'.Boundaryless]
+    [IsContMDiffRiemannianBundle I 2 E (fun y : M ↦ TangentSpace I y)]
+    [IsContMDiffRiemannianBundle I' 2 E' (fun y : N ↦ TangentSpace I' y)]
+    [∀ y : M, FiniteDimensional ℝ (TangentSpace I y)]
+    [∀ y : N, FiniteDimensional ℝ (TangentSpace I' y)]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    {immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N)}
+    {ambientLeviCivita : LeviCivitaConnection (M := N) I'}
+    {extensions :
+      CovariantSubmanifoldFieldExtensionData immersion.toSmoothImmersionData}
+    {x : M}
+    {intrinsicRegular : HasConnectionCurvatureRegularityAt I
+      (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection x}
+    (source : SmoothSubmanifoldLaplacianSourceDataAt
+      (ι := ι) (κ := κ) immersion ambientLeviCivita extensions x)
+    (ambientRegular : HasConnectionCurvatureRegularityAt I'
+      ambientLeviCivita.connection (immersion.toFun x))
+    (smoothExtensions : extensions.HasSmoothGaussExtensionRegularityAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting
+      ambientLeviCivita.connection x) :
+    let extensionRegular := smoothExtensions.toDifferentiated
+    let data := source.toFieldJetData intrinsicRegular ambientRegular extensionRegular
+      smoothExtensions
+    let jet := data.toRicciGaussJet ambientRegular
+    jet.HasHodgeGaussFormulas ∧
+      jet.intrinsicHodge =
+        mfderiv I I' immersion.toFun x
+          (hodgeLaplacianConstructedAt I
+            (extensions.inducedLeviCivitaConnection immersion ambientLeviCivita).connection
+            x intrinsicRegular source.field source.fieldRegular) ∧
+      jet.ambientHodge =
+        hodgeLaplacianConstructedAt I' ambientLeviCivita.connection
+          (immersion.toFun x) ambientRegular
+          (extensions.toSubmanifoldFieldExtensionData.tangentExtension source.field)
+          (smoothExtensions.tangentExtension_contMDiffAt_two source.field
+            source.fieldRegular) := by
+  let extensionRegular := smoothExtensions.toDifferentiated
+  let data := source.toFieldJetData intrinsicRegular ambientRegular extensionRegular
+    smoothExtensions
+  exact hodge_laplacian_gauss_general_codimension_with_constructed_operators
+    data ambientRegular (smoothExtensions.toVarying data)
 
 end ActualImmersionProof
 
