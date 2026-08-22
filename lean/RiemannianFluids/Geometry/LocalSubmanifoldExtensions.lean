@@ -349,6 +349,100 @@ theorem immersionChartTangentExtensionAt_contMDiffAt
     exact hcomp
   exact immersionChartAlongExtensionAt_contMDiffAt h hn halong
 
+omit [IsManifold I ∞ M] [I'.Boundaryless] [IsManifold I' ∞ N] in
+/-- The scalar extension through an immersion chart preserves pointwise differentiability. -/
+theorem immersionChartScalarExtensionAt_mdifferentiableAt
+    (h : Manifold.IsImmersionAt I I' ∞ f x)
+    {scalar : M → ℝ} (hscalar : MDiffAt scalar x) :
+    MDiffAt (immersionChartScalarExtensionAt h scalar) (f x) := by
+  have hretraction : MDiffAt (immersionChartRetractionAt h) (f x) :=
+    (immersionChartRetractionAt_contMDiffAt h).mdifferentiableAt (by simp)
+  have hscalarAt : MDiffAt scalar (immersionChartRetractionAt h (f x)) := by
+    rw [immersionChartRetractionAt_apply_image_self h]
+    exact hscalar
+  exact hscalarAt.comp (f x) hretraction
+
+omit [IsManifold I ∞ M] [I'.Boundaryless] in
+/-- The arbitrary field-along extension through an immersion chart preserves pointwise
+differentiability. -/
+theorem immersionChartAlongExtensionAt_mdifferentiableAt
+    (h : Manifold.IsImmersionAt I I' ∞ f x)
+    {field : (q : M) → TangentSpace I' (f q)}
+    (hfield : MDiffAt
+      (fun q ↦ (⟨f q, field q⟩ : TangentBundle I' N)) x) :
+    MDiffAt (T% (immersionChartAlongExtensionAt h field)) (f x) := by
+  let retraction := immersionChartRetractionAt h
+  let trivialization := trivializationAt E' (TangentSpace I' : N → Type _) (f x)
+  let along : M → TangentBundle I' N := fun q ↦ ⟨f q, field q⟩
+  let input : N → TangentBundle I' N := along ∘ retraction
+  have hretraction : MDiffAt retraction (f x) :=
+    (immersionChartRetractionAt_contMDiffAt h).mdifferentiableAt (by simp)
+  have hfieldAt : MDiffAt along (retraction (f x)) := by
+    rw [show retraction (f x) = x by
+      exact immersionChartRetractionAt_apply_image_self h]
+    exact hfield
+  have hinput : MDiffAt input (f x) := hfieldAt.comp (f x) hretraction
+  have hinputProj : (input (f x)).proj = f x := by
+    simp only [input, along, retraction, Function.comp_apply,
+      immersionChartRetractionAt_apply_image_self]
+  have hcoordinatesRaw : MDiffAt
+      (fun y ↦ (trivialization (input y)).2) (f x) := by
+    have hcoordinates := (mdifferentiableAt_totalSpace I' _ |>.mp hinput).2
+    rw [hinputProj] at hcoordinates
+    exact hcoordinates
+  let coordinate : N → E' := fun y ↦
+    trivialization.continuousLinearMapAt ℝ (f (retraction y)) (field (retraction y))
+  have hprojSmooth : MDiffAt (fun y ↦ (input y).proj) (f x) :=
+    (mdifferentiableAt_totalSpace I' _ |>.mp hinput).1
+  have hbase : ∀ᶠ y in nhds (f x), (input y).proj ∈ trivialization.baseSet := by
+    apply hprojSmooth.continuousAt
+    change trivialization.baseSet ∈ nhds ((input (f x)).proj)
+    rw [hinputProj]
+    exact trivialization.open_baseSet.mem_nhds
+      (mem_baseSet_trivializationAt E' (TangentSpace I' : N → Type _) (f x))
+  have hcoordinateEq : coordinate =ᶠ[nhds (f x)]
+      fun y ↦ (trivialization (input y)).2 := by
+    filter_upwards [hbase] with y hy
+    change trivialization.continuousLinearMapAt ℝ (f (retraction y))
+        (field (retraction y)) =
+      (trivialization
+        (⟨f (retraction y), field (retraction y)⟩ : TangentBundle I' N)).2
+    exact trivialization.continuousLinearMapAt_apply_of_mem ℝ hy
+      (field (retraction y))
+  have hcoordinate : MDiffAt coordinate (f x) :=
+    hcoordinatesRaw.congr_of_eventuallyEq hcoordinateEq
+  rw [mdifferentiableAt_section]
+  apply hcoordinate.congr_of_eventuallyEq
+  filter_upwards [trivialization.open_baseSet.mem_nhds
+    (mem_baseSet_trivializationAt E' (TangentSpace I' : N → Type _) (f x))] with y hy
+  change (trivialization
+      (⟨y, trivialization.symmL ℝ y (coordinate y)⟩ : TangentBundle I' N)).2 =
+    coordinate y
+  rw [← trivialization.continuousLinearMapAt_apply_of_mem ℝ hy]
+  exact trivialization.continuousLinearMapAt_symmL hy (coordinate y)
+
+omit [I'.Boundaryless] in
+/-- The tangent extension through an immersion chart preserves pointwise differentiability. -/
+theorem immersionChartTangentExtensionAt_mdifferentiableAt
+    (h : Manifold.IsImmersionAt I I' ∞ f x)
+    (hf : CMDiff ∞ f)
+    {field : (q : M) → TangentSpace I q}
+    (hfield : MDiffAt (T% field) x) :
+    MDiffAt (T% (immersionChartTangentExtensionAt h field)) (f x) := by
+  have htangentMap : CMDiff 1 (tangentMap I I' f) :=
+    hf.contMDiff_tangentMap (m := 1) (by
+      change ((2 : ℕ∞) : ℕ∞ω) ≤ ((⊤ : ℕ∞) : ℕ∞ω)
+      exact WithTop.coe_le_coe.mpr le_top)
+  have halong : MDiffAt
+      (fun q ↦
+        (⟨f q, mfderiv I I' f q (field q)⟩ : TangentBundle I' N)) x := by
+    have hcomp := htangentMap.mdifferentiableAt one_ne_zero |>.comp x hfield
+    change MDiffAt
+      (fun q ↦
+        (⟨f q, mfderiv I I' f q (field q)⟩ : TangentBundle I' N)) x at hcomp
+    exact hcomp
+  exact immersionChartAlongExtensionAt_mdifferentiableAt h halong
+
 /-- Germ-local ambient extensions centered at one source point.  Agreement is asserted on a
 neighborhood of the center, matching the local-extension scope used in submanifold formulas. -/
 structure LocalSubmanifoldExtensionDataAt
@@ -369,6 +463,15 @@ structure LocalSubmanifoldExtensionDataAt
   tangentExtension_smul : ∀ scalar field,
     tangentExtension (scalar • field) =
       scalarExtension scalar • tangentExtension field
+  tangentExtension_mdifferentiableAt : ∀ {field : (q : M) → TangentSpace I q},
+    MDiffAt (T% field) x →
+      MDiffAt (T% (tangentExtension field)) (immersion.toFun x)
+  alongExtension_mdifferentiableAt : ∀ {field : AmbientVectorFieldAlong immersion},
+    MDiffAt (fun q ↦
+      (⟨immersion.toFun q, field q⟩ : TangentBundle I' N)) x →
+      MDiffAt (T% (alongExtension field)) (immersion.toFun x)
+  scalarExtension_mdifferentiableAt : ∀ {scalar : M → ℝ},
+    MDiffAt scalar x → MDiffAt (scalarExtension scalar) (immersion.toFun x)
   tangentExtension_contMDiffAt : ∀ {n : ℕ∞ω}, n ≤ (∞ : ℕ∞ω) →
     ∀ {field : (q : M) → TangentSpace I q},
       CMDiffAt n (T% field) x →
@@ -399,6 +502,12 @@ noncomputable def localSubmanifoldExtensionDataAtOfIsImmersion
     immersionChartScalarExtensionAt_comp_eventuallyEq h scalar
   tangentExtension_smul scalar field :=
     immersionChartTangentExtensionAt_smul h scalar field
+  tangentExtension_mdifferentiableAt hfield :=
+    immersionChartTangentExtensionAt_mdifferentiableAt h immersion.contMDiff hfield
+  alongExtension_mdifferentiableAt hfield :=
+    immersionChartAlongExtensionAt_mdifferentiableAt h hfield
+  scalarExtension_mdifferentiableAt hscalar :=
+    immersionChartScalarExtensionAt_mdifferentiableAt h hscalar
   tangentExtension_contMDiffAt := by
     intro n hn field hfield
     exact immersionChartTangentExtensionAt_contMDiffAt h immersion.contMDiff hn hfield
