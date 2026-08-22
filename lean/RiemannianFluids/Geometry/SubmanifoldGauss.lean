@@ -1,4 +1,4 @@
-import RiemannianFluids.Geometry.Submanifolds
+import RiemannianFluids.Geometry.SubmanifoldConnection
 import RiemannianFluids.Geometry.Curvature
 import RiemannianFluids.Tensors.Contraction
 
@@ -393,6 +393,7 @@ variable
   {I : ModelWithCorners ℝ E H}
   {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I 1 M]
   [RiemannianBundle (fun x : M ↦ TangentSpace I x)]
+  [∀ x : M, FiniteDimensional ℝ (TangentSpace I x)]
   {E' : Type*} [NormedAddCommGroup E'] [NormedSpace ℝ E']
     [CompleteSpace E'] [FiniteDimensional ℝ E']
   {H' : Type*} [TopologicalSpace H']
@@ -434,6 +435,101 @@ def connectionSubmanifoldPointwiseGaussDataAt
     SubmanifoldPointwiseGaussDataAt immersion splitting x where
   intrinsicCurvature := connectionCurvatureTensorAt I connection x regular
   secondFundamental := secondFundamental
+
+/-- Actual-fiber Gauss data whose curvature comes from the intrinsic connection and whose second
+fundamental form is obtained by differentiating chosen ambient extensions and applying the normal
+projection.  No second-fundamental-form tensor is supplied independently. -/
+def projectedConnectionSubmanifoldPointwiseGaussDataAt
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (intrinsicConnection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : SubmanifoldFieldExtensionData immersion)
+    (decomposition : HasTangentNormalDecomposition immersion splitting)
+    (leftInverse : HasTangentProjectionLeftInverse immersion splitting)
+    (x : M) (intrinsicRegular : HasConnectionCurvatureRegularityAt I intrinsicConnection x)
+    (extensionRegular :
+      extensions.HasDifferentiableCanonicalTangentExtensionsAt immersion x) :
+    SubmanifoldPointwiseGaussDataAt immersion splitting x :=
+  connectionSubmanifoldPointwiseGaussDataAt immersion splitting intrinsicConnection x
+    intrinsicRegular
+    (extensions.projectedSecondFundamentalFormAt immersion splitting ambientConnection
+      decomposition leftInverse x extensionRegular)
+
+/-- The second fundamental form in the actual-fiber Gauss data above is symmetric whenever the
+ambient connection is torsion free and brackets of the chosen tangent extensions remain tangent.
+This discharges CCG25's symmetry input from connection geometry rather than assuming it on an
+unrelated bilinear map. -/
+theorem projectedConnectionSubmanifoldPointwiseGaussDataAt_isSymmetric
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (intrinsicConnection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : SubmanifoldFieldExtensionData immersion)
+    (decomposition : HasTangentNormalDecomposition immersion splitting)
+    (leftInverse : HasTangentProjectionLeftInverse immersion splitting)
+    (x : M) (intrinsicRegular : HasConnectionCurvatureRegularityAt I intrinsicConnection x)
+    (extensionRegular :
+      extensions.HasDifferentiableCanonicalTangentExtensionsAt immersion x)
+    (tangentBracket : extensions.HasTangentCanonicalBracketAt immersion splitting x)
+    (ambientTorsionFree : ambientConnection.torsion = 0) :
+    (projectedConnectionSubmanifoldPointwiseGaussDataAt immersion splitting intrinsicConnection
+      ambientConnection extensions decomposition leftInverse x intrinsicRegular
+      extensionRegular).IsSymmetric := by
+  intro first second
+  exact extensions.projectedSecondFundamentalFormAt_comm immersion splitting ambientConnection
+    decomposition leftInverse x extensionRegular tangentBracket ambientTorsionFree first second
+
+/-- The preceding construction specialized to the canonical orthogonal splitting of an
+isometric immersion.  Reconstruction and the tangential left-inverse law are now theorems of the
+immersion and disappear from the caller-facing data. -/
+def isometricConnectionSubmanifoldPointwiseGaussDataAt
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (intrinsicConnection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : SubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M) (intrinsicRegular : HasConnectionCurvatureRegularityAt I intrinsicConnection x)
+    (extensionRegular :
+      extensions.HasDifferentiableCanonicalTangentExtensionsAt
+        immersion.toSmoothImmersionData x) :
+    SubmanifoldPointwiseGaussDataAt immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting x :=
+  projectedConnectionSubmanifoldPointwiseGaussDataAt immersion.toSmoothImmersionData
+    immersion.orthogonalSplitting intrinsicConnection ambientConnection extensions
+    immersion.hasTangentNormalDecomposition immersion.hasTangentProjectionLeftInverse x
+    intrinsicRegular extensionRegular
+
+/-- For an isometric immersion, ambient torsion-freeness and the single remaining bracket
+tangency condition prove symmetry of the canonically constructed second fundamental form. -/
+theorem isometricConnectionSubmanifoldPointwiseGaussDataAt_isSymmetric
+    [IsManifold I 3 M] [IsManifold I' 2 N]
+    [∀ y : M, CompleteSpace (TangentSpace I y)]
+    [∀ y : N, CompleteSpace (TangentSpace I' y)]
+    (immersion : SmoothIsometricImmersionData
+      (I := I) (I' := I') (M := M) (N := N))
+    (intrinsicConnection : CovariantDerivative I E (TangentSpace I : M → Type _))
+    (ambientConnection : CovariantDerivative I' E' (TangentSpace I' : N → Type _))
+    (extensions : SubmanifoldFieldExtensionData immersion.toSmoothImmersionData)
+    (x : M) (intrinsicRegular : HasConnectionCurvatureRegularityAt I intrinsicConnection x)
+    (extensionRegular :
+      extensions.HasDifferentiableCanonicalTangentExtensionsAt
+        immersion.toSmoothImmersionData x)
+    (tangentBracket : extensions.HasTangentCanonicalBracketAt
+      immersion.toSmoothImmersionData immersion.orthogonalSplitting x)
+    (ambientTorsionFree : ambientConnection.torsion = 0) :
+    (isometricConnectionSubmanifoldPointwiseGaussDataAt immersion intrinsicConnection
+      ambientConnection extensions x intrinsicRegular extensionRegular).IsSymmetric :=
+  projectedConnectionSubmanifoldPointwiseGaussDataAt_isSymmetric
+    immersion.toSmoothImmersionData immersion.orthogonalSplitting intrinsicConnection
+    ambientConnection extensions immersion.hasTangentNormalDecomposition
+    immersion.hasTangentProjectionLeftInverse x intrinsicRegular extensionRegular tangentBracket
+    ambientTorsionFree
 
 end ManifoldFibers
 

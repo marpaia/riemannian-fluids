@@ -1,5 +1,6 @@
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import RiemannianFluids.Operators.EllipsoidEccentricity
+import RiemannianFluids.Operators.EllipsoidExtension
 import RiemannianFluids.Operators.Restriction
 
 /-!
@@ -11,6 +12,8 @@ the formula structures contain only the individual geometric terms appearing in 
 -/
 
 namespace RiemannianFluids.Literature.CCY23
+
+open scoped ContDiff
 
 /-- Pointwise terms in CCY23 Theorem 1.1, equation (1.4). -/
 structure EllipsoidRestrictionData
@@ -74,6 +77,21 @@ theorem invariant_restriction_axisymmetric_ellipsoid
   intro _ jet _ _ _
   simpa only [axisymmetricEllipsoidRestrictionData] using
     jet.projectedAmbientHodge_eq_invariantRestriction point
+
+/-! ## Section 4 divergence-free extension -/
+
+/-- The explicit formula (4.6) constructs, on every radial ray, a smooth positive-radius normal
+coefficient with zero ellipsoid trace and exactly cancelling ambient divergence.  The remaining
+field-level bridge is joint smoothness in the angular variables and extraction of the coordinate
+two-jet consumed by `invariant_restriction_axisymmetric_ellipsoid`. -/
+theorem section4_radial_extension
+    {Parameter : Type*} (ambientTangentialDivergence : Parameter → ℝ → ℝ)
+    (smoothRadially : ∀ parameter,
+      ContDiff ℝ ∞ (ambientTangentialDivergence parameter)) :
+    ∀ parameter,
+      EllipsoidRadialExtension.Certificate
+        (ambientTangentialDivergence parameter) :=
+  EllipsoidRadialExtension.familyCertificate ambientTangentialDivergence smoothRadially
 
 /-- Component observables in the differential-form eccentricity expansion (5.8). -/
 structure EllipsoidEccentricityExpansionData

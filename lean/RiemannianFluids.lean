@@ -21,6 +21,7 @@ import RiemannianFluids.FunctionSpaces.HyperbolicCCP25
 import RiemannianFluids.Operators.ConstructedHodge
 import RiemannianFluids.Operators.ConstructedLaplacians
 import RiemannianFluids.Operators.EllipsoidEccentricity
+import RiemannianFluids.Operators.EllipsoidExtension
 import RiemannianFluids.Operators.EllipsoidRestriction
 import RiemannianFluids.Operators.GeometricIdentities
 import RiemannianFluids.Operators.HyperbolicHodgeStokes
@@ -51,6 +52,7 @@ import RiemannianFluids.Geometry.Manifolds
 import RiemannianFluids.Geometry.Musical
 import RiemannianFluids.Geometry.SpaceForms
 import RiemannianFluids.Geometry.Submanifolds
+import RiemannianFluids.Geometry.SubmanifoldConnection
 import RiemannianFluids.Geometry.SubmanifoldGauss
 import RiemannianFluids.Geometry.SubmanifoldLaplacian
 import RiemannianFluids.Geometry.SubmanifoldHodge

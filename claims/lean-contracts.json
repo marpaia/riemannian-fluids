@@ -48,9 +48,10 @@
       "relationship": "interface-theorem",
       "dependencies": [
         "RiemannianFluids.axisymmetricEllipsoidParametrization_mem",
-        "RiemannianFluids.EllipsoidRestrictionJet.projectedAmbientHodge_eq_invariantRestriction"
+        "RiemannianFluids.EllipsoidRestrictionJet.projectedAmbientHodge_eq_invariantRestriction",
+        "RiemannianFluids.Literature.CCY23.section4_radial_extension"
       ],
-      "limitation": "Lean proves both coordinate components of equation (1.4), including the dtheta comparison omitted from the paper, for the exact ellipsoid coefficients and a two-jet satisfying the common ambient/surface divergence residual. The remaining source-setting gap is an adapter from a smooth neighborhood vector field and the paper's constructed simultaneous divergence-free extension to this coordinate jet; the source does not assert extension independence."
+      "limitation": "Lean proves both coordinate components of equation (1.4), including the dtheta comparison omitted from the paper, for the exact ellipsoid coefficients and a two-jet satisfying the common ambient/surface divergence residual. It also constructs the Section 4 coefficient (4.6) on every angular ray and proves its boundary trace, positive-radius smoothness, weighted ODE, and exact ambient-divergence cancellation. The remaining source-setting gaps are joint angular-radial smoothness and the adapter from the resulting neighborhood field to the coordinate two-jet; the source does not assert extension independence."
     },
     {
       "id": "CCY23-eccentricity-expansion",
@@ -70,8 +71,12 @@
       "lean_module": "RiemannianFluids.Literature.CCG25",
       "declaration": "RiemannianFluids.Literature.CCG25.gauss_ricci_codimension_two_of_euclidean_gauss",
       "relationship": "interface-theorem",
-      "dependencies": ["RiemannianFluids.euclidean_gauss_ricci"],
-      "limitation": "Lean constructs shape operators, mean curvature, the normal-frame shape square, and Ricci contraction from a finite-dimensional normal-valued second fundamental form, then proves equation (1.12). The remaining source-setting gap is deriving symmetry and the scalar Euclidean Gauss equation from an actual embedded isometric immersion."
+      "dependencies": [
+        "RiemannianFluids.euclidean_gauss_ricci",
+        "RiemannianFluids.SmoothIsometricImmersionData.isOrthogonalSubmanifoldSplitting",
+        "RiemannianFluids.isometricConnectionSubmanifoldPointwiseGaussDataAt_isSymmetric"
+      ],
+      "limitation": "Lean constructs the canonical orthogonal splitting of an isometric immersion, obtains an actual kernel-normal second fundamental form by differentiating ambient extensions and projecting, derives its symmetry from ambient torsion-freeness plus tangent-bracket involutivity, and contracts the Euclidean Gauss equation into (1.12). The remaining source-setting gap is proving bracket involutivity for embedded extensions and deriving the scalar Gauss equation from the induced connection."
     },
     {
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
@@ -82,9 +87,12 @@
       "dependencies": [
         "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_firstGaussFormula",
         "RiemannianFluids.PointwiseBochnerGaussJet.ambientBochner_eq_secondGaussFormula",
-        "RiemannianFluids.submanifoldBochnerGaussJetAt"
+        "RiemannianFluids.submanifoldBochnerGaussJetAt",
+        "RiemannianFluids.SubmanifoldFieldExtensionData.ambientDerivativeTangent_eq_gauss",
+        "RiemannianFluids.SubmanifoldFieldExtensionData.ambientDerivativeAlong_eq_weingarten",
+        "RiemannianFluids.SubmanifoldFieldExtensionData.projectedSecondFundamentalFormAt_apply"
       ],
-      "limitation": "Lean proves every coefficient and sign in equations (1.5)--(1.6) for arbitrary finite tangent and normal frames from a differentiated Gauss--Weingarten jet, with an adapter to actual immersion tangent and kernel-normal fibers. The remaining source-setting gap is constructing that jet from covariant derivatives of a smooth extension and discharging symmetry, contracted Codazzi, and bracket--Weingarten from the immersion geometry."
+      "limitation": "Lean proves every coefficient and sign in equations (1.5)--(1.6) for arbitrary finite tangent and normal frames. On actual immersion fibers it now constructs the orthogonal projections, induced tangent and normal derivatives, Gauss and Weingarten splittings, and a continuous bilinear kernel-normal second fundamental form. The remaining source-setting gap is constructing the complete twice-differentiated jet and deriving tangent-bracket involutivity, contracted Codazzi, and bracket--Weingarten from embedded-submanifold geometry."
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
@@ -96,9 +104,10 @@
         "RiemannianFluids.PointwiseRicciGaussJet.ambientRicci_eq_gaussFormula",
         "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_firstGaussFormula",
         "RiemannianFluids.PointwiseRicciGaussJet.ambientHodge_eq_secondGaussFormula",
-        "RiemannianFluids.submanifoldRicciGaussJetAt"
+        "RiemannianFluids.submanifoldRicciGaussJetAt",
+        "RiemannianFluids.isometricConnectionSubmanifoldPointwiseGaussDataAt"
       ],
-      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. The remaining source-setting gap is deriving the scalar Gauss and ambient Ricci trace-splitting identities from an actual isometric immersion and its ambient connection."
+      "limitation": "Lean proves both arbitrary-codimension formulas of Corollary 1.20 by combining the proved Bochner traces with a proved Ricci Gauss contraction and the analysis-positive Bochner--Weitzenbock definition. The curvature and second fundamental tensors now inhabit the same actual fibers of a canonical isometric-immersion splitting. The remaining source-setting gap is deriving scalar Gauss, Codazzi, and ambient Ricci trace splitting from those connections."
     },
     {
       "id": "CCF25-four-candidates-sphere",

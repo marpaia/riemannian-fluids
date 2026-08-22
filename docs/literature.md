@@ -24,13 +24,13 @@ Formal implementation: pairwise inequivalence of the three intrinsic candidates 
 
 Chan--Czubak--Yoneda study the relationship between ambient differential operators and intrinsic surface operators.  Extension, tangent projection, and geometric correction terms determine the restriction problem.
 
-Formal implementation: the exact axisymmetric-ellipsoid parametrization and coefficients, both components of the projected ambient Hodge restriction formula, and the eccentricity expansion with an explicit fourth-order remainder bound. The remaining source-setting work is to extract the coordinate jet from a smooth neighborhood field and formalize the paper's construction of a simultaneous ambient/surface divergence-free extension; the paper does not claim extension independence.
+Formal implementation: the exact axisymmetric-ellipsoid parametrization and coefficients, the Section 4 radial coefficient (4.6) with its surface trace, smooth positive-radius flux law, and exact divergence cancellation on every angular ray, both components of the projected ambient Hodge restriction formula, and the eccentricity expansion with an explicit fourth-order remainder bound. The remaining source-setting work is joint angular-radial smoothness and extraction of the coordinate jet from the constructed neighborhood field; the paper does not claim extension independence.
 
 ### CCG25: Gauss formulas for Laplacians
 
 Chan--Czubak develop Laplacian restriction formulas for submanifolds, including ambient curvature, the second fundamental form, the normal connection, and higher-codimension Ricci terms.
 
-Formal implementation: finite-dimensional tangent/normal Gauss geometry, shape operators and mean curvature constructed by Riesz duality and trace, arbitrary-codimension Bochner and Hodge trace theorems, and adapters to actual Mathlib tangent and kernel-normal fibers. The remaining gate is to derive the differentiated jets and Gauss--Codazzi identities from an isometric immersion and its connections.
+Formal implementation: a canonical adjoint-based orthogonal splitting for isometric immersions; tangent and normal covariant derivatives constructed by extending, differentiating, and projecting; proved Gauss--Weingarten decompositions; a continuous bilinear kernel-normal second fundamental form; symmetry derived from ambient torsion-freeness and tangent-bracket involutivity; shape operators and mean curvature constructed by Riesz duality and trace; arbitrary-codimension Bochner and Hodge trace theorems; and adapters keeping curvature and `II` on the same actual Mathlib fibers. The remaining gate is to prove involutivity for embedded extensions and derive scalar Gauss, Codazzi, the twice-differentiated jets, and Ricci trace splitting from the induced connections.
 
 ### CCF25: ellipsoid candidates and thin-shell derivation
 

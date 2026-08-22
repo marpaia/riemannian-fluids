@@ -1,4 +1,5 @@
 import Mathlib.Geometry.Manifold.Riemannian.Basic
+import Mathlib.Analysis.InnerProductSpace.Adjoint
 import RiemannianFluids.Geometry.Manifolds
 
 /-!
@@ -41,6 +42,46 @@ structure SmoothImmersionData where
 hypotheses belong to the individual source statement when they are used. -/
 structure SmoothEmbeddingData extends SmoothImmersionData (I := I) (I' := I') (M := M) (N := N) where
   injective : Function.Injective toFun
+
+/-- A smooth map whose differential preserves the Riemannian inner product at every point.
+Injectivity of the differential is a theorem, so it is not duplicated as structure data. -/
+structure SmoothIsometricImmersionData
+    [RiemannianBundle (fun x : M => TangentSpace I x)]
+    [RiemannianBundle (fun x : N => TangentSpace I' x)] where
+  toFun : M → N
+  contMDiff : ContMDiff I I' ∞ toFun
+  mfderiv_inner : ∀ x first second,
+    inner ℝ (mfderiv I I' toFun x first) (mfderiv I I' toFun x second) =
+      inner ℝ first second
+
+namespace SmoothIsometricImmersionData
+
+variable
+  [RiemannianBundle (fun x : M => TangentSpace I x)]
+  [RiemannianBundle (fun x : N => TangentSpace I' x)]
+
+/-- Forget metric preservation.  The immersion condition follows from preservation of the inner
+product, rather than being supplied separately. -/
+abbrev toSmoothImmersionData
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N)) :
+    SmoothImmersionData (I := I) (I' := I') (M := M) (N := N) where
+  toFun := immersion.toFun
+  contMDiff := immersion.contMDiff
+  mfderiv_injective := by
+    intro x first second equal
+    apply ext_inner_right ℝ
+    intro test
+    rw [← immersion.mfderiv_inner x first test, equal,
+      immersion.mfderiv_inner x second test]
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+@[simp]
+theorem toSmoothImmersionData_toFun
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N)) :
+    immersion.toSmoothImmersionData.toFun = immersion.toFun :=
+  rfl
+
+end SmoothIsometricImmersionData
 
 /-- A section of the ambient tangent bundle pulled back along an immersion. -/
 abbrev AmbientVectorFieldAlong
@@ -88,6 +129,35 @@ def IsOrthogonalSubmanifoldSplitting
   HasTangentNormalDecomposition immersion splitting ∧
     HasTangentProjectionLeftInverse immersion splitting ∧
       HasOrthogonalNormalProjection immersion splitting
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- Any genuine tangent/normal decomposition sends immersed tangent vectors to zero under the
+normal projection. -/
+theorem normalProjection_mfderiv_eq_zero
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (decomposition : HasTangentNormalDecomposition immersion splitting)
+    (leftInverse : HasTangentProjectionLeftInverse immersion splitting)
+    (x : M) (tangent : TangentSpace I x) :
+    splitting.normalProjection x (mfderiv I I' immersion.toFun x tangent) = 0 := by
+  have reconstructed :=
+    decomposition x (mfderiv I I' immersion.toFun x tangent)
+  rw [leftInverse x tangent] at reconstructed
+  exact (add_eq_left.mp reconstructed)
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- In any genuine tangent/normal decomposition, the normal output lies in the kernel of the
+tangential projection. -/
+theorem tangentProjection_normalProjection_eq_zero
+    (immersion : SmoothImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (splitting : SubmanifoldSplittingData immersion)
+    (decomposition : HasTangentNormalDecomposition immersion splitting)
+    (leftInverse : HasTangentProjectionLeftInverse immersion splitting)
+    (x : M) (ambient : TangentSpace I' (immersion.toFun x)) :
+    splitting.tangentProjection x (splitting.normalProjection x ambient) = 0 := by
+  have reconstructed := decomposition x ambient
+  have projected := congrArg (splitting.tangentProjection x) reconstructed
+  simpa only [map_add, leftInverse x, add_eq_left] using projected
 
 /-- Second fundamental form, shape operators, and mean-curvature vector.  All values live in
 actual tangent fibers.  Normal-valuedness, symmetry, and the adjoint relation are separate
@@ -201,6 +271,171 @@ def HasAbstractContractedCodazziIdentity
     data.traceDerivativeSecondFundamental tangent =
       data.meanCurvatureNormalDerivative tangent +
         data.ambientCurvatureNormalTrace tangent
+
+/-! ## Canonical orthogonal splitting of an isometric immersion -/
+
+section IsometricSplitting
+
+variable
+  [RiemannianBundle (fun x : M => TangentSpace I x)]
+  [RiemannianBundle (fun x : N => TangentSpace I' x)]
+  [∀ x : M, CompleteSpace (TangentSpace I x)]
+  [∀ x : N, CompleteSpace (TangentSpace I' x)]
+
+/-- The canonical splitting induced by an isometric immersion.  Tangential projection is the
+adjoint of `df`; normal projection is `id - df (df)†`. -/
+def SmoothIsometricImmersionData.orthogonalSplitting
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N)) :
+    SubmanifoldSplittingData immersion.toSmoothImmersionData where
+  tangentProjection := fun x => (mfderiv I I' immersion.toFun x).adjoint
+  normalProjection := fun x =>
+    ContinuousLinearMap.id ℝ (TangentSpace I' (immersion.toFun x)) -
+      (mfderiv I I' immersion.toFun x).comp
+        (mfderiv I I' immersion.toFun x).adjoint
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- For an isometric immersion, `(df)† df = id`. -/
+theorem SmoothIsometricImmersionData.adjoint_mfderiv_comp_mfderiv
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (x : M) :
+    (mfderiv I I' immersion.toFun x).adjoint.comp
+        (mfderiv I I' immersion.toFun x) = 1 :=
+  (ContinuousLinearMap.inner_map_map_iff_adjoint_comp_self
+    (mfderiv I I' immersion.toFun x)).mp (immersion.mfderiv_inner x)
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- The canonical projections reconstruct every ambient tangent vector. -/
+theorem SmoothIsometricImmersionData.hasTangentNormalDecomposition
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N)) :
+    HasTangentNormalDecomposition immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting := by
+  intro x ambient
+  simp only [SmoothIsometricImmersionData.orthogonalSplitting, sub_apply,
+    ContinuousLinearMap.id_apply, ContinuousLinearMap.comp_apply]
+  abel
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- The adjoint tangential projection is a left inverse of `df`. -/
+theorem SmoothIsometricImmersionData.hasTangentProjectionLeftInverse
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N)) :
+    HasTangentProjectionLeftInverse immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting := by
+  intro x tangent
+  change (mfderiv I I' immersion.toFun x).adjoint
+    (mfderiv I I' immersion.toFun x tangent) = tangent
+  have evaluated := congrArg
+    (fun map : TangentSpace I x →L[ℝ] TangentSpace I x => map tangent)
+    (immersion.adjoint_mfderiv_comp_mfderiv x)
+  simpa only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.one_def,
+    ContinuousLinearMap.id_apply] using evaluated
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- The range of the canonical normal projection is orthogonal to the immersed tangent space. -/
+theorem SmoothIsometricImmersionData.hasOrthogonalNormalProjection
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N)) :
+    HasOrthogonalNormalProjection immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting := by
+  intro x ambient tangent
+  change inner ℝ
+      (ambient - mfderiv I I' immersion.toFun x
+        ((mfderiv I I' immersion.toFun x).adjoint ambient))
+      (mfderiv I I' immersion.toFun x tangent) = 0
+  rw [inner_sub_left, immersion.mfderiv_inner,
+    ContinuousLinearMap.adjoint_inner_left]
+  ring
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- An isometric immersion therefore carries a canonical Mathlib-backed orthogonal
+tangent/normal splitting. -/
+theorem SmoothIsometricImmersionData.isOrthogonalSubmanifoldSplitting
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N)) :
+    IsOrthogonalSubmanifoldSplitting immersion.toSmoothImmersionData
+      immersion.orthogonalSplitting :=
+  ⟨immersion.hasTangentNormalDecomposition,
+    immersion.hasTangentProjectionLeftInverse,
+    immersion.hasOrthogonalNormalProjection⟩
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- Membership in the canonical normal fiber is exactly orthogonality to every immersed tangent
+vector. -/
+theorem SmoothIsometricImmersionData.mem_normalSpace_iff
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (x : M) (ambient : TangentSpace I' (immersion.toFun x)) :
+    ambient ∈ LinearMap.ker
+        ((immersion.orthogonalSplitting.tangentProjection x).toLinearMap) ↔
+      ∀ tangent : TangentSpace I x,
+        inner ℝ ambient (mfderiv I I' immersion.toFun x tangent) = 0 := by
+  change (mfderiv I I' immersion.toFun x).adjoint ambient = 0 ↔ _
+  constructor
+  · intro normal tangent
+    rw [← ContinuousLinearMap.adjoint_inner_left, normal, inner_zero_left]
+  · intro orthogonal
+    apply ext_inner_right ℝ
+    intro tangent
+    rw [ContinuousLinearMap.adjoint_inner_left, orthogonal tangent, inner_zero_left]
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- The canonical normal projection kills every vector in the immersed tangent range. -/
+theorem SmoothIsometricImmersionData.normalProjection_mfderiv
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (x : M) (tangent : TangentSpace I x) :
+    immersion.orthogonalSplitting.normalProjection x
+        (mfderiv I I' immersion.toFun x tangent) = 0 := by
+  change mfderiv I I' immersion.toFun x tangent -
+      mfderiv I I' immersion.toFun x
+        ((mfderiv I I' immersion.toFun x).adjoint
+          (mfderiv I I' immersion.toFun x tangent)) = 0
+  have leftInverse :
+      (mfderiv I I' immersion.toFun x).adjoint
+          (mfderiv I I' immersion.toFun x tangent) = tangent := by
+    have evaluated := congrArg
+      (fun map : TangentSpace I x →L[ℝ] TangentSpace I x => map tangent)
+      (immersion.adjoint_mfderiv_comp_mfderiv x)
+    simpa only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.one_def,
+      ContinuousLinearMap.id_apply] using evaluated
+  rw [leftInverse]
+  exact sub_self _
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- Tangential projection kills the output of the canonical normal projection. -/
+theorem SmoothIsometricImmersionData.tangentProjection_normalProjection
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (x : M) (ambient : TangentSpace I' (immersion.toFun x)) :
+    immersion.orthogonalSplitting.tangentProjection x
+        (immersion.orthogonalSplitting.normalProjection x ambient) = 0 := by
+  change (mfderiv I I' immersion.toFun x).adjoint
+      (ambient - mfderiv I I' immersion.toFun x
+        ((mfderiv I I' immersion.toFun x).adjoint ambient)) = 0
+  have leftInverse :
+      (mfderiv I I' immersion.toFun x).adjoint
+          (mfderiv I I' immersion.toFun x
+            ((mfderiv I I' immersion.toFun x).adjoint ambient)) =
+        (mfderiv I I' immersion.toFun x).adjoint ambient := by
+    have evaluated := congrArg
+      (fun map : TangentSpace I x →L[ℝ] TangentSpace I x =>
+        map ((mfderiv I I' immersion.toFun x).adjoint ambient))
+      (immersion.adjoint_mfderiv_comp_mfderiv x)
+    simpa only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.one_def,
+      ContinuousLinearMap.id_apply] using evaluated
+  rw [map_sub, leftInverse]
+  exact sub_self _
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+/-- The canonical normal projection is idempotent. -/
+theorem SmoothIsometricImmersionData.normalProjection_idempotent
+    (immersion : SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N))
+    (x : M) (ambient : TangentSpace I' (immersion.toFun x)) :
+    immersion.orthogonalSplitting.normalProjection x
+        (immersion.orthogonalSplitting.normalProjection x ambient) =
+      immersion.orthogonalSplitting.normalProjection x ambient := by
+  change immersion.orthogonalSplitting.normalProjection x ambient -
+      mfderiv I I' immersion.toFun x
+        (immersion.orthogonalSplitting.tangentProjection x
+          (immersion.orthogonalSplitting.normalProjection x ambient)) =
+    immersion.orthogonalSplitting.normalProjection x ambient
+  rw [immersion.tangentProjection_normalProjection, map_zero, sub_zero]
+
+end IsometricSplitting
 
 end
 
