@@ -96,8 +96,8 @@ theorem mlieBracket_eq_mfderiv_mlieBracket_of_related
     (hV : MDiffAt (T% V) x) (hW : MDiffAt (T% W) x)
     (hVbar : MDiffAt (T% Vbar) (f x))
     (hWbar : MDiffAt (T% Wbar) (f x))
-    (relatedV : ∀ y, Vbar (f y) = mfderiv I I' f y (V y))
-    (relatedW : ∀ y, Wbar (f y) = mfderiv I I' f y (W y)) :
+    (relatedV : ∀ᶠ y in 𝓝 x, Vbar (f y) = mfderiv I I' f y (V y))
+    (relatedW : ∀ᶠ y in 𝓝 x, Wbar (f y) = mfderiv I I' f y (W y)) :
     VectorField.mlieBracket I' Vbar Wbar (f x) =
       mfderiv I I' f x (VectorField.mlieBracket I V W x) := by
   let sourceChart := extChartAt I x
@@ -152,7 +152,7 @@ theorem mlieBracket_eq_mfderiv_mlieBracket_of_related
   have relatedCoordinate
       (Y : (y : M) → TangentSpace I y)
       (Ybar : (z : N) → TangentSpace I' z)
-      (related : ∀ y, Ybar (f y) = mfderiv I I' f y (Y y)) :
+      (related : ∀ᶠ y in 𝓝 x, Ybar (f y) = mfderiv I I' f y (Y y)) :
       (VectorField.mpullbackWithin 𝓘(ℝ, F) I' targetChart.symm Ybar Set.univ) ∘
           coordinateMap =ᶠ[𝓝 (sourceChart x)]
         fun z ↦ fderiv ℝ coordinateMap z
@@ -166,12 +166,23 @@ theorem mlieBracket_eq_mfderiv_mlieBracket_of_related
       exact hsymm.continuousAt
     have fSourceSymmContinuous : ContinuousAt (f ∘ sourceChart.symm) (sourceChart x) :=
       (hf.contMDiffAt.continuousAt.comp sourceSymmContinuous)
+    have sourceSymmTendsto : Tendsto sourceChart.symm (𝓝 (sourceChart x)) (𝓝 x) := by
+      have hvalue : sourceChart.symm (sourceChart x) = x :=
+        sourceChart.left_inv (mem_extChartAt_source x)
+      change Tendsto sourceChart.symm (𝓝 (sourceChart x))
+        (𝓝 (sourceChart.symm (sourceChart x))) at sourceSymmContinuous
+      rw [hvalue] at sourceSymmContinuous
+      exact sourceSymmContinuous
+    have relatedSource : ∀ᶠ z in 𝓝 (sourceChart x),
+        Ybar (f (sourceChart.symm z)) =
+          mfderiv I I' f (sourceChart.symm z) (Y (sourceChart.symm z)) := by
+      exact sourceSymmTendsto related
     have targetSourceEventually :
         (f ∘ sourceChart.symm) ⁻¹' targetChart.source ∈ 𝓝 (sourceChart x) := by
       apply fSourceSymmContinuous.preimage_mem_nhds
       simpa [sourceChart, targetChart] using extChartAt_source_mem_nhds (I := I') (f x)
     filter_upwards [extChartAt_target_mem_nhds (I := I) x,
-      targetSourceEventually] with z hz htarget
+      targetSourceEventually, relatedSource] with z hz htarget hrelated
     have hy : sourceChart.symm z ∈ sourceChart.source :=
       sourceChart.map_target hz
     have hfy : f (sourceChart.symm z) ∈ targetChart.source := htarget
@@ -240,7 +251,7 @@ theorem mlieBracket_eq_mfderiv_mlieBracket_of_related
         rw [targetChart.left_inv hfy]
       _ = mfderiv I' 𝓘(ℝ, F) targetChart (f (sourceChart.symm z))
           (mfderiv I I' f (sourceChart.symm z) (Y (sourceChart.symm z))) := by
-        rw [related]
+        rw [hrelated]
       _ = _ := coordinateDerivative.symm
   have relatedCoordinateV :
       targetV ∘ coordinateMap =ᶠ[𝓝 (sourceChart x)]

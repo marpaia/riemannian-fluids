@@ -82,7 +82,7 @@
         "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasGaussEquationRelativeTo",
         "RiemannianFluids.inducedLeviCivitaSubmanifoldPointwiseGaussDataAt_hasEuclideanGaussEquation"
       ],
-      "limitation": "Lean now differentiates the constructed Gauss splitting, identifies the resulting Weingarten terms with the Riesz shape operators, and proves vector, scalar, and flat-ambient Euclidean Gauss for the same actual-fiber immersion package under an explicit differentiated-extension regularity contract. The paper-facing codimension-two Ricci theorem consumes actual Fin 2 tangent and normal frames and no longer assumes a Gauss identity. The remaining exact-source gate is to realize the regularity contract and ambient flatness from a smooth tubular extension in the concrete Euclidean ambient model."
+      "limitation": "Lean differentiates the constructed Gauss splitting, identifies the resulting Weingarten terms with the Riesz shape operators, and proves vector, scalar, and flat-ambient Euclidean Gauss for the same actual-fiber immersion package under an explicit differentiated-extension regularity contract. Separately, Mathlib immersion normal forms now construct germ-local smooth extensions and chart-independent first projected derivatives. The remaining exact-source gate is to migrate differentiated Gauss to that local package and construct ambient flatness in the concrete Euclidean model."
     },
     {
       "id": "CCG25-bochner-laplacian-gauss-general-codimension",
@@ -113,7 +113,7 @@
         "RiemannianFluids.SmoothSubmanifoldLaplacianSourceDataAt.meanNormalField_derivative",
         "RiemannianFluids.SmoothSubmanifoldLaplacianSourceDataAt.toFieldJetData"
       ],
-      "limitation": "Lean proves equations (1.5)--(1.6) on actual tangent, kernel-normal, and ambient tangent fibers for one C2 source tangent field. From pointwise orthonormal bases it explicitly constructs a C2 geodesic tangent frame, then proves both Hessian traces and constructs the mean-curvature field and its first normal derivative; none of those identities is a paper-facing premise. Exact source reproduction still requires constructing the compatible smooth ambient extension operator and its regularity-preservation contract from the source's local-neighborhood geometry."
+      "limitation": "Lean proves equations (1.5)--(1.6) on actual tangent, kernel-normal, and ambient tangent fibers for one C2 source tangent field. From pointwise orthonormal bases it constructs a C2 geodesic frame, both Hessian traces, the mean-curvature field, and its first normal derivative. Compatible germ-local ambient extensions and their C2 regularity preservation are now constructed from immersion normal-form charts; exact source reproduction still requires routing the second-order curvature, mean-curvature, and Hessian engine through that local interface."
     },
     {
       "id": "CCG25-hodge-laplacian-gauss-general-codimension",
@@ -141,7 +141,7 @@
         "RiemannianFluids.SmoothSubmanifoldLaplacianSourceDataAt.meanNormalField_derivative",
         "RiemannianFluids.SmoothSubmanifoldLaplacianSourceDataAt.toFieldJetData"
       ],
-      "limitation": "Lean assembles one actual-fiber Ricci/Hodge jet, proves scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas, and identifies both values with independently constructed Hodge Laplacians. The geodesic frame, tangent-Hessian trace, Ricci symmetry, and mean-curvature first jet are all constructed internally from an ordinary C2 field and pointwise bases. Exact source reproduction still requires the same smooth local ambient-extension realization as the Bochner node."
+      "limitation": "Lean assembles one actual-fiber Ricci/Hodge jet, proves scalar Gauss, adapted ambient Ricci trace splitting, contracted Codazzi, bracket-Weingarten, and both Corollary 1.20 formulas, and identifies both values with independently constructed Hodge Laplacians. The geodesic frame, tangent-Hessian trace, Ricci symmetry, and mean-curvature first jet are constructed internally. The local extension realization now exists; exact source reproduction still requires the same second-order germ-local adapter as the Bochner node."
     },
     {
       "id": "CCF25-four-candidates-sphere",

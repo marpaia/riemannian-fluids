@@ -198,8 +198,10 @@ theorem hasBracketCompatibility
     smoothFirst smoothSecond
     (extensions.tangentExtension_mdifferentiableAt smoothFirst)
     (extensions.tangentExtension_mdifferentiableAt smoothSecond)
-    (extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees first)
-    (extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees second)
+    (Filter.Eventually.of_forall
+      (extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees first))
+    (Filter.Eventually.of_forall
+      (extensions.toSubmanifoldFieldExtensionData.tangentExtension_agrees second))
 
 /-- The tangential projection consequence of full bracket compatibility. -/
 def HasTangentBracketCompatibility : Prop :=

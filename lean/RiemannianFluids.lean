@@ -51,6 +51,8 @@ import RiemannianFluids.Geometry.Instances.HyperbolicPlane
 import RiemannianFluids.Geometry.Instances.HyperbolicPlaneCensus
 import RiemannianFluids.Geometry.Instances.HyperbolicPlaneMeasure
 import RiemannianFluids.Geometry.LeviCivitaCurvature
+import RiemannianFluids.Geometry.LocalSubmanifoldExtensions
+import RiemannianFluids.Geometry.LocalSubmanifoldConnection
 import RiemannianFluids.Geometry.Manifolds
 import RiemannianFluids.Geometry.Musical
 import RiemannianFluids.Geometry.RelatedVectorFields

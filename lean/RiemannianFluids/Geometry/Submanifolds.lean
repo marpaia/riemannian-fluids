@@ -1,4 +1,5 @@
 import Mathlib.Geometry.Manifold.Riemannian.Basic
+import Mathlib.Geometry.Manifold.Immersion
 import Mathlib.Analysis.InnerProductSpace.Adjoint
 import RiemannianFluids.Geometry.Manifolds
 
@@ -54,6 +55,17 @@ structure SmoothIsometricImmersionData
     inner ℝ (mfderiv I I' toFun x first) (mfderiv I I' toFun x second) =
       inner ℝ first second
 
+/-- An embedded isometric submanifold in the sense needed for local differential geometry:
+the map is injective and Mathlib supplies an immersion normal form at every source point.  The
+normal-form field is recorded explicitly because Mathlib does not yet derive it from injectivity
+of `mfderiv`, even in the finite-dimensional case. -/
+structure SmoothIsometricEmbeddingData
+    [RiemannianBundle (fun x : M => TangentSpace I x)]
+    [RiemannianBundle (fun x : N => TangentSpace I' x)]
+    extends SmoothIsometricImmersionData (I := I) (I' := I') (M := M) (N := N) where
+  injective : Function.Injective toFun
+  isImmersionAt : ∀ x, Manifold.IsImmersionAt I I' ∞ toFun x
+
 namespace SmoothIsometricImmersionData
 
 variable
@@ -82,6 +94,29 @@ theorem toSmoothImmersionData_toFun
   rfl
 
 end SmoothIsometricImmersionData
+
+namespace SmoothIsometricEmbeddingData
+
+variable
+  [RiemannianBundle (fun x : M => TangentSpace I x)]
+  [RiemannianBundle (fun x : N => TangentSpace I' x)]
+
+/-- Forget both embeddedness and metric preservation. -/
+abbrev toSmoothImmersionData
+    (embedding : SmoothIsometricEmbeddingData
+      (I := I) (I' := I') (M := M) (N := N)) :
+    SmoothImmersionData (I := I) (I' := I') (M := M) (N := N) :=
+  embedding.toSmoothIsometricImmersionData.toSmoothImmersionData
+
+omit [IsManifold I 1 M] [IsManifold I' 1 N] in
+@[simp]
+theorem toSmoothImmersionData_toFun
+    (embedding : SmoothIsometricEmbeddingData
+      (I := I) (I' := I') (M := M) (N := N)) :
+    embedding.toSmoothImmersionData.toFun = embedding.toFun :=
+  rfl
+
+end SmoothIsometricEmbeddingData
 
 /-- A section of the ambient tangent bundle pulled back along an immersion. -/
 abbrev AmbientVectorFieldAlong
